@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <epace translate="title" module="epace">
+                                        <title>Epace</title>
+                                    </epace>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <epace translate="title">
+                        <title>Epace</title>
+                        <sort_order>90</sort_order>
+                    </epace>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+    <menu>
+        <epace translate="title">
+            <title>Epace</title>
+            <sort_order>90</sort_order>
+            <action>epace/index</action>
+        </epace>
+    </menu>
+</config>

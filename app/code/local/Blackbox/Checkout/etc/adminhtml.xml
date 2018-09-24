@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config>
+     <acl>
+        <resources>
+            <admin>
+                <children>
+                    <sales>
+                        <children>
+                            <order>
+                                <children>
+                                    <actions>
+                                        <children>
+                                            <process_preorder translate="title"><title>Process Pre-Order</title></process_preorder>
+                                        </children>
+                                    </actions>
+                                </children>
+                            </order>
+                        </children>
+                    </sales>
+                </children>
+            </admin>
+        </resources>
+     </acl>
+</config>

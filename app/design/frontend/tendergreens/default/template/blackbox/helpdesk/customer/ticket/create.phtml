@@ -1,0 +1,94 @@
+<?php
+/* @var Blackbox_HelpDesk_Block_Customer_Ticket_Create $this */
+?>
+<?php $ticket = $this->getTicket(); ?>
+<section class="support-ticket">
+    <div class="support-ticket-inner main-container">
+        <div class="breadcrumbs top-text">
+            <ul>
+                <li class="home">
+                    <a href="<?php echo $this->getBaseUrl(); ?>" title="Go to Home Page"><p>Home</p></a>
+                    <div class="red_dot"></div>
+                </li>
+                <li class="contacts">
+                    <p>Support</p>
+                </li>
+            </ul>
+        </div>
+        <div class="page-title">
+            <h2>Support Ticket</h2>
+        </div>
+        <?php echo $this->getMessagesBlock()->toHtml() ?>
+        <form action="<?php echo $this->getUrl('*/*/createPost') ?>" id="supportForm" method="post" class="scaffold-form">
+            <div class="fieldset">
+                <p class="required"><?php echo Mage::helper('contacts')->__('* Required Fields') ?></p>
+                <ul class="form-list">
+                    <li class="fields">
+                        <div class="field">
+                            <label for="name" class="required">Please Select Request Type</label>
+                            <div class="input-box select-box">
+                                <?php echo $this->getTypeSelectHtml() ?>
+                                <i class="fas fa-chevron-down "></i>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="fields">
+                        <div class="field">
+                            <label for="name" class="required">Please Select Request Category</label>
+                            <div class="input-box select-box">
+                                <?php echo $this->getCategorySelectHtml() ?>
+                                <i class="fas fa-chevron-down "></i>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="fields">
+                        <div class="field">
+                            <label for="title" class="required"><?php echo Mage::helper('contacts')->__('Subject') ?></label>
+                            <div class="input-box">
+                                <input name="ticket[subject]" id="subject" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('contacts')->__('Subject')) ?>" value="<?php echo $this->escapeHtml($ticket->getSubject()) ?>" class="input-text required-entry" type="text" />
+                            </div>
+                        </div>
+                    </li>
+                    <li class="fields">
+                        <div class="field">
+                            <label for="name" class="required"><?php echo Mage::helper('contacts')->__('Name') ?></label>
+                            <div class="input-box">
+                                <input name="ticket[name]" id="name" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('contacts')->__('Name')) ?>" value="<?php echo $this->escapeHtml($ticket->getName()) ?>" class="input-text required-entry" type="text" />
+                            </div>
+                        </div>
+                    </li>
+                    <li class="phone-number">
+                        <label for="telephone"><?php echo Mage::helper('contacts')->__('Phone Number') ?></label>
+                        <div class="input-box">
+                            <input name="ticket[telephone]" id="telephone" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('contacts')->__('Phone Number')) ?>" value="<?php echo $this->escapeHtml($ticket->getTelephone()) ?>" class="input-text" type="tel" />
+                        </div>
+                    </li>
+                    <li class="email">
+                        <div class="field">
+                            <label for="email" class="required"><?php echo Mage::helper('contacts')->__('Email') ?></label>
+                            <div class="input-box">
+                                <input name="ticket[email]" id="email" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('contacts')->__('Email')) ?>" value="<?php echo $this->escapeHtml($ticket->getEmail()) ?>" class="input-text required-entry validate-email" type="email" autocapitalize="off" autocorrect="off" spellcheck="false" />
+                            </div>
+                        </div>
+                    </li>
+                    <li class="wide comment-text">
+                        <label for="comment" class="required"><?php echo Mage::helper('contacts')->__('Brief Decsription') ?></label>
+                        <div class="input-box">
+                            <textarea name="ticket[text]" id="comment" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('contacts')->__('Brief Decsription')) ?>" class="required-entry input-text" cols="5" rows="3"><?php echo $ticket->getText() ?></textarea>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="buttons-set">
+                <input type="text" name="hideit" id="hideit" value="" style="display:none !important;" />
+                <button type="submit" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('contacts')->__('Send')) ?>" class="button"><span><span><?php echo Mage::helper('contacts')->__('Send') ?></span></span></button>
+            </div>
+        </form>
+        <script type="text/javascript">
+            //<![CDATA[
+            var dataForm = new VarienForm('form-validate', true);
+            //]]>
+        </script>
+    </div>
+</section>
+

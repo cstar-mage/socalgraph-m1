@@ -1,0 +1,9 @@
+<?php /* @var Blackbox_Epace_Block_Adminhtml_System_Config_Form_Button $this */ ?>
+<?php echo $this->getButtonHtml() ?>
+<script type="text/javascript">
+    function testConnection() {
+        var in1 = encodeURIComponent(document.getElementById('epace_test_requests_in1').value);
+        var in2 = encodeURIComponent(document.getElementById('epace_test_requests_in2').value);
+        setLocation('<?=$this->getUrl('epace/index/testConnection', array('_current'=>true))?>' + '?in1=' + in1 + '&in2=' + in2);
+    }
+</script>

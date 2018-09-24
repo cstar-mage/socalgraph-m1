@@ -1,0 +1,27 @@
+<?php
+/* @var Blackbox_HelpDesk_Block_Customer_Ticket_Comment $this */
+$comment = $this->getComment();
+?>
+<div class="comment<?=$comment->getCustomerId() == Mage::getSingleton('customer/session')->getCustomerId() ? ' my-comment' : ''?>">
+    <div class="comment-head">
+        <div class="poster-name"><?php echo $this->getPosterName() ?></div>
+    </div>
+    <div class="comment-body">
+        <div class="body-top">
+            <div class="comment-number">#<?php echo $comment->getNumber() ?></div>
+        </div>
+        <div class="comment-text"><?php echo $comment->getHtmlBody() ?></div>
+        <?php if ($comment->getFiles()->count() > 0): ?>
+            <div class="comment-files">
+                <span class="comment-files-title">Attached files:</span>
+                <ul>
+                    <?php foreach ($comment->getFiles() as $file): ?>
+                        <li>
+                            <?php echo $this->getFileHtml($file); ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>

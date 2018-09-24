@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Registration>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Mage_Customer />
+                <Blackbox_Notification />
+            </depends>
+        </Blackbox_Registration>
+    </modules>
+</config>

@@ -1,0 +1,35 @@
+<?php /* @var Blackbox_Checkout_Block_Checkout_Onepage_Shipping $this */ ?>
+<?php $many = count($this->getQuote()->getAllShippingAddresses()) > 1 ?>
+<div class="co-shipping<?php echo $this->getAddress()->getStorelocatorId() || $this->getAddress()->getCustomerAddressId() ? ' saved' : '' ?>" data-id="<?=$this->getShippingId()?>">
+    <form id="co-shipping-form-<?=$this->getShippingId()?>" class="shipping-address-item co-shipping-form">
+        <input class="storelocator-id" name="shipping[<?=$this->getShippingId()?>][storelocator_id]" type="hidden" value="<?php echo $this->getAddress()->getStorelocatorId()?>">
+        <input class="customer-address-id" name="shipping[<?=$this->getShippingId()?>][customer_address_id]" type="hidden" value="<?php echo $this->getAddress()->getCustomerAddressId()?>">
+        <input class="address-id" name="shipping[<?=$this->getShippingId()?>][address_id]" type="hidden" value="<?php echo $this->getAddress()->getId()?>">
+        <div class="text"><?php echo Mage::helper('blackbox_checkout')->formatAddressItem($this->getAddress()) ?></div>
+        <div class="change" onclick="shipping.changeAddress(this)"><?php echo $this->__('Change Address') ?></div>
+        <div class="remove <?=$many ? '' : 'hide'?>" onclick="shipping.removeAddress(event)"><?php echo $this->__('Remove') ?></div>
+        <div class="event-day-container" style="width:400px">
+            <div class="event-day">
+                <input type="hidden" id="shipping<?=$this->getShippingId()?>-date-advanced" name="shipping[<?=$this->getShippingId()?>][date_advanced_enable]" value="1">
+                <p>Event Day</p>
+                <div class="order-day">
+                    <input type="hidden" id="shipping<?=$this->getShippingId()?>-datepicker-1" name="shipping[<?=$this->getShippingId()?>][date_advanced][event_date]" class="datepicker">
+                    <img src="<?php echo $this->getSkinUrl('images/calendar.png'); ?>" alt="">
+                    <input type="number" class="day" value="<?php echo date('d') ?>">
+                    <input type="number" class="month" value="<?php echo date('m') ?>">
+                    <input type="number" class="year" value="<?php echo date('Y') ?>">
+                </div>
+                <p>Shipping Day</p>
+                <div class="delivery-day">
+                    <input type="hidden" id="shipping<?=$this->getShippingId()?>-datepicker-2" name="shipping[<?=$this->getShippingId()?>][date_advanced][shipping_date]" class="datepicker">
+                    <img src="<?php echo $this->getSkinUrl('images/delivery.png'); ?>" alt="">
+                    <input type="number" class="day" value="<?php echo date('d') ?>">
+                    <input type="number" class="month" value="<?php echo date('m') ?>">
+                    <input type="number" class="year" value="<?php echo date('Y') ?>">
+                </div>
+            </div>
+        </div>
+        <?php echo $this->getBlockHtml('formkey'); ?>
+        <?php echo $this->getChildHtml('products', false); ?>
+    </form>
+</div>

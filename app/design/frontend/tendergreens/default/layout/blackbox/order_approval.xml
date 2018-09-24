@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <customer_account>
+        <reference name="customer_account_navigation">
+            <!--<action method="addLink">-->
+                <!--<name>order_disapprovals</name>-->
+                <!--<path>orderapproval/customer_disapproval</path>-->
+                <!--<label>My Disapproved Orders</label>-->
+            <!--</action>-->
+            <!--<action method="addLink">-->
+                <!--<name>orders_waiting_approval</name>-->
+                <!--<path>orderapproval/customer_order_waitingApprove</path>-->
+                <!--<label>Requests For Approval</label>-->
+            <!--</action>-->
+            <!--<action method="addLink">-->
+                <!--<name>orders_waiting_response</name>-->
+                <!--<path>orderapproval/customer_order_waiting/list</path>-->
+                <!--<label>My orders waiting response</label>-->
+            <!--</action>-->
+        </reference>
+    </customer_account>
+
+    <order_approval_customer_disapproval_index>
+        <update handle="customer_account"/>
+        <reference name="my.account.wrapper">
+            <block type="order_approval/customer_disapprovals_list" name="order_disapprovals" template="blackbox/orderapproval/customer/disapprovals/list.phtml"/>
+        </reference>
+    </order_approval_customer_disapproval_index>
+
+    <order_approval_customer_disapproval_view>
+        <update handle="customer_account"/>
+        <reference name="my.account.wrapper">
+            <block type="order_approval/customer_disapproval_view" name="disapproval.view" template="blackbox/orderapproval/customer/disapproval/view.phtml">
+                <block type="order_approval/customer_disapproval_order_info" as="info" name="disapproval.order.info">
+                    <block type="order_approval/customer_disapproval_order_info_buttons" as="buttons" name="disapproval.order.info.buttons" />
+                </block>
+                <block type="order_approval/customer_disapproval_order_view" name="disapproval.order.view">
+                    <block type="order_approval/customer_disapproval_order_items" name="order_items" template="sales/order/items.phtml">
+                        <action method="addItemRender"><type>default</type><block>sales/order_item_renderer_default</block><template>blackbox/orderapproval/customer/disapproval/order/items/renderer/default.phtml</template></action>
+                        <action method="addItemRender"><type>grouped</type><block>sales/order_item_renderer_grouped</block><template>blackbox/orderapproval/customer/disapproval/order/items/renderer/default.phtml</template></action>
+                        <action method="addItemRender"><type>downloadable</type><block>downloadable/sales_order_item_renderer_downloadable</block><template>blackbox/orderapproval/customer/disapproval/order/items/renderer/downloadable.phtml</template></action>
+                        <action method="addItemRender"><type>bundle</type><block>bundle/sales_order_items_renderer</block><template>blackbox/orderapproval/customer/disapproval/order/items/bundle.phtml</template></action>
+                        <!--<action method="addItemRender"><type>tradeshow</type><block>tradeshow/sales_order_item_renderer_default</block><template>blackbox/orderapproval/customer/disapproval/order/items/renderer/tradeshow.phtml</template></action>-->
+                        <block type="sales/order_totals" name="order_totals" template="sales/order/totals.phtml">
+                            <action method="setLabelProperties"><value>colspan="4" class="a-right"</value></action>
+                            <action method="setValueProperties"><value>class="last a-right"</value></action>
+                            <block type="tax/sales_order_tax" name="tax" template="tax/order/tax.phtml" />
+                        </block>
+                    </block>
+                </block>
+            </block>
+        </reference>
+    </order_approval_customer_disapproval_view>
+
+    <order_approval_customer_order_waiting_list translate="label">
+        <label>Customer My Account Orders Waiting Response</label>
+        <update handle="customer_account"/>
+        <reference name="my.account.wrapper">
+            <block type="order_approval/customer_order_waiting_list" name="sales.order.waiting.list">
+                <block type="core/text_list" name="sales.order.history.info" as="info" translate="label">
+                    <label>Order History Info</label>
+                </block>
+            </block>
+            <!--<block type="customer/account_dashboard" name="customer.account.link.back" template="customer/account/link/back.phtml"/>-->
+        </reference>
+    </order_approval_customer_order_waiting_list>
+
+    <order_approval_customer_order_waiting_view translate="label">
+        <label>Customer My Account Order View</label>
+        <update handle="customer_account"/>
+        <reference name="my.account.wrapper">
+            <block type="sales/order_info" as="info" name="sales.order.info">
+                <block type="sales/order_info_buttons" as="buttons" name="sales.order.info.buttons" />
+            </block>
+            <block type="sales/order_view" name="sales.order.view" template="blackbox/orderapproval/customer/order/waiting/view.phtml">
+                <block type="sales/order_items" name="order_items" template="sales/order/items.phtml">
+                    <action method="addItemRender"><type>default</type><block>sales/order_item_renderer_default</block><template>sales/order/items/renderer/default.phtml</template></action>
+                    <action method="addItemRender"><type>grouped</type><block>sales/order_item_renderer_grouped</block><template>sales/order/items/renderer/default.phtml</template></action>
+                    <block type="sales/order_totals" name="order_totals" template="sales/order/totals.phtml">
+                        <action method="setLabelProperties"><value>colspan="4" class="a-right"</value></action>
+                        <action method="setValueProperties"><value>class="last a-right"</value></action>
+                        <block type="tax/sales_order_tax" name="tax" template="tax/order/tax.phtml" />
+                    </block>
+                </block>
+            </block>
+        </reference>
+        <reference name="sales.order.info">
+            <action method="addLink" translate="label" module="sales"><name>view</name><path></path><label>Order Information</label></action>
+            <action method="addLink" translate="label" module="sales"><name>invoice</name><path>*/*/invoice</path><label>Invoices</label></action>
+            <action method="addLink" translate="label" module="sales"><name>shipment</name><path>*/*/shipment</path><label>Shipments</label></action>
+            <action method="addLink" translate="label" module="sales"><name>creditmemo</name><path>*/*/creditmemo</path><label>Refunds</label></action>
+        </reference>
+        <block type="core/text_list" name="additional.product.info" translate="label">
+            <label>Additional Product Info</label>
+        </block>
+    </order_approval_customer_order_waiting_view>
+
+    <order_approval_customer_order_waiting_invoice translate="label">
+        <update handle="sales_order_invoice" />
+    </order_approval_customer_order_waiting_invoice>
+
+    <order_approval_customer_order_waiting_shipment translate="label">
+        <update handle="sales_order_shipment" />
+    </order_approval_customer_order_waiting_shipment>
+
+    <order_approval_customer_order_waiting_creditmemo translate="label">
+        <update handle="sales_order_creditmemo" />
+    </order_approval_customer_order_waiting_creditmemo>
+
+    <order_approval_customer_order_waitingapprove_history translate="label">
+        <label>Customer My Account Requests For Approval</label>
+        <update handle="customer_account"/>
+        <reference name="my.account.wrapper">
+            <block type="order_approval/customer_order_waiting_approval_history" name="sales.order.waiting.approval.history">
+                <block type="core/text_list" name="sales.order.history.info" as="info" translate="label">
+                    <label>Order History Info</label>
+                </block>
+            </block>
+            <!--<block type="customer/account_dashboard" name="customer.account.link.back" template="customer/account/link/back.phtml"/>-->
+        </reference>
+    </order_approval_customer_order_waitingapprove_history>
+
+    <order_approval_customer_order_waitingapprove_view translate="label">
+        <update handle="sales_order_view"/>
+    </order_approval_customer_order_waitingapprove_view>
+
+    <checkout_cart_index>
+        <reference name="root">
+            <block type="order_approval/checkout_cart_message" name="checkout.cart.message"/>
+        </reference>
+    </checkout_cart_index>
+</layout>

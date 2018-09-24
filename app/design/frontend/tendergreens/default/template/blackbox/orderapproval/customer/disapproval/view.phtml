@@ -1,0 +1,34 @@
+<?php
+/* @var Blackbox_OrderApproval_Block_Customer_Disapproval_View $this */
+?>
+<div class="page-title">
+    <h1><?php echo $this->__('View Disapproved Order') ?></h1>
+</div>
+<div class="disapproval-comment">
+    <label for="disapproval-comment"><?php echo $this->__('Disapproval Comment') ?></label>
+    <div class="input-box">
+        <textarea id="disapproval-comment" title="<?php echo $this->__('Disapproval Comment') ?>" cols="5" rows="3" readonly><?php echo $this->getDisapproval()->getComment() ?></textarea>
+    </div>
+</div>
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<form action="<?php echo $this->getUrl('order_approval/customer_disapproval/reapprove', array('disapproval_id' => $this->getDisapproval()->getId())) ?>" method="post" autocomplete="off" id="form-validate" class="scaffold-form" enctype="multipart/form-data">
+    <?php echo $this->getBlockHtml('formkey')?>
+    <?php echo $this->getChildHtml('', true, true) ?>
+    <div>
+        <div class="comment">
+            <label for="comment"><?php echo $this->__('Comment') ?></label>
+            <div class="input-box">
+                <textarea id="comment" name="comment" title="<?php echo $this->__('Comment') ?>" cols="5" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="buttons-set">
+        <p class="back-link"><a href="<?php echo $this->escapeUrl($this->getBackUrl()) ?>"><small>&laquo; </small><?php echo $this->__('Back') ?></a></p>
+        <button type="submit" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Send To Reapprove')) ?>" class="button"><span><span><?php echo $this->__('Send To Reapprove') ?></span></span></button>
+    </div>
+</form>
+<script type="text/javascript">
+    //<![CDATA[
+    var dataForm = new VarienForm('form-validate', true);
+    //]]>
+</script>

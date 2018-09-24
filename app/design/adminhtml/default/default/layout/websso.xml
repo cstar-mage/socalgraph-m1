@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<layout>
+    <adminhtml_index_login>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="adminhtml/template" name="content" template="websso/login.phtml">
+                <block type="core/text_list" name="form.additional.info" />
+            </block>
+        </block>
+    </adminhtml_index_login>
+
+    <websso_adminhtml_idp_index>
+        <reference name="content">
+            <block type="websso/adminhtml_idp" name="websso.idp" />
+        </reference>
+    </websso_adminhtml_idp_index>
+
+    <websso_adminhtml_idp_create>
+        <reference name="head">
+            <action method="addJs"><script>websso/mappings.js</script></action>
+        </reference>
+    </websso_adminhtml_idp_create>
+
+    <websso_adminhtml_idp_edit>
+        <reference name="head">
+            <action method="addJs"><script>websso/mappings.js</script></action>
+        </reference>
+    </websso_adminhtml_idp_edit>
+</layout>

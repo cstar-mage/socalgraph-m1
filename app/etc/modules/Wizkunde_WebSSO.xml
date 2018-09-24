@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Wizkunde_WebSSO>
+            <active>true</active>
+            <codePool>community</codePool>
+            <version>3.7.4</version>
+        </Wizkunde_WebSSO>
+    </modules>
+</config>

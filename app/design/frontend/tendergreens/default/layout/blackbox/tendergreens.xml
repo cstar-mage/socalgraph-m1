@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <default>
+        <reference name="head">
+            <action method="addJs"><script>blackbox/popupNotification.js</script></action>
+            <action method="addJs"><script>blackbox/ajaxcart.js</script></action>
+        </reference>
+    </default>
+
+    <sales_order_history>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/moment.min.js</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/daterangepicker.js</name></action>
+            <action method="addItem"><type>skin_css</type><name>css/daterangepicker.css</name></action>
+        </reference>
+    </sales_order_history>
+
+    <customer_account_index>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/moment.min.js</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/daterangepicker.js</name></action>
+            <action method="addItem"><type>skin_css</type><name>css/daterangepicker.css</name></action>
+        </reference>
+    </customer_account_index>
+
+    <sales_order_tracking>
+        <reference name="content">
+            <block type="tendergreens/tracking" name="sales.order.tracking" template="blackbox/tendergreens/sales/order/tracking.phtml">
+                <block type="tendergreens/sales_tracking_progress" name="sales.order.tracking.progress" as="progress" template="blackbox/tendergreens/sales/order/tracking/progress.phtml"/>
+                <block type="tendergreens/sales_tracking_progress" name="sales.order.tracking.progress.mobile" as="progress.mobile" template="blackbox/tendergreens/sales/order/tracking/progress_mobile.phtml"/>
+            </block>
+        </reference>
+    </sales_order_tracking>
+</layout>

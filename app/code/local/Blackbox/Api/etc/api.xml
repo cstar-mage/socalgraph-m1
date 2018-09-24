@@ -1,0 +1,26 @@
+<config>
+    <api>
+        <resources>
+            <sales_order>
+                <methods>
+                    <create translate="title" module="sales">
+                        <title>Create order</title>
+                        <method>create</method>
+                        <acl>sales/order/create</acl>
+                    </create>
+                </methods>
+            </sales_order>
+        </resources>
+        <acl>
+            <resources>
+                <sales>
+                    <order>
+                        <create translate="title" module="sales">
+                            <title>Create order</title>
+                        </create>
+                    </order>
+                </sales>
+            </resources>
+        </acl>
+    </api>
+</config>

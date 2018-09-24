@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_SummarInvoice>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Mage_Reports />
+            </depends>
+        </Blackbox_SummarInvoice>
+    </modules>
+</config>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <checkout_onepage_index>
+        <reference name="head">
+            <!--<action method="addItem"><type>skin_js</type><name>js/blackbox/addressbook/autocomplete.js</name></action>-->
+            <!--<action method="addItem"><type>skin_css</type><name>css/blackbox/addressbook/autocomplete.css</name></action>-->
+            <action method="addJs"><script>blackbox/addressbook.js</script></action>
+            <action method="addItem"><type>skin_css</type><name>css/blackbox/checkout.css</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/event.simulate.js</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/jquery-ui.min.js</name></action>
+            <action method="addItem"><type>skin_css</type><name>css/jquery-ui.min.css</name></action>
+        </reference>
+
+        <reference name="root">
+            <block type="blackbox_checkout/address_modal" name="addressbook.modal" as="addressbook.modal" output="toHtml">
+                <block type="blackbox_checkout/address_grid" name="addressbook.grid" as="grid"/>
+            </block>
+        </reference>
+
+        <reference name="checkout.onepage.billing">
+            <action method="setTemplate"><template>blackbox/checkout/onepage/billing.phtml</template></action>
+        </reference>
+
+        <reference name="checkout.onepage.shipping">
+            <action method="setTemplate"><template>blackbox/checkout/onepage/shipping.phtml</template></action>
+            <block type="blackbox_checkout/checkout_onepage_shipping" name="checkout.onepage.shipping.form" as="form" template="blackbox/checkout/onepage/shipping/form.phtml">
+                <block type="blackbox_checkout/checkout_onepage_shipping_products" name="checkout.onepage.shipping.form.products" as="products" template="blackbox/checkout/onepage/shipping/products.phtml"/>
+            </block>
+        </reference>
+
+        <reference name="checkout/onepage_shipping_method">
+            <action method="setTemplate"><template>blackbox/checkout/onepage/shipping_method.phtml</template></action>
+        </reference>
+    </checkout_onepage_index>
+
+    <checkout_onepage_addresshtml>
+        <block type="blackbox_checkout/checkout_onepage_shipping" name="checkout.onepage.shipping.form" as="form" template="blackbox/checkout/onepage/shipping/form.phtml">
+            <block type="blackbox_checkout/checkout_onepage_shipping_products" name="checkout.onepage.shipping.form.products" as="products" template="blackbox/checkout/onepage/shipping/products.phtml"/>
+        </block>
+    </checkout_onepage_addresshtml>
+
+    <catalog_product_view>
+        <reference name="head">
+            <action method="addJs"><script>blackbox/addressbook.js</script></action>
+            <action method="addItem"><type>skin_js</type><script>js/blackbox/checkout/productShipping.js</script></action>
+            <action method="addItem"><type>skin_css</type><name>css/blackbox/checkout.css</name></action>
+        </reference>
+
+        <reference name="root">
+            <block type="blackbox_checkout/address_modal" name="addressbook.modal" as="addressbook.modal" output="toHtml">
+                <action method="setMultiple"><value>1</value></action>
+                <block type="blackbox_checkout/address_grid" name="addressbook.grid" as="grid">
+                    <action method="setUrl"><url>checkout/cart/searchAddressGrid</url></action>
+                </block>
+            </block>
+        </reference>
+    </catalog_product_view>
+
+    <checkout_cart_catalogproductaddress>
+        <block type="blackbox_checkout/checkout_onepage_shipping" name="product.info.shipping.form" as="form" template="blackbox/catalog/product/shipping/form.phtml" />
+    </checkout_cart_catalogproductaddress>
+
+    <checkout_onepage_shippingmethod>
+        <reference name="root">
+            <action method="setTemplate"><template>blackbox/checkout/onepage/shipping_method/available.phtml</template></action>
+        </reference>
+    </checkout_onepage_shippingmethod>
+</layout>

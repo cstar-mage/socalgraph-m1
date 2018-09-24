@@ -1,0 +1,313 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Cmsmart_Onlinedesign>
+            <version>2.0.1</version>
+        </Cmsmart_Onlinedesign>
+    </modules>
+    <frontend>
+        <routers>
+            <onlinedesign>
+                <use>standard</use>
+                <args>
+                    <module>Cmsmart_Onlinedesign</module>
+                    <frontName>onlinedesign</frontName>
+                </args>
+            </onlinedesign>
+        </routers>
+        <layout>
+            <updates>
+                <onlinedesign>
+                    <file>onlinedesign.xml</file>
+                </onlinedesign>
+            </updates>
+        </layout>
+    </frontend>
+    <admin>
+        <routers>
+			<adminhtml>
+				<args>
+					<modules>
+						<Cmsmart_Onlinedesign>Cmsmart_Onlinedesign_Adminhtml</Cmsmart_Onlinedesign>
+					</modules>
+				</args>
+			</adminhtml>
+        </routers>
+    </admin>
+    <adminhtml>
+		<menu>
+			<onlinedesign module="onlinedesign">
+				<title>Onlinedesign</title>
+				<sort_order>71</sort_order>               
+				<children>
+					<orders module="onlinedesign">
+						<title>Manage Orders</title>
+						<sort_order>0</sort_order>
+						<action>adminhtml/onlinedesign_orders</action>
+					</orders>
+					
+					<items module="onlinedesign">
+						<title>Manage Product Designs</title>
+						<sort_order>30</sort_order>
+						<action>adminhtml/onlinedesign_onlinedesign</action>
+					</items>
+					
+					<manage_art module="onlinedesign">
+						<title>Manage Arts</title>
+						<sort_order>71</sort_order>               
+						<children>
+							<catart module="onlinedesign">
+								<title>Manage Categories Art</title>
+								<sort_order>50</sort_order>
+								<action>adminhtml/onlinedesign_catart</action>
+							</catart>
+							
+							<arts module="onlinedesign">
+								<title>Manage Cliparts</title>
+								<sort_order>100</sort_order>
+								<action>adminhtml/onlinedesign_art</action>
+							</arts>
+						</children>
+					</manage_art>
+					
+					<manage_fonts module="onlinedesign">
+						<title>Manage Fonts</title>
+						<sort_order>200</sort_order>               
+						<children>
+							<catfont module="onlinedesign">
+								<title>Manage Categories Font</title>
+								<sort_order>0</sort_order>
+								<action>adminhtml/onlinedesign_catfont</action>
+							</catfont>
+							
+							<font module="onlinedesign">
+								<title>Manage Custom Font</title>
+								<sort_order>50</sort_order>
+								<action>adminhtml/onlinedesign_font</action>
+							</font>
+						</children>
+					</manage_fonts>
+					
+					<googlefont module="onlinedesign">
+						<title>Manage Google Font</title>
+						<sort_order>220</sort_order>
+						<action>adminhtml/onlinedesign_googlefont</action>
+					</googlefont>
+					
+					<color module="onlinedesign">
+						<title>Manage Colors</title>
+						<sort_order>250</sort_order>
+						<action>adminhtml/onlinedesign_color</action>
+					</color>
+					
+					<configuration module="onlinedesign">
+						<title>Configuration</title>
+						<sort_order>300</sort_order>
+						<action>adminhtml/system_config/edit/section/onlinedesign</action>
+					</configuration>
+				</children>
+			</onlinedesign>
+		</menu>
+		<acl>
+			<resources>
+				<all>
+					<title>Allow Everything</title>
+				</all>
+				<admin>
+					<children>
+						<Cmsmart_Onlinedesign>
+							<title>Onlinedesign Module</title>
+							<sort_order>10</sort_order>
+						</Cmsmart_Onlinedesign>
+						
+						<system>
+							<children>
+								<config>
+									<children>
+										<onlinedesign translate="title" module="onlinedesign">
+											<title>Onlinedesign Section</title>											
+											<children>
+												<configuration module="onlinedesign">
+													<title>Configuration</title>
+													<sort_order>50</sort_order>
+												</configuration>
+											</children>
+										</onlinedesign>
+									</children>
+								</config>
+							</children>
+						</system>
+						
+					</children>
+				</admin>
+			</resources>
+		</acl>
+		<layout>
+			<updates>
+				<onlinedesign>
+					<file>onlinedesign.xml</file>
+				</onlinedesign>
+			</updates>
+		</layout>
+    </adminhtml>   
+    <global>
+		<fieldsets>
+			 <sales_convert_quote_item>
+				 <!-- <nbdesigner_src>
+					 <to_order_item>*</to_order_item>
+				 </nbdesigner_src> -->
+				 
+				 <nbdesigner_sku>
+					 <to_order_item>*</to_order_item>
+				 </nbdesigner_sku>
+				 
+				 <nbdesigner_json>
+					 <to_order_item>*</to_order_item>
+				 </nbdesigner_json>
+				 
+				 <nbdesigner_pid>
+					 <to_order_item>*</to_order_item>
+				 </nbdesigner_pid>
+				 
+				  <!-- <nbdesigner_session>
+					 <to_order_item>*</to_order_item>
+				 </nbdesigner_session> -->
+			 </sales_convert_quote_item>
+		 </fieldsets>
+	 
+        <models>
+            <onlinedesign>
+                <class>Cmsmart_Onlinedesign_Model</class>
+                <resourceModel>onlinedesign_mysql4</resourceModel>
+            </onlinedesign>
+            <onlinedesign_mysql4>
+                <class>Cmsmart_Onlinedesign_Model_Mysql4</class>
+                <entities>
+                    <onlinedesign>
+                        <table>nb_onlinedesign</table>
+                    </onlinedesign>
+					
+					<art>
+                        <table>nb_clipart</table>
+                    </art>
+					
+					<catart>
+                        <table>nb_clipcat</table>
+                    </catart>
+					
+					<catfont>
+                        <table>nb_catfont</table>
+                    </catfont>
+					
+					<font>
+                        <table>nb_font</table>
+                    </font>
+					
+					<reject>
+                        <table>nb_onreject</table>
+                    </reject>
+					
+					<templates>
+                        <table>nb_templates</table>
+                    </templates>
+					
+					<color>
+                        <table>nb_color</table>
+                    </color>
+                </entities>
+            </onlinedesign_mysql4>
+        </models>
+        <resources>
+            <onlinedesign_setup>
+                <setup>
+                    <module>Cmsmart_Onlinedesign</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </onlinedesign_setup>
+            <onlinedesign_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </onlinedesign_write>
+            <onlinedesign_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </onlinedesign_read>
+        </resources>
+        <blocks>
+            <onlinedesign>
+                <class>Cmsmart_Onlinedesign_Block</class>
+            </onlinedesign>
+        </blocks>
+        <helpers>
+            <onlinedesign>
+                <class>Cmsmart_Onlinedesign_Helper</class>
+            </onlinedesign>
+        </helpers>
+
+		<events>
+			<checkout_cart_product_add_after>
+				<observers>
+					<cmsmart_onlinedesign_checkout_cart_product_add_after>
+						 <type>model</type>
+						 <class>Cmsmart_Onlinedesign_Model_Observer</class>
+						 <method>checkoutCartProductAddAfter</method>
+					</cmsmart_onlinedesign_checkout_cart_product_add_after>
+				</observers>
+			</checkout_cart_product_add_after>
+		</events>
+	 
+    </global>
+	
+	<default>
+		<onlinedesign>
+            <general>
+                <enabled>1</enabled>
+                <btn_name>Start Design</btn_name>
+                <thumb_size>100x100</thumb_size>
+                <thumb_quality>60</thumb_quality>
+                <default_dpi>150</default_dpi>
+                <!-- <facebook_api_key>1020211411349666</facebook_api_key> -->
+            </general>
+			
+			<text_options>
+				<enable_add_text>1</enable_add_text>
+				<default_text>Add text here</default_text>
+				<default_color>#cc324b</default_color>
+			</text_options>
+			
+			<clip_art>
+				<enable_clipart>1</enable_clipart>
+			</clip_art>
+			
+			<image_options>
+				<enable_add_image>1</enable_add_image>
+				<enable_upload_image>1</enable_upload_image>
+				<login_require>0</login_require>
+				<upload_min>0</upload_min>
+                <upload_max>5</upload_max>
+                <enable_image_url>1</enable_image_url>
+                <enable_capture_webcame>1</enable_capture_webcame>
+                <enable_facebook>1</enable_facebook>
+                <show_term>1</show_term>
+                <term_text>Your term</term_text>
+			</image_options>
+			
+			<free_draw>
+				<enable_free_draw>1</enable_free_draw>
+			</free_draw>
+			
+			<qr_code>
+				<enable_qrcode>1</enable_qrcode>
+				<qr_text>example.com</qr_text>
+			</qr_code>
+			
+			<color>
+				<show_all_color>1</show_all_color>
+			</color>
+        </onlinedesign>
+    </default>
+</config>

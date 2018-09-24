@@ -1,0 +1,53 @@
+<?php
+	$helper = Mage::helper('onlinedesign/data');
+	$order_id     = $this->getRequest()->getParam('order_id');
+	$order = Mage::getModel('sales/order')->load($order_id);
+	$order->getAllVisibleItems();
+	$orderItems = $order->getItemsCollection()
+		->addAttributeToSelect('*')
+		->load();
+	
+?>
+<div class="entry-edit-head">
+    <h4 class="icon-head head-edit-form fieldset-legend"><?php echo $this->__('Email Information') ?></h4>
+    <div class="form-buttons"></div>
+</div>
+
+<div class="fieldset " id="nbdesigner_order_info">
+    <div class="hor-scroll">
+		<table class="form-list" cellspacing="0">
+			<tbody>
+				<tr>
+					<td class="label">Email Message</td>
+					<td>
+						<textarea rows="4" cols="50"></textarea>
+					</td>
+				</tr>
+				
+				<tr>
+					<td></td>
+					<td>
+						<a href="#" class="button button-primary nbdesigner_order_file_submit_button" id="nbdesigner_order_file_sendmail"><?php echo $this->__('Send Mail') ?></a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script type="text/javascript">
+	jQuery( document ).ready(function() {
+		jQuery('#nbdesigner_order_file_sendmail').click(function(){
+			jQuery.ajax({
+				url: "<?php echo $this->getUrl('onlinedesign/reject/sendMail', array('_current'=>true)); ?>",
+				type: 'POST',
+				data: {
+				},
+				dataType: 'json',
+				success: function(res) {
+					alert("Send Mail Successfully!");
+				}
+			}); 
+		});		
+	});
+</script>

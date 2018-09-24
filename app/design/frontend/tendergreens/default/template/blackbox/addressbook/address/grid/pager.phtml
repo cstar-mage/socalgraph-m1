@@ -1,0 +1,54 @@
+<?php
+/**
+ * Pager template
+ *
+ * @var Blackbox_Checkout_Block_Address_Grid_Pager $this
+ */
+?>
+<?php if($this->getCollection()->getSize()): ?>
+
+    <?php if($this->getUseContainer()): ?>
+    <div class="pager">
+    <?php endif ?>
+
+    <?php if($this->getShowPerPage()): ?>
+    <div class="limiter">
+        <label><?php echo $this->__('Show') ?></label>
+        <select onchange="addressbook.updateAddressGrid(jQuery(this).closest('.address-select-table-container')[0], this.value)">
+        <?php foreach ($this->getAvailableLimit() as  $_key=>$_limit): ?>
+            <option value="<?php echo $this->getLimitUrl($_key) ?>"<?php if($this->isLimitCurrent($_key)): ?> selected="selected"<?php endif ?>>
+                <?php echo $_limit ?>
+            </option>
+        <?php endforeach; ?>
+        </select>
+    </div>
+    <?php endif ?>
+
+    <?php if($this->getLastPageNum()>1): ?>
+    <div class="pages">
+        <strong><?php echo $this->__('Page:') ?></strong>
+        <ol>
+
+            <li>
+                <a href="<?php echo $this->getPreviousPageUrl()?>" onclick="addressbook.addressGridPagerLinkClick(this, event)">◀</a>
+            </li>
+            <li>
+                <input type="text" placeholder="<?php echo $this->getCurrentPage()?>/<?php echo $this->getLastPageNum()?>"
+                       data-current-page="<?php echo $this->getCurrentPage()?>"
+                       data-last-page-num="<?php echo $this->getLastPageNum()?>"
+                       data-url="<?php echo $this->getPageUrl(null) ?>"
+                       onchange="addressbook.addressGridPagerInputOnchange(this, event)">
+            </li>
+            <li>
+                <a href="<?php echo $this->getNextPageUrl() ?>" onclick="addressbook.addressGridPagerLinkClick(this, event)">▶</a>
+            </li>
+
+        </ol>
+    </div>
+    <?php endif; ?>
+
+    <?php if($this->getUseContainer()): ?>
+    </div>
+    <?php endif ?>
+
+<?php endif ?>

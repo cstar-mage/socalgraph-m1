@@ -1,0 +1,55 @@
+<?php
+/* @var Blackbox_HelpDesk_Block_Customer_Ticket $this */
+$ticket = $this->getTicket();
+?>
+<div class="page-title">
+    <h1><?php echo $this->__('Ticket #' . $ticket->getId()) ?></h1>
+</div>
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<div class="ticket-view-container">
+    <div class="ticket-header">
+        <h1>
+            <?php echo $ticket->getSubject() ?>
+            <?php if ($ticket->canClose()): ?>
+                <a class="button" style="float:right" href="<?php echo $this->escapeHtml($this->getCloseUrl($ticket->getId())) ?>">Close</a>
+            <?php endif; ?>
+        </h1>
+        <div class="ticket-options">
+<!--            <div>Priority: <span class="priority-value">--><?php //echo $ticket->getPriority()?><!--</span></div>-->
+            <div>Status: <span class="status-value"><?php echo $ticket->getStatusText()?></span></div>
+            <div>Type: <span class="type-value"><?php echo $ticket->getType()?></span></div>
+            <div>Category: <span class="category-value"><?php echo $ticket->getCustomFieldText('Category')?></span></div>
+        </div>
+    </div>
+    <ul class="ticket-comments-container">
+        <?php foreach ($ticket->getComments() as $comment): ?>
+            <li class="ticket-comment-container">
+                <?php echo $this->getCommentHtml($comment); ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+    <div class="ticket-comments-footer">
+        <div>
+            <h6>Answer:</h6>
+        </div>
+        <form action="<?php echo $this->getPostUrl() ?>" method="post" autocomplete="off" id="form-validate" class="scaffold-form" enctype="multipart/form-data">
+            <div>
+                <textarea name="comment[body]" rows="5" class="required-entry"></textarea>
+            </div>
+            <div>
+                <input type="file" name="file[]" multiple="multiple">
+            </div>
+            <div>
+                <input type="submit">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="buttons-set">
+    <p class="back-link"><a href="<?php echo $this->escapeUrl($this->getBackUrl()) ?>"><small>&laquo; </small><?php echo $this->__('Back') ?></a></p>
+</div>
+<script type="text/javascript">
+    //<![CDATA[
+    var dataForm = new VarienForm('form-validate', true);
+    //]]>
+</script>

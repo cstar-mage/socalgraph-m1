@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <adminhtml_onlinedesign_onlinedesign_index>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_onlinedesign" name="onlinedesign" />
+        </reference>
+    </adminhtml_onlinedesign_onlinedesign_index>
+	
+	<adminhtml_onlinedesign_onlinedesign_primary>
+       
+    </adminhtml_onlinedesign_onlinedesign_primary>
+	
+	<adminhtml_onlinedesign_orders_index>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_orders" name="orders" />
+        </reference>
+    </adminhtml_onlinedesign_orders_index>
+	
+	<adminhtml_onlinedesign_art_index>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_art" name="art" />
+        </reference>
+    </adminhtml_onlinedesign_art_index>
+	
+	<adminhtml_onlinedesign_catart_index>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_catart" name="catart" />
+        </reference>
+    </adminhtml_onlinedesign_catart_index>
+	
+	<adminhtml_onlinedesign_font_index>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_font" name="font" />
+        </reference>
+    </adminhtml_onlinedesign_font_index>
+	
+	<adminhtml_onlinedesign_googlefont_index>
+		 <reference name="head">
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/google_font_grid.css</stylesheet></action>
+		</reference>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_googlefont" name="gfont" />
+        </reference>
+    </adminhtml_onlinedesign_googlefont_index>
+	
+	<adminhtml_onlinedesign_googlefont_edit>
+        <reference name="head">
+			<action method="addJs"><script>nb_onlinedesign/assets/libs/jquery.min.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/jquery/jquery_noconflict.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/assets/libs/jquery-ui.min.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/admin/admin-nbdesigner.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/assets/js/sweetalert.min.js</script></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/admin-googlefont.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/admin-nbdesigner.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/sweetalert.css</stylesheet></action>
+		</reference>
+    </adminhtml_onlinedesign_googlefont_edit>
+	
+	<adminhtml_onlinedesign_catfont_index>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_catfont" name="catfont" />
+        </reference>
+    </adminhtml_onlinedesign_catfont_index>
+	
+	<adminhtml_onlinedesign_onlinedesign_edit>
+		<reference name="head">
+			<!-- <action method="addCss"><stylesheet>cmsmart/onlinedesign/style.css</stylesheet></action> -->
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/admin-nbdesigner.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/nbd-general.css</stylesheet></action>
+			
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/popup_image.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/jquery-ui.min.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/font-awesome/css/font-awesome.css</stylesheet></action>
+			<action method="addJs"><script>nb_onlinedesign/assets/libs/jquery.min.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/jquery/jquery_noconflict.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/assets/libs/jquery-ui.min.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/admin/setprimary.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/admin/admin-nbdesigner.js</script></action>
+			
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/detail_order.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/tooltip.css</stylesheet></action>
+			
+			<!-- <action method="addJs"><script>nb_onlinedesign/system/jscolor.js</script></action> -->
+		</reference>
+    </adminhtml_onlinedesign_onlinedesign_edit>
+	
+	<adminhtml_onlinedesign_orders_edit>
+		<reference name="head">
+			<action method="addJs"><script>nb_onlinedesign/assets/libs/jquery.min.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/jquery/jquery_noconflict.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/admin/admin-nbdesigner.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/admin/general-order.js</script></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/detail_order_other.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/detail_order.css</stylesheet></action>
+		</reference>
+    </adminhtml_onlinedesign_orders_edit>
+	
+	<adminhtml_onlinedesign_orders_view>
+		<reference name="head">
+			<action method="addJs"><script>nb_onlinedesign/assets/libs/jquery.min.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/jquery/jquery_noconflict.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/assets/libs/jquery-ui.min.js</script></action>
+			<action method="addJs"><script>nb_onlinedesign/admin/owl.carousel.min.js</script></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/detail_order_other.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/detail_order.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/owl.carousel.css</stylesheet></action>
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/popup_image.css</stylesheet></action>
+			
+			<action method="addCss"><stylesheet>cmsmart/onlinedesign/pdf/sweetalert.css</stylesheet></action>
+			<action method="addJs"><script>nb_onlinedesign/assets/js/sweetalert.min.js</script></action>
+		</reference>
+        <reference name="content">
+            <block type="onlinedesign/onlinedesign" name="onlinedesign.view" template="onlinedesign/nbdesigner_detail_order.phtml" />
+        </reference>
+    </adminhtml_onlinedesign_orders_view>
+	
+	<adminhtml_system_config_edit>
+		<!-- <reference name="head">
+			<action method="addJs"><file>nb_onlinedesign/system/jscolor.js</file></action>
+		</reference> -->
+		<reference name="content">
+			<block type="core/template" name="button.popup" template="onlinedesign/help/face-api.phtml" />
+		</reference>
+	</adminhtml_system_config_edit>
+	
+	<adminhtml_onlinedesign_color_index>
+        <reference name="content">
+            <block type="onlinedesign/adminhtml_color" name="color" />
+        </reference>
+    </adminhtml_onlinedesign_color_index>
+	
+	<adminhtml_onlinedesign_color_new>
+		<reference name="head">
+			<action method="addJs">
+				<script>nb_onlinedesign/system/jscolor.js</script>
+			</action>
+		</reference>
+    </adminhtml_onlinedesign_color_new>
+	
+	<adminhtml_onlinedesign_color_edit>
+		<reference name="head">
+			<action method="addJs"><script>nb_onlinedesign/system/jscolor.js</script></action>
+		</reference>
+    </adminhtml_onlinedesign_color_edit>
+	
+	<adminhtml_onlinedesign_onlinedesign_operator>
+        <block type="core/text_list" name="root">
+            <block type="onlinedesign/adminhtml_onlinedesign_edit_tab_grid" name="onlinedesign_edit_tab_grid"/>
+            <block type="adminhtml/widget_grid_serializer" name="upsell_grid_serializer">
+                <reference name="upsell_grid_serializer">
+                    <action method="initSerializerBlock">
+                        <grid_block_name>onlinedesign_edit_tab_grid</grid_block_name>
+                        <data_callback>getSelectedAddOperators</data_callback>
+                        <hidden_input_name>addproduct[program]</hidden_input_name>
+                        <reload_param_name>products_add</reload_param_name>
+                    </action>
+                    <!-- <action method="addColumnInputName">
+                        <input_name>position</input_name>
+                    </action> -->
+                </reference>
+            </block>
+        </block>
+    </adminhtml_onlinedesign_onlinedesign_operator>
+</layout>

@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<layout>
+    <blackbox_notification_rule_index>
+        <reference name="content">
+            <block type="blackbox_notification/rule" name="rule" />
+        </reference>
+    </blackbox_notification_rule_index>
+
+    <blackbox_notification_rule_edit>
+        <reference name="head">
+            <action method="setCanLoadExtJs"><flag>1</flag></action>
+            <action method="setCanLoadRulesJs"><flag>1</flag></action>
+        </reference>
+        <reference name="left">
+            <block type="blackbox_notification/rule_edit_tabs" name="rule_edit_tabs">
+                <block type="blackbox_notification/rule_edit_tab_main" name="rule_edit_tab_main" />
+                <block type="blackbox_notification/rule_edit_tab_emails" name="rule_edit_tab_emails"/>
+                <action method="addTab"><name>main_section</name><block>rule_edit_tab_main</block></action>
+                <action method="addTab"><name>emails_section</name><block>rule_edit_tab_emails</block></action>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="blackbox_notification/rule_edit" name="rule_edit" />
+        </reference>
+    </blackbox_notification_rule_edit>
+
+    <blackbox_notification_log_index>
+        <reference name="content">
+            <block type="blackbox_notification/log" name="log" />
+        </reference>
+    </blackbox_notification_log_index>
+
+    <blackbox_notification_log_view>
+        <reference name="content">
+            <block type="blackbox_notification/log_view" name="log_view" />
+        </reference>
+    </blackbox_notification_log_view>
+
+
+    <blackbox_notification_head_rule_index>
+        <reference name="content">
+            <block type="blackbox_notification/head_rule" name="rule" />
+        </reference>
+    </blackbox_notification_head_rule_index>
+
+    <blackbox_notification_head_rule_edit>
+        <reference name="head">
+            <action method="setCanLoadExtJs"><flag>1</flag></action>
+            <action method="setCanLoadRulesJs"><flag>1</flag></action>
+        </reference>
+        <reference name="left">
+            <block type="blackbox_notification/head_rule_edit_tabs" name="rule_edit_tabs">
+                <block type="blackbox_notification/head_rule_edit_tab_main" name="rule_edit_tab_main" />
+                <block type="blackbox_notification/head_rule_edit_tab_content" name="rule_edit_tab_content"/>
+                <action method="addTab"><name>main_section</name><block>rule_edit_tab_main</block></action>
+                <action method="addTab"><name>content_section</name><block>rule_edit_tab_content</block></action>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="blackbox_notification/head_rule_edit" name="rule_edit" />
+        </reference>
+    </blackbox_notification_head_rule_edit>
+</layout>

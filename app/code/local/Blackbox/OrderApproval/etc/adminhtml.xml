@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <sales>
+            <children>
+                <approval translate="title" module="order_approval">
+                    <title>Approvals</title>
+                    <action>orderapproval/adminhtml_approval</action>
+                    <sort_order>15</sort_order>
+                    <depends><module>Mage_Sales</module></depends>
+                    <children>
+                        <rule translate="title" module="order_approval">
+                            <title>Order Approval Rules</title>
+                            <action>orderapproval/rule/</action>
+                            <depends><module>Mage_Sales</module></depends>
+                        </rule>
+                        <disapprovals translate="title" module="order_approval">
+                            <title>Disapprovals</title>
+                            <action>orderapproval/adminhtml_disapproval</action>
+                            <depends><module>Mage_Sales</module></depends>
+                        </disapprovals>
+                    </children>
+                </approval>
+            </children>
+        </sales>
+        <!--<order_approval translate="title" module="order_approval">
+            <title>Order Approval</title>
+            <sort_order>666</sort_order>
+            <children>
+                <rule translate="title" module="order_approval">
+                    <title>Order Approval Rules</title>
+                    <action>orderapproval/rule/</action>
+                    <depends><module>Mage_Sales</module></depends>
+                </rule>
+                <approve translate="title" module="order_approval">
+                    <title>Approves History</title>
+                    <action>orderapproval/adminhtml_approve/</action>
+                </approve>
+            </children>
+        </order_approval>-->
+     </menu>
+     <acl>
+        <resources>
+            <admin>
+                <children>
+                    <order_approval translate="title" module="order_approval">
+                        <title>Order Approval</title>
+                        <sort_order>666</sort_order>
+                        <children>
+                            <rule translate="title">
+                                <title>Order Approval Rules</title>
+                            </rule>
+                            <disapprovals translate="title">
+                                <title>Disapprovals</title>
+                            </disapprovals>
+                            <approve translate="title">
+                                <title>Approves History</title>
+                            </approve>
+                        </children>
+                    </order_approval>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <order_approval_settings translate="title" module="order_approval">
+                                        <title>Order Approval Settings</title>
+                                    </order_approval_settings>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <sales>
+                        <children>
+                            <order>
+                                <children>
+                                    <actions>
+                                        <children>
+                                            <approve translate="title"><title>Approve</title></approve>
+                                        </children>
+                                    </actions>
+                                </children>
+                            </order>
+                            <approval translate="title">
+                                <title>Approvals</title>
+                                <sort_order>228</sort_order>
+                                <children>
+                                    <disapprovals translate="title">
+                                        <title>Disapprovals</title>
+                                        <sort_order>229</sort_order>
+                                    </disapprovals>
+                                </children>
+                            </approval>
+                        </children>
+                    </sales>
+                </children>
+            </admin>
+        </resources>
+     </acl>
+</config>

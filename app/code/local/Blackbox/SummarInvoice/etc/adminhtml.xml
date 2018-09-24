@@ -1,0 +1,35 @@
+<adminhtml>
+    <menu>
+        <report translate="title" module="reports">
+            <children>
+                <salesroot translate="title" module="reports">
+                    <children>
+                        <summar_invoice translate="title" module="reports">
+                            <title>Summar Invoice</title>
+                            <action>adminhtml/report_summar_invoice</action>
+                        </summar_invoice>
+                    </children>
+                </salesroot>
+            </children>
+        </report>
+    </menu>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <report>
+                        <children>
+                            <salesroot>
+                                <children>
+                                    <summar_invoice translate="title" module="summar_invoice">
+                                        <title>Summar Invoice</title>
+                                    </summar_invoice>
+                                </children>
+                            </salesroot>
+                        </children>
+                    </report>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</adminhtml>

@@ -1,0 +1,9 @@
+<?php /* @var Blackbox_Epace_Block_Adminhtml_System_Config_Form_Button_CreateJob $this */ ?>
+<?php echo $this->getButtonHtml() ?>
+<script type="text/javascript">
+    function createJob() {
+        var customer = encodeURIComponent(document.getElementById('epace_test_requests_customer').value);
+        var description = encodeURIComponent(document.getElementById('epace_test_requests_description').value);
+        setLocation('<?=$this->getUrl('epace/index/testCreateJob', array('_current'=>true))?>' + '?customer=' + customer + '&description=' + description);
+    }
+</script>

@@ -1,0 +1,46 @@
+<?php /** @var Blackbox_Checkout_Block_Address_Grid $this */ ?>
+<?php $items = $this->getItems(); ?>
+<div class="address-select-table-container">
+    <div class="address-select-table-header">
+        <div class="address-select-search">
+        <input id="address-autocomplete-billing-address-select" autofocus="" type="text" name="q"
+               placeholder="<?php echo $this->getInputPlaceholderText()?>"
+               data-url="<?php echo $this->getSearchUrl()?>"
+               onchange="addressbook.addressGridSearch(this)"
+               value="<?php echo $this->getSearchValue() ?>" >
+        </div>
+        <?php echo $this->getPagerHtml(); ?>
+    </div>
+    <?php if ($items->getSize()): ?>
+        <table class="data-table address-select-table" id="addresses-table">
+            <col width="1" />
+            <col />
+            <tbody>
+            <?php foreach($items as $item): ?>
+                <?php /** @var Mage_Customer_Model_Address $item */ ?>
+                <tr>
+                    <td><input type="<?=$this->getMultiple() ? 'checkbox' : 'radio'?>" class="addressbook-item" name="<?=$this->getName()?>" value="<?=$item->getId() ? -$item->getId() : $item->getStorelocatorId()?>" data-text="<?=$this->formatItem($item)?>" data-json="<?php echo $this->escapeHtml(json_encode($this->getAddressData($item))) ?>"></td>
+                    <td>
+                        <table class="address-table">
+                            <tbody>
+                            <tr>
+                                <td><?=$item->getStorelocatorId() ? $item->getData('name') : $item->getName()?></td>
+                                <td><?=$item->getStreetFull()?></td>
+                            </tr>
+                            <tr>
+                                <td><?=$item->getTelephone()?></td>
+                                <td><?=$item->getRegion()?>, <?=$item->getCountry()?></td>
+                            </tr>
+                            <tr>
+                                <td><?=$item->getEmail()?></td>
+                                <td><?=$item->getPostcode()?></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>

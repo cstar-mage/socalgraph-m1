@@ -1,0 +1,209 @@
+<style>
+	.list-color-input:hover {
+		cursor: pointer;
+	}
+
+	.list-color-input {
+		height: 23px;
+		margin-top: 10px;
+		margin-right: 10px;
+		border: 1px solid #ccc;
+		background-color: rgb(255, 255, 255);
+		width: 75px;
+		text-align: center;
+		border-radius: 15px;
+	}
+	
+	.add_color {
+		border: 1px solid;
+		text-align: center; 
+		font-size: 15px; 
+		height: 27px; 
+		color: rgb(0, 0, 0);
+	}
+	
+	.add_new_option_button_span {
+		line-height: 24px !important;
+	}
+	
+	#add-more-color {
+		margin-bottom: 20px;
+	}
+	
+	#add_new_option_button, #edit_new_option_button {
+		margin-right: 10px;
+	}
+</style>
+
+<div id="add-more-color">
+	<button id="add_new_option_button" type="button" class="scalable add">
+		<span><span><span class="add_new_option_button_span"><?php echo $this->__('Add Color') ?></span></span></span>
+	</button>
+	
+	<button id="edit_new_option_button" type="button" class="scalable save">
+		<span><span><span class="add_new_option_button_span"><?php echo $this->__('Save and Continue Edit Color') ?></span></span></span>
+	</button>
+	
+	<button id="delete_new_option_button" type="button" class="scalable delete">
+		<span><span><span class="add_new_option_button_span"><?php echo $this->__('Delete Color') ?></span></span></span>
+	</button>
+</div>
+
+<div class="entry-edit">
+    <div class="entry-edit-head">
+    <h4 class="icon-head head-edit-form fieldset-legend"><?php echo $this->__("List Colors"); ?></h4>
+    <div class="form-buttons"></div>
+</div>
+	
+<div class="fieldset" id="add_color_form">
+	<input id="id_color" value="" type="hidden">
+	<?php
+	$_counter = 0;
+	$add_color_url = Mage::helper('adminhtml')->getUrl('adminhtml/onlinedesign_color/add_color');
+	$update_color_url = Mage::helper('adminhtml')->getUrl('adminhtml/onlinedesign_color/upd_color');
+	$del_color_url = Mage::helper('adminhtml')->getUrl('adminhtml/onlinedesign_color/del_color');
+	$collection = Mage::getModel('onlinedesign/color')->getCollection();
+	?>
+	
+	<div id="list-color" style="margin-top: 10px">
+		<?php if(sizeof($collection)) { ?>
+		<?php foreach ($collection as $c) { ?>
+			<input id="add_color_<?php echo $c->getId(); ?>" class="list-color-input" value="#<?php echo $c->getHex(); ?>" style="background-color: #<?php echo $c->getHex(); ?>" data-rev = "<?php echo $c->getId(); ?>" onClick="changeColor(this)">
+		<?php } ?>
+		<?php } else { ?>
+		<div id="no-colors">
+		<?php echo $this->__("There are no any colors in the lists."); ?>
+		</div>
+		<?php } ?>
+	</div>
+	
+	<script type="text/javascript">//<![CDATA[
+		
+		var _form_html_row = '<input id="add_color_{{id}}" class="list-color-input" value="" onClick="changeColor(this)">';
+
+		var _rkstorelocator_counter = <?php echo $_counter ?>;
+		
+		document.observe("dom:loaded", function() {
+			document.getElementById("color_name").readOnly = true;
+			$('edit_new_option_button').hide();
+			$('delete_new_option_button').hide();
+		});
+		
+		$('add_new_option_button').observe('click', function(){
+			$('edit_new_option_button').hide();
+			$('delete_new_option_button').hide();
+			
+			var color_value = document.getElementById("change_color").value;
+			var color_name = document.getElementById("color_name").value;
+
+			new Ajax.Request('<?php echo $add_color_url; ?>', {
+	            method: 'get',
+	            parameters : {
+					hex: color_value,
+					color_name: color_name
+				},
+	            onSuccess: function(response){
+					_response = eval('('+response.responseText+')');
+					if(!_response.error) {
+						var element = 'add_color_' + _response.color_id;
+						$('list-color').insert(_form_html_row.replace(/\{\{id\}\}/ig, _response.color_id));
+						$(element).value = '#' + color_value;
+						$(element).writeAttribute('data-rev',_response.color_id); 
+						$(element).setStyle({
+							backgroundColor: '#' + color_value
+						});
+						$('messages').innerHTML = '<ul class="messages"><li class="success-msg"><ul><li><span>Color has been saved successfully</span></li></ul></li></ul>';
+						$('no-colors').innerHTML = '';
+						
+					} else {
+						alert(_response.message)
+					}
+				}
+			});
+		});
+		
+		$('edit_new_option_button').observe('click', function(){
+			var color_value = document.getElementById("change_color").value;
+			var color_name = document.getElementById("color_name").value;
+			var id = document.getElementById("id_color").value;
+			
+			new Ajax.Request('<?php echo $update_color_url; ?>', {
+	            method: 'get',
+	            parameters : {
+					id: id,
+					hex: color_value,
+					color_name: color_name
+				},
+	            onSuccess: function(response){
+					_response = eval('('+response.responseText+')');
+					if(!_response.error) {
+						var element = 'add_color_' + _response.color_id;
+						$(element).setStyle({
+							backgroundColor: '#' + color_value
+						});		
+						$(element).value = '#' + color_value;
+						$('messages').innerHTML = '<ul class="messages"><li class="success-msg"><ul><li><span>Color has been updated successfully</span></li></ul></li></ul>';
+					} else {
+						alert(_response.message)
+					}
+				}
+			});
+		});
+		
+		$('delete_new_option_button').observe('click', function(){
+			var id = document.getElementById("id_color").value;
+			var element = 'add_color_' + id;
+			new Ajax.Request('<?php echo $del_color_url; ?>', {
+	            method: 'get',
+	            parameters : {
+					id: id
+				},
+	            onSuccess: function(response){
+					_response = eval('('+response.responseText+')');
+					if(!_response.error) {
+						$(element).remove();
+					}
+					$('messages').innerHTML = '<ul class="messages"><li class="success-msg"><ul><li><span>Color has been deleted successfully</span></li></ul></li></ul>';
+				}
+			});
+		});
+		
+		function hexToRgb(hex) {
+			// long version
+			r = hex.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+			if (r) {
+					return r.slice(1,4).map(function(x) { return parseInt(x, 16); });
+			}
+			// short version
+			r = hex.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);
+			if (r) {
+					return r.slice(1,4).map(function(x) { return 0x11 * parseInt(x, 16); });
+			}
+			return null;
+		}
+
+		function changeColor(element) {
+			$('edit_new_option_button').show();
+			$('delete_new_option_button').show();
+			
+			document.getElementById("id_color").value = element.readAttribute('data-rev');
+			document.getElementById("color_name").value = element.value;
+			
+			$("change_color").setStyle({
+				backgroundColor: ""
+			});
+			var array = hexToRgb(element.value);
+			if(array != null) {
+				var stringColor = "rgb("+array[0]+","+array[1]+","+array[2]+")";
+				document.getElementById("change_color").value = element.value;
+				$("change_color").setStyle({
+					backgroundColor: stringColor
+				});
+			}
+			
+			return;
+		}
+
+		//]]>
+	</script>
+<div>

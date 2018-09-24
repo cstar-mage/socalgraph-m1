@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_ProductFile>
+            <version>0.1.0</version>
+        </Blackbox_ProductFile>
+    </modules>
+    <global>
+        <helpers>
+            <product_file>
+                <class>Blackbox_ProductFile_Helper</class>
+            </product_file>
+        </helpers>
+        <models>
+            <downloadable>
+                <rewrite>
+                    <link_purchased>Blackbox_ProductFile_Model_Link_Purchased</link_purchased>
+                    <link_purchased_item>Blackbox_ProductFile_Model_Link_Purchased_Item</link_purchased_item>
+                </rewrite>
+            </downloadable>
+            <jvs_fileattribute>
+                <rewrite>
+                    <attribute_backend_file>Blackbox_ProductFile_Model_Attribute_Backend_File</attribute_backend_file>
+                </rewrite>
+            </jvs_fileattribute>
+        </models>
+        <resources>
+            <blackbox_product_file_setup>
+                <setup>
+                    <module>Blackbox_ProductFile</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+            </blackbox_product_file_setup>
+        </resources>
+    </global>
+    <frontend>
+        <routers>
+            <downloadable>
+                <args>
+                    <modules>
+                        <Blackbox_ProductFile before="Mage_Downloadable">Blackbox_ProductFile</Blackbox_ProductFile>
+                    </modules>
+                </args>
+            </downloadable>
+        </routers>
+    </frontend>
+</config>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Api>
+            <version>0.1.0</version>
+        </Blackbox_Api>
+    </modules>
+    <global>
+        <models>
+            <sales>
+                <rewrite>
+                    <order_api>Blackbox_Api_Model_Sales_Order_Api</order_api>
+                </rewrite>
+            </sales>
+        </models>
+    </global>
+</config>

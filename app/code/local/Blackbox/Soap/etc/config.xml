@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Soap>
+            <version>0.1</version>
+        </Blackbox_Soap>
+    </modules>
+    <global>
+        <models>
+            <blackbox_soap>
+                <class>Blackbox_Soap_Model</class>
+            </blackbox_soap>
+        </models>
+    </global>
+</config>

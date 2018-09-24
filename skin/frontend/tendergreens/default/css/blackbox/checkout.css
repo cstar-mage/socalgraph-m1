@@ -1,0 +1,26 @@
+.co-shipping.saved .form-list {
+    display: none;
+}
+
+.co-shipping:not(.saved) .shipping-products {
+    display: none;
+}
+
+.co-shipping:not(.saved) .shipping-saved {
+    display: none;
+}
+
+.co-shipping.saved .button.save {
+    display: none;
+}
+
+.co-shipping .edit-address {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.co-shipping {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: solid 1px #ededed;
+}

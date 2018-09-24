@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Pack>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Blackbox_OrderApproval />
+            </depends>
+        </Blackbox_Pack>
+    </modules>
+</config>

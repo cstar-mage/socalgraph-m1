@@ -1,0 +1,48 @@
+<?php
+/**
+ * @var Blackbox_OrderApproval_Block_Customer_Disapprovals_List $this
+ */
+?>
+<?php $_items = $this->getItems(); ?>
+<div class="page-title">
+    <h1><?php echo Mage::helper('order_approval')->__('My Disapproved Orders') ?></h1>
+</div>
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<?php if(count($_items)): ?>
+    <table class="data-table linearize-table-large" id="my-disapproved-orders-table">
+        <col width="1" />
+        <col width="1" />
+        <col />
+        <col width="1" />
+        <thead>
+        <tr>
+            <th class="number"><?php echo Mage::helper('order_approval')->__('Order') ?></th>
+            <th class="date"><?php echo Mage::helper('order_approval')->__('Disapprove Date') ?></th>
+            <th class="comment"><?php echo Mage::helper('order_approval')->__('Comment') ?></th>
+            <th class="view"><span class="nobr"><?php echo Mage::helper('order_approval')->__('Actions') ?></span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php $_odd = ''; ?>
+        <?php foreach ($_items as $_item): ?>
+            <tr>
+                <td class="number"><a href="<?php echo $this->getOrderViewUrl($_item->getOrderIncrementId()) ?>" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('order_approval')->__('View Order')) ?>"><?php echo $_item->getOrderIncrementId() ?></a></td>
+                <td class="date"><span class="nobr"><?php echo $this->formatDate($_item->getCreatedAt()) ?></span></td>
+                <td class="comment"><?php echo Mage::helper('core/string')->truncate($_item->getComment(), 20); ?></td>
+                <td class="a-center view last">
+                    <span class="nobr">
+                        <a class="button" href="<?php echo $this->getDisapprovalViewUrl($_item); ?>" title="<?php echo Mage::helper('core')->quoteEscape(Mage::helper('order_approval')->__('View Disapproval')); ?>" <?php echo $this->getIsOpenInNewWindow()?'onclick="this.target=\'_blank\'"':''; ?>><?php echo $this->escapeHtml($this->__('View Disapproval')); ?></a>
+                    </span>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <script type="text/javascript">decorateTable('my-disapproved-orders-table')</script>
+<?php else: ?>
+    <p><?php echo Mage::helper('order_approval')->__('You have no disapproved orders at the moment.'); ?></p>
+<?php endif; ?>
+<?php echo $this->getChildHtml('pager'); ?>
+<div class="buttons-set">
+    <p class="back-link"><a href="<?php echo $this->escapeUrl($this->getBackUrl()) ?>"><small>&laquo; </small><?php echo $this->__('Back') ?></a></p>
+</div>

@@ -1,0 +1,58 @@
+<?php
+/**
+ * @var Blackbox_HelpDesk_Block_Customer_Ticket_List $this
+ */
+?>
+<?php $_items = $this->getItems(); ?>
+<div class="page-title">
+    <h2>
+        <?php echo Mage::helper('helpdesk')->__('My Tickets') ?>
+        <a class="button red-btn" style="float:right" href="<?php echo $this->getCreateTicketUrl() ?>">New Ticket</a>
+    </h2>
+</div>
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<?php echo $this->getChildHtml('pager'); ?>
+<?php if(count($_items)): ?>
+    <table class="data-table linearize-table-large" id="support-my-tickets-table">
+        <col width="1" />
+        <col width="1" />
+        <col width="1" />
+        <col />
+        <col width="1" />
+        <col width="1" />
+        <col width="1" />
+        <thead>
+        <tr>
+            <th><?php echo Mage::helper('helpdesk')->__('Ticket #') ?></th>
+            <th><?php echo Mage::helper('helpdesk')->__('Status') ?></th>
+            <th><?php echo Mage::helper('helpdesk')->__('Type') ?></th>
+            <th><?php echo Mage::helper('helpdesk')->__('Subject') ?></th>
+            <th><?php echo Mage::helper('helpdesk')->__('Answers') ?></th>
+            <th><?php echo Mage::helper('helpdesk')->__('Update Date') ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php $_odd = ''; ?>
+        <?php /** @var Blackbox_HelpDesk_Model_Ticket $_item */ ?>
+        <?php foreach ($_items as $_item): ?>
+            <tr title="<?php echo $this->getTicketViewUrl($_item->getId())?>" class="pointer">
+                <td data-rwd-label="<?php echo Mage::helper('helpdesk')->__('Ticket #') ?>"><span class="nobr"><?php echo $this->escapeHtml($_item->getId()) ?></span></td>
+                <td data-rwd-label="<?php echo Mage::helper('helpdesk')->__('Status') ?>"><span class="nobr"><?php echo $this->escapeHtml($_item->getStatusText()) ?></span></td>
+                <td data-rwd-label="<?php echo Mage::helper('helpdesk')->__('Type') ?>"><span class="nobr"><?php echo $this->escapeHtml($_item->getType()) ?></span></td>
+                <td data-rwd-label="<?php echo Mage::helper('helpdesk')->__('Subject') ?>"><span class="nobr"><?php echo $this->escapeHtml(Mage::helper('core/string')->truncate($_item->getSubject(), 40)) ?></span></td>
+                <td data-rwd-label="<?php echo Mage::helper('helpdesk')->__('Answers') ?>"><span class="nobr"><?php echo $_item->getAnswers() ?></span></td>
+                <td data-rwd-label="<?php echo Mage::helper('helpdesk')->__('Update Date') ?>"><em><?php echo $this->formatDate($_item->getUpdatedAt()) ?></em></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <script type="text/javascript">
+        decorateTable('support-my-tickets-table');
+        jQuery('.data-table .pointer').mouseup(function() {
+            document.location = this.getAttribute('title');
+        });
+    </script>
+<?php else: ?>
+    <p><?php echo Mage::helper('helpdesk')->__('You have no tickets at the moment.'); ?></p>
+<?php endif; ?>
+<?php echo $this->getChildHtml('pager'); ?>

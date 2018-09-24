@@ -1,0 +1,27 @@
+<!--@subject New account request @-->
+<!--@vars
+{"store url=\"\"":"Store Url",
+"htmlescape var=$customer.name":"Customer Name",
+"store url=\"customer/account/\"":"Customer Account Url",
+"var customer.email":"Customer Email",
+"var customer.id":"Customer Id",
+"htmlescape var=$customer.password":"Customer Password"}
+@-->
+
+<!--@styles
+@-->
+
+{{template config_path="design/email/header"}}
+{{inlinecss file="email-inline.css"}}
+
+<table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td class="action-content">
+            <h1>New account request.</h1>
+            <p>Customer Id: {{var customer.id}}</p>
+            <p>Customer Email: {{var customer.email}}</p>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer"}}

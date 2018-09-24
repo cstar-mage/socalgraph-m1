@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <adminhtml_ticket_index>
+        <reference name="content">
+            <block type="helpdesk/adminhtml_ticket" name="helpdesk.ticket" />
+        </reference>
+    </adminhtml_ticket_index>
+
+    <adminhtml_ticket_view>
+        <reference name="head">
+            <action method="addItem"><type>skin_css</type><file>css/blackbox/helpdesk.css</file></action>
+        </reference>
+        <reference name="left">
+            <block type="helpdesk/adminhtml_ticket_view_tabs" name="ticket_view_tabs">
+                <block type="helpdesk/adminhtml_ticket_view_tab_main" name="helpdesk_ticket_view_tab_main" />
+                <block type="helpdesk/adminhtml_ticket_view_tab_comments" name="helpdesk_ticket_view_tab_comments" template="blackbox/helpdesk/ticket/view/comments.phtml">
+                    <action method="addCommentRenderer"><type>default</type><block>helpdesk/customer_ticket_comment</block><template>blackbox/helpdesk/ticket/view/comment/renderer/default.phtml</template></action>
+                    <action method="addFileRenderer">
+                        <block>helpdesk/customer_ticket_comment_file</block>
+                        <template>blackbox/helpdesk/ticket/view/comment/file/renderer/default.phtml</template>
+                        <mask>default</mask>
+                    </action>
+                    <action method="addFileRenderer">
+                        <block>helpdesk/customer_ticket_comment_file</block>
+                        <template>blackbox/helpdesk/ticket/view/comment/file/renderer/image.phtml</template>
+                        <mask1>*.jpg</mask1>
+                        <mask2>*.jpeg</mask2>
+                        <mask3>*.png</mask3>
+                        <mask4>*.gif</mask4>
+                    </action>
+                </block>
+                <action method="addTab"><name>main</name><block>helpdesk_ticket_view_tab_main</block></action>
+                <action method="addTab"><name>comments</name><block>helpdesk_ticket_view_tab_comments</block></action>
+                <action method="setActiveTab"><tabId>main</tabId></action>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="helpdesk/adminhtml_ticket_view" name="ticket_view" />
+        </reference>
+    </adminhtml_ticket_view>
+
+    <adminhtml_helpdesk_priority_index>
+        <reference name="content">
+            <block type="helpdesk/adminhtml_priority" name="helpdesk.priority" />
+        </reference>
+    </adminhtml_helpdesk_priority_index>
+
+    <adminhtml_helpdesk_priority_edit>
+        <reference name="content">
+            <block type="helpdesk/adminhtml_priority_edit" name="helpdesk.priority.edit" />
+        </reference>
+    </adminhtml_helpdesk_priority_edit>
+
+    <adminhtml_helpdesk_category_index>
+        <reference name="content">
+            <block type="helpdesk/adminhtml_category" name="helpdesk.category" />
+        </reference>
+    </adminhtml_helpdesk_category_index>
+
+    <adminhtml_helpdesk_category_edit>
+        <reference name="content">
+            <block type="helpdesk/adminhtml_category_edit" name="helpdesk.category.edit" />
+        </reference>
+    </adminhtml_helpdesk_category_edit>
+</layout>

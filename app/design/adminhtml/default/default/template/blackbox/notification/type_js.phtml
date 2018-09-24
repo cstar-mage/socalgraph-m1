@@ -1,0 +1,28 @@
+<script>
+    //<![CDATA[
+    $('<?=$this->getType()?>').addEventListener("change", function() {
+        rule_conditions_fieldset.changeType(this.value, $("<?=$this->getFieldset()?>"));
+    });
+    rule_conditions_fieldset.changeType = function(type, fieldset) {
+        new Ajax.Request("<?=$this->getAjaxUrl()?>", {
+            evalScripts: true,
+            parameters: {form_key: FORM_KEY, type: type },
+            onComplete: this.onAddNewChildComplete.bind(this, fieldset),
+            onSuccess: function(transport) {
+                var response = transport.responseText.evalJSON();
+                if (response.error) {
+                    alert(response.message);
+                    return;
+                }
+                if(response.ajaxExpired && response.ajaxRedirect) {
+                    setLocation(response.ajaxRedirect);
+                    return;
+                }
+                fieldset.update(response.condition_block_html);
+                $('rule_email_template_id').innerHTML = response.template_select_options_html;
+            }.bind(this),
+            onFailure: this._processFailure.bind(this)
+        });
+    };
+    //]]>
+</script>

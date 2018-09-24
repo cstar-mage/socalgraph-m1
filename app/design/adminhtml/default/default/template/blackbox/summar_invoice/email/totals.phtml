@@ -1,0 +1,15 @@
+<table>
+    <col />
+    <col width="1" />
+    <tbody>
+    <?php $_total = $this->getTotal('grand_total') ?>
+    <tr class="grand_total">
+        <td <?php echo $this->getLabelProperties()?> class="label">
+            <strong><?php echo $this->escapeHtml($_total->getLabel()); ?></strong>
+        </td>
+        <td <?php echo $this->getValueProperties()?> class="emph">
+            <strong><?php echo $this->formatValue($_total) ?></strong>
+        </td>
+    </tr>
+    </tbody>
+</table>

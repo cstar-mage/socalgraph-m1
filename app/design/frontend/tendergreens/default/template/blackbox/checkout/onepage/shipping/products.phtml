@@ -1,0 +1,43 @@
+<?php /** @var Blackbox_Checkout_Block_Checkout_Onepage_Shipping_Products $this */ ?>
+<div class="shipping-products<?php echo count($this->getQuote()->getAllShippingAddresses()) > 1 ? '' : ' hide' ?>">
+    <h3 align="left"><?php echo $this->__('Product Details') ?></h3>
+    <table cellpadding="0" cellspacing="0" width="100%" class="ng-scope">
+        <tbody>
+        <?php /** @var Mage_Sales_Model_Quote_Address_Item|Mage_Sales_Model_Quote_Item $item */ ?>
+        <?php foreach ($this->getItems() as $item): ?>
+            <tr>
+                <td width="50%" class="job-name"><span class="ng-binding"><?php echo $item->getName() ?></span></td>
+                <td class="quantity-align">
+                    <div>
+                        <div class="shipping-product-quantity">
+                            <?php
+                            $product = $item->getProduct();
+                            $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+                            $stockQty = $stockItem && $stockItem->getManageStock() ? $stockItem->getQty() * 1 : 20;
+                            $stepCount = (Mage::helper('core')->isModuleEnabled('Blackbox_Pack') && $product->getStepCount() > 1) ? $product->getStepCount() : 1;
+                            ?>
+                            <select class="qty" name="shipping[<?=$this->getShippingId()?>][items][<?=$item instanceof Mage_Sales_Model_Quote_Address_Item ? $item->getQuoteItemId() : $item->getId()?>]" title="Qty" class="ng-not-empty ng-dirty ng-valid-parse ng-touched"<?php echo $disabled ? ' disabled': '' ?>>
+                                <?php $maxQty = $stockItem->getUseConfigMaxSaleQty() ? $stockItem->getMaxSaleQty() : $stockQty ?>
+                                <?php $curQty = false; ?>
+                                <?php for($i = 0; $i <= $maxQty; $i++): ?>
+                                    <?php if ($item->getQty() < $i*$stepCount && !$curQty): $curQty = true; ?>
+                                        <option value="<?=$item->getQty()?>" selected><?=(int)$item->getQty()?></option>
+                                    <?php endif; ?>
+                                    <option value="<?=$i*$stepCount?>" <?=$item->getQty() == $i*$stepCount ? ' selected' : ''?>><?=$i*$stepCount?></option>
+                                <?php if ($i * $stepCount == $item->getQty()) {$curQty = true;} endfor; ?>
+                                <?php if ($item->getQty() > $maxQty*$stepCount): ?>
+                                    <option value="<?=(int)$item->getQty()?>" selected><?=(int)$item->getQty()?></option>
+                                <?php endif; ?>
+                            </select>
+                            <div id="refresh-qty" class="refresh" onclick="shipping.updateAddressItemQty(event)"><i class="fa fa-refresh" aria-hidden="true"></i></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="cart-item-level-error hide" colspan="5" ><span class="ng-binding"><?php echo $this->__('Quantity cannot be blank or zero') ?></span></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>

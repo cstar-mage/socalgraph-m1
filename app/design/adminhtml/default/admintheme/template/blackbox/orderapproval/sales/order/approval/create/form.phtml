@@ -1,0 +1,112 @@
+<?php
+/* @var Blackbox_OrderApproval_Block_Adminhtml_Order_Approval_Create_Form $this */
+?>
+<?php $_canViewPrices = !Mage::helper('core')->isModuleEnabled('Blackbox_RolesPermissions') || Mage::helper('rolespermissions')->canViewPrices(); ?>
+<form id="edit_form" method="post" action="<?php echo $this->getSaveUrl() ?>">
+    <?php echo $this->getBlockHtml('formkey')?>
+    <?php $_order = $this->getApproval()->getOrder() ?>
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-rule"><?php echo Mage::helper('sales')->__('Select Rule') ?></h4>
+        </div>
+        <fieldset>
+            <div>
+                <?php echo $this->getRuleSelectHtml() ?>
+            </div>
+        </fieldset>
+    </div>
+    <?php echo $this->getChildHtml('order_info') ?>
+    <?php if (!$_order->getIsVirtual()): ?>
+    <div class="box-left">
+    <?php else: ?>
+    <div class="box-right">
+    <?php endif; ?>
+
+        <div class="entry-edit">
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-payment-method"><?php echo Mage::helper('sales')->__('Payment Information') ?></h4>
+            </div>
+            <fieldset>
+                <div><?php echo $this->getChildHtml('order_payment') ?></div>
+                <div><?php echo Mage::helper('sales')->__('Order was placed using rewards', $_order->getOrderCurrencyCode()) ?></div>
+            </fieldset>
+        </div>
+    </div>
+    <?php if (!$_order->getIsVirtual()): ?>
+    <div class="box-right">
+        <!--Shipping Address-->
+        <div class="entry-edit">
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-shipping-method"><?php echo Mage::helper('sales')->__('Shipping Information') ?></h4>
+            </div>
+            <fieldset>
+                <div>
+                    <strong><?php echo $this->escapeHtml($_order->getShippingDescription()) ?></strong>
+                    <?php if ($_canViewPrices): ?>
+                    <?php echo $this->helper('sales')->__('Total Shipping Charges'); ?>:
+
+                    <?php if ($this->helper('tax')->displayShippingPriceIncludingTax()): ?>
+                        <?php $_excl = $this->displayShippingPriceInclTax($_order); ?>
+                    <?php else: ?>
+                        <?php $_excl = $this->displayPriceAttribute('shipping_amount', false, ' '); ?>
+                    <?php endif; ?>
+                    <?php $_incl = $this->displayShippingPriceInclTax($_order); ?>
+
+                    <?php echo $_excl; ?>
+                    <?php if ($this->helper('tax')->displayShippingBothPrices() && $_incl != $_excl): ?>
+                        (<?php echo $this->__('Incl. Tax'); ?> <?php echo $_incl; ?>)
+                    <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <?php endif; ?>
+    <div class="clear"></div>
+
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <?php
+                $_itemsGridLabel = 'Items to Approve';
+            ?>
+            <h4 class="icon-head head-products"><?php echo Mage::helper('order_approval')->__('%s', $_itemsGridLabel) ?></h4>
+        </div>
+    </div>
+    <div id="approval_item_container">
+          <?php echo $this->getChildHtml('order_items') ?>
+    </div>
+</form>
+<script type="text/javascript">
+//<![CDATA[
+var ruleUpdateUrl = "<?php echo $this->getUrl('orderapproval/adminhtml_order_approval/updateRule', array('order_id' => $_order->getId())) ?>";
+
+jQuery('#rule_id').change(function() {
+    console.log(this.value);
+    var updateRuleSelect = this;
+    var area = $('approval_item_container');
+    new Ajax.Request(ruleUpdateUrl, {
+        parameters: { rule_id: this.value, comment_text: $('approval_comment_text').value },
+        loaderArea: area,
+        onSuccess: function(transport) {
+            try {
+                if (transport.responseText.isJSON()) {
+                    var response = transport.responseText.evalJSON();
+                    if (response.error) {
+                        alert(response.message);
+                        updateRuleSelect.value = response.rule_id;
+                    }
+                    if(response.ajaxExpired && response.ajaxRedirect) {
+                        setLocation(response.ajaxRedirect);
+                    }
+                } else {
+                    $(area).update(transport.responseText);
+                }
+            }
+            catch (e) {
+                $(area).update(transport.responseText);
+            }
+        }
+    });
+});
+//]]>
+</script>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <!--
+        This item will be created in the Admin menu under Sales
+        - If you want another section, reference the appropriate adminhtml.xml file in app/code/core/Mage/Modulename/etc
+        - For example, we found out this was 'sales' by referencing the config/menu node of app/code/core/Mage/Sales/etc/adminhtml.xml
+        -->
+
+        <websso module="websso">
+            <title>Wizkunde WebSSO</title>
+            <sort_order>71</sort_order>
+            <children>
+                <wizkunde_websso_idp translate="title" module="websso">
+                    <title>Manage Identity Providers</title>
+                    <action>websso/adminhtml_idp</action>
+                </wizkunde_websso_idp>
+            </children>
+        </websso>
+    </menu>
+
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <websso>
+                                        <title>WebSSO</title>
+                                        <sort_order>50</sort_order>
+                                    </websso>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <websso>
+                        <children>
+                            <wizkunde_websso_idp>
+                                <title>Manage Identity Providers</title>
+                            </wizkunde_websso_idp>
+                        </children>
+                    </websso>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

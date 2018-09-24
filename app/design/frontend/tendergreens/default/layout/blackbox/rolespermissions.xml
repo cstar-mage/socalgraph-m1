@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <wishlist_index_index translate="label">
+        <reference name="customer.wishlist.item.price">
+            <action method="setCheckPrice"><data>1</data></action>
+        </reference>
+    </wishlist_index_index>
+</layout>

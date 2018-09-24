@@ -1,0 +1,44 @@
+<?php
+/** @var Blackbox_SummarInvoice_Block_Summar_Invoice $this */
+$invoice = $this->getInvoice();
+?>
+<table id="summar_invoice_view" width="100%" border="0" cellspacing="0" cellpadding="0">
+    <thead>
+    <tr><?php echo $this->__('Orders') ?></tr>
+    <tr>
+        <td><?php echo $this->__('Id') ?></td>
+        <td><?php echo $this->__('Items') ?></td>
+        <td><?php echo $this->__('Totals') ?></td>
+        <td></td>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($invoice->getOrders() as $order): ?>
+        <tr>
+            <td><?php echo $order->getIncrementId() ?></td>
+            <td>
+                <div>
+                <table>
+                    <tbody>
+                    <?php /** @var Mage_Sales_Model_Order_Item $item */ ?>
+                    <?php foreach ($order->getAllVisibleItems() as $item): ?>
+                        <tr>
+                            <td><?php echo $item->getName() ?></td>
+                            <td><?php echo $item->getSku() ?></td>
+                            <td><?php echo (int)$item->getQtyOrdered() ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
+            </td>
+            <td>
+                <div>
+                    <?php echo $this->getTotals($order) ?>
+                </div>
+            </td>
+            <td><a href="<?php echo Mage::getUrl('adminhtml/report_summar_invoice/printInvoice', array('invoice_id' => $order->getInvoiceCollection()->getFirstItem()->getId())) ?>">Download</a></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table>

@@ -1,0 +1,224 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Category view template
+ *
+ * @see Mage_Catalog_Block_Category_View
+ */
+?>
+<?php
+$_helper = $this->helper('catalog/output');
+$_category = $this->getCurrentCategory();
+$_imgHtml = '';
+//if ($_imgUrl = $_category->getImageUrl()) {
+//    $_imgHtml = '<p class="category-image"><img src="' . $_imgUrl . '" alt="' . $this->escapeHtml($_category->getName()) . '" title="' . $this->escapeHtml($_category->getName()) . '" /></p>';
+//    $_imgHtml = $_helper->categoryAttribute($_category, $_imgHtml, 'image');
+//}
+?>
+<?php
+$layer = Mage::getSingleton('catalog/layer');
+$_category = $layer->getCurrentCategory();
+$currentCategoryId = $_category->getId();
+$children = Mage::getModel('catalog/category')->getCategories($currentCategoryId);
+//gets all sub categories of parent category
+$cats = Mage::getModel('catalog/category')->load($currentCategoryId)->getChildren();
+$catIds = explode(',', $cats);
+$categories = array();
+foreach ($catIds as $catId) {
+    $category = Mage::getModel('catalog/category')->load($catId);
+    $categories[$category->getName()] = array(
+        'url' => $category->getUrl(),
+        'img' => $category->getImageUrl(),
+        'description' => $category->getDescription()
+    );
+}
+
+//ksort($categories, SORT_STRING); // for sorting purpose
+?>
+
+
+<section class="category_blue">
+    <div class="category_blue_inner">
+        <div class="page-title category-title">
+            <?php if ($this->IsRssCatalogEnable() && $this->IsTopCategory()): ?>
+                <a href="<?php echo $this->getRssLink() ?>"
+                   class="link-rss"><?php echo $this->__('Subscribe to RSS Feed') ?></a>
+            <?php endif; ?>
+
+            <?php echo $this->getChildHtml('breadcrumbs') ?>
+
+
+
+
+            <h2><?php echo $_helper->categoryAttribute($_category, $_category->getName(), 'name') ?></h2>
+        </div>
+        <div class="printing-category-top-circles mobile-hide">
+            <div class="active-category-top-circles">
+            <a href="<?php echo Mage::getModel("catalog/category")->load(8)->getUrl();?>">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category1.png'); ?>" alt="">
+                <p>MENU</p>
+                </a>
+            </div>
+            <div>
+                <a href="<?php echo Mage::getModel("catalog/category")->load(3)->getUrl();?>">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category2.png'); ?>" alt="">
+                <p>SIGNAGE</p>
+                </a>
+            </div>
+            <div>
+                <a href="<?php echo Mage::getModel("catalog/category")->load(9)->getUrl();?>">
+                    <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category3.png'); ?>" alt="">
+                <p>MARKETING &<br>
+                    PROMOTION</p>
+                </a>
+            </div>
+            <div>
+                <a href="<?php echo Mage::getModel("catalog/category")->load(10)->getUrl();?>">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category4.png'); ?>" alt="">
+                <p>CATERING</p>
+                </a>
+            </div>
+            <div>
+                <a href="<?php echo Mage::getModel("catalog/category")->load(11)->getUrl();?>">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category5.png'); ?>" alt="">
+                <p>STATIONARY</p>
+                </a>
+            </div>
+            <div>
+                <a href="<?php echo Mage::getModel("catalog/category")->load(12)->getUrl();?>">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category6.png'); ?>" alt="">
+                <p>KITS</p>
+                </a>
+            </div>
+        </div>
+        <div class="printing-category printing-category-top mobile-show">
+        <div class="owl-carousel owl-theme ">
+            <div class="item">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category1.png'); ?>" alt="">
+                <p>MENU</p>
+            </div>
+            <div class="item">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category2.png'); ?>" alt="">
+                <p>MENU</p>
+            </div>
+            <div class="item">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category3.png'); ?>" alt="">
+                <p>MENU</p>
+            </div>
+            <div class="item">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category4.png'); ?>" alt="">
+                <p>MENU</p>
+            </div>
+            <div class="item">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category5.png'); ?>" alt="">
+                <p>MENU</p>
+            </div>
+            <div class="item">
+                <img class="img-printing-category"
+                     src="<?php echo $this->getSkinUrl('images/printing-category6.png'); ?>" alt="">
+                <p>MENU</p>
+            </div>
+        </div>
+        </div>
+        <?php echo $this->getMessagesBlock()->toHtml() ?>
+
+    </div>
+</section>
+<section class="category_blue_items">
+    <div class="category_blue_items_inner">
+        <div class="category_blue_grid">
+            <?php foreach ($categories as $name => $data): ?>
+                <div class="category_blue_item hide">
+                    <div class="eye">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="category_blue_item_name"><?php echo $name; ?></div>
+                    <div class="category_blue_item_descr"><?php echo $data['description']; ?></div>
+                    <div class="category_blue_item_image">
+                        <img class="cat-image" src="<?php echo $data['img']; ?>"/>
+                    </div>
+                    <a href="<?php echo $data['url']; ?>" title="<?php echo $name; ?>">
+                        <button class="tg-more">more</button>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <button class="tg-button category_blue_tg_button" type="button">Show more</button>
+    </div>
+</section>
+<section class="printing-demand">
+    <div class="printing-demand-container">
+        <h6>your design</h6>
+        <h2>template<br>
+            generation</h2>
+        <button class="tg-button" type="button">Create</button>
+
+    </div>
+</section>
+
+<section class="order-request">
+    <div class="order-request-container">
+        <h6>order</h6>
+        <h2>CUSTOM ORDER <br>
+            REQUEST</h2>
+        <button class="tg-button" type="button">Order</button>
+
+    </div>
+</section>
+<section class="help-poc">
+    <div class="help-poc-container">
+        <h6>for client</h6>
+        <h2>help-poc</h2>
+        <p>Sign In</p>
+        <form action="">
+            <input class="help-poc-input" type="text" placeholder="E-mail" autocomplete="off">
+            <input class="help-poc-input" type="text" placeholder="Password" autocomplete="off">
+        </form>
+        <button class="tg-button" type="button">login</button>
+    </div>
+</section>
+<script>
+    jQuery(document).ready(function () {
+        jQuery('.owl-carousel').owlCarousel({
+            items: 1,
+            margin: 10,
+            autoHeight: true
+        });
+    })
+</script>

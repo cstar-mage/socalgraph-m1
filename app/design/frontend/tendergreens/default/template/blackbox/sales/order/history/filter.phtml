@@ -1,0 +1,48 @@
+<?php /** @var Blackbox_TenderGreens_Block_Sales_Order_History_Filter $this */ ?>
+<table class="data-table">
+    <thead>
+    <tr class="table-orders-head">
+        <th class="number"><?php echo $this->__('TIME PERIOD ') ?></th>
+        <th class="ship"><?php echo $this->__('SORT BY') ?></th>
+        <th colspan="2" class="status"><span class="nobr"><?php echo $this->__('SHOW STATUS') ?></span></th>
+        <th colspan="2" class="search">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <input name="q" placeholder="search" id="search" onchange="updateFilter(this)" data-url="<?php echo $this->getQueryUrl('%%value%%')?>" value="<?php echo $this->getQuery()?>">
+        </th>
+    </tr>
+    <tr class="filer-orders">
+        <th class="orders">
+            <input type="text" name="daterange" placeholder="Search" id="time-period-filter" readonly data-url="<?php echo $this->getTimePeriodUrl('%%from%%', '%%to%%') ?>" onchange="updateTimePeriodFilter(this)" value="<?php echo $this->getCurrentTimePeriod() ?>">
+            <script type="text/javascript">
+                jQuery(function() {
+                    jQuery('input[name="daterange"]').daterangepicker();
+                });
+            </script>
+        </th>
+        <th class="orders">
+            <?php echo $this->getSortSelectHtml() ?>
+        </th>
+        <th  colspan="2" class="orders">
+            <?php echo $this->getStatusSelectHtml() ?>
+        </th>
+        <th colspan="2"></th>
+    </tr>
+    </thead>
+</table>
+<script type="text/javascript">
+    function updateFilter(el) {
+        document.location = jQuery(el).data('url').replace('%%value%%', encodeURIComponent(el.value));
+    }
+    function updateTimePeriodFilter(el) {
+        daterangepicker = el.daterangepicker;
+
+        var startTimestamp = daterangepicker.startDate / 1000 - daterangepicker.startDate._d.getTimezoneOffset() * 60;
+        var endTimestamp = Math.floor(daterangepicker.endDate / 1000) - daterangepicker.endDate._d.getTimezoneOffset() * 60;
+
+        if (daterangepicker.empty) {
+            document.location = jQuery(el).data('url').replace('%%from%%', '').replace('%%to%%', '');
+        } else {
+            document.location = jQuery(el).data('url').replace('%%from%%', startTimestamp).replace('%%to%%', endTimestamp);
+        }
+    }
+</script>

@@ -1,0 +1,396 @@
+<?php
+class Cmsmart_Onlinedesign_IndexController extends Mage_Core_Controller_Front_Action
+{
+	public function designAction()
+    {
+		$this->loadLayout();
+		$this->getResponse()->setBody(
+			$this->getLayout()->createBlock('onlinedesign/onlinedesign')->setTemplate('onlinedesign/nbdesigner-frontend-template.phtml')->toHtml()
+		);
+	}
+	
+	public function nbdesigner_get_product_infoAction()
+    {
+		$helper = Mage::helper('onlinedesign/data');
+		$uid = $helper->get_current_user_id();
+
+		$data = array();
+		$id     = $this->getRequest()->getParam('id');
+		$pid_redesign     = $this->getRequest()->getParam('product_id');
+		$oid     = $this->getRequest()->getParam('oid');
+		$onlinedesignIds = Mage::getModel('onlinedesign/onlinedesign')->_getOnlineDesignByProduct($id);
+		foreach($onlinedesignIds as $onlinedesignId) {
+			$dpi = $onlinedesignId->getDpi();
+			$data['product'] = unserialize($onlinedesignId->getContentDesign());
+            $data['dpi'] = $onlinedesignId->getDpi();
+			
+			/* process when customer logged */
+            /* if(isset($oid) && ($oid != '')){
+                $uid = $helper->get_current_user_id();
+                if($uid > 0){
+                    $path = $helper->plugin_path_data(). '/designs/' .$uid. '/' .$oid. '/' .$id. '/design.json';
+					$data_design = $helper->nbdesigner_read_json_setting($path);
+                    $data['design'] = $data_design;                   
+                }
+            }else{
+                $data['design'] = '';
+            } */
+			
+			/* redesign in order */
+			if(isset($oid) && $oid != '' && isset($uid) && $uid > 0){
+                $order = Mage::getModel('sales/order')->load($oid);
+				$order->getAllVisibleItems();
+				$orderItems = $order->getItemsCollection()->addAttributeToSelect('*')->load();
+				
+				$data_design = "";
+				foreach($orderItems as $sItem) {
+					if(($sItem->getNbdesignerJson() != null || $sItem->getNbdesignerJson() != "") && $pid_redesign == $sItem->getNbdesignerPid()){
+						$data['design'] = $helper->nbdesigner_read_json_setting($sItem->getNbdesignerJson());
+						$sid = $sItem->getNbdesignerSession();
+					}
+				}
+				
+				$order = "nb_order";
+				
+				$path_font = $helper->plugin_path_data(). DS . 'designs'. DS . $sid . DS . $order . DS . $pid_redesign . DS . 'used_font.json';
+				$data_fonts = $helper->nbdesigner_read_json_setting($path_font);
+				$data['fonts'] = $data_fonts;   
+			
+            }else{
+                $data['design'] = '';
+            }
+			
+            echo json_encode($data);
+			break;
+		}
+		die();
+	}
+	
+	
+	public function nbdesigner_save_customer_designAction() {   
+		$helper = Mage::helper('onlinedesign/data');
+        $sid = $this->getRequest()->getParam('sid');
+        $pid = $this->getRequest()->getParam('product_id');  
+        $oid = $this->getRequest()->getParam('orderid');
+		$image_post = $this->getRequest()->getParam('image');
+		
+		$config = str_replace('\"', '"', $this->getRequest()->getParam('config'));
+		
+        if($image_post){
+            $data = $image_post['img']; /* $_POST['image']['img']; */
+            $json = str_replace('\"', '"', $image_post['json']); /* $_POST['image']['json'] */	
+        } else{
+            die('Incorect data!');
+        }     
+		
+        $uid = $helper->get_current_user_id();      
+        if (!is_numeric($pid) || !isset($data) || !is_array($data))
+            die('Incorect data!');
+        $result['flag'] = 'Fails to save design.';
+        $result['redesign'] = '';
+        $order = 'nb_order';
+        $accept_save =  true;
+        
+        /* if ($uid > 0) {
+            $iid = $uid;
+            $json_file = $helper->plugin_path_data(). DS . 'designs/' . $uid . '/' . $order . '/' . $pid . '/design.json';
+            if($accept_save) $data_after_save_image = $helper->nbdesigner_save_design_to_image($data, $uid, $pid);
+        } else { */
+		
+		/* redesign image */
+		if(($oid != '') && ($uid > 0)){
+			$accept_save = true;
+			
+			$order = Mage::getModel('sales/order')->load($oid);
+			$order->getAllVisibleItems();
+			$orderItems = $order->getItemsCollection()->addAttributeToSelect('*')->load();
+			foreach($orderItems as $item){
+				if(($item->getNbdesignerSession() != null || $item->getNbdesignerSession() != "") && $item->getNbdesignerPid() == $pid) {
+					$sid = $item->getNbdesignerSession();
+					break;
+				}
+			}
+        }
+		
+		
+		if($accept_save) $data_after_save_image = $helper->nbdesigner_save_design_to_image($data, $sid, $pid);
+		$json_file = $helper->plugin_path_data(). DS . 'designs'. DS . $sid . DS . $order . DS . $pid . DS . 'design.json';
+		Mage::getSingleton('core/session')->setDesignJsonFile($json_file);
+		Mage::getSingleton('core/session')->setNbdesignerPid($pid);
+		Mage::getSingleton('core/session')->setNbdesignerSession($sid);
+		
+		/* } */
+		
+		/* save custom font used */
+		$_fonts_param = $this->getRequest()->getParam('fonts');
+		$json_font = $helper->plugin_path_data(). DS . 'designs'. DS . $sid . DS . $order . DS . $pid . DS . 'used_font.json';
+		if($_fonts_param) {
+			$fonts = str_replace('\"', '"', $_fonts_param);
+			file_put_contents($json_font, $fonts);
+
+			$fonts_decode = json_decode($fonts);
+			$_s_type = ""; $_s_name = ""; $_s_ext = "";
+			foreach($fonts_decode as $k => $v){
+				$_s_type = $v->type; $_s_name = $v->name; $_s_ext  = $v->ext;
+				if($_s_type == "custom") {
+					$list = $helper->nbdesigner_read_json_setting($helper->plugin_path_data(). DS . 'fonts.json');
+					foreach($list as $k => $v){
+						if($_s_name == $v["alias"] && $_s_ext == $v["type"]) {
+							copy($v["file"], $helper->plugin_path_data().DS."fonts".DS.$_s_name.".".$_s_ext);
+						}
+					}
+				}
+			}
+		}
+		
+        if($accept_save) {
+            file_put_contents($json_file, $json);
+			file_put_contents($json_config, $config);
+            if (!count($data_after_save_image['mes'])) {
+                $result['image'] = $data_after_save_image['link'];
+                $result['flag'] = 'success';
+                $path = $helper->plugin_path_data(). DS . 'designs/' . $sid . '/nb_order/' . $pid . '/thumbs';
+                if($oid == ''){
+                    $_SESSION['nbdesigner']['nbdesigner_' . $pid] = json_encode($helper->nbdesigner_list_thumb($path));
+					Mage::getSingleton('core/session')->setNbdesignerSrc($_SESSION['nbdesigner']['nbdesigner_' . $pid]);
+				}
+            }
+        }
+		
+		/* re-design image */
+        if(($oid != '') && ($uid > 0)) {
+			$reJect = Mage::getModel('onlinedesign/reject');
+			$isRedesign = $reJect->_filterCollection($oid, $pid);
+
+            if(sizeof($isRedesign) && $reJect->getAction($oid, $pid) == 'decline'){			
+				$session = $iid;
+				$path_product = $helper->plugin_path_data(). DS. 'designs/' .$session . '/nb_order/' .$pid;
+				$path_old = $helper->plugin_path_data(). DS. 'designs/' .$session. '/nb_order/' .$pid. '_old';
+                $path_new = $helper->plugin_path_data(). DS. 'designs/' .$session. '/nb_order/' .$pid;
+				if(file_exists($path_old)) $helper->nbdesigner_delete_folder($path_old);
+                rename($path_product, $path_old);
+                if(mkdir($path_product)){
+                    $helper->nbdesigner_copy_dir($path_new, $path_product);
+                    $result['redesign'] = $this->__("Your design has been saved success! Please wait response email!");               
+                }
+            } else {
+                $result['flag'] = 'pendding';
+                $result['redesign'] = $this->__("Your design has been approved or pendding to review!");
+            }
+        }
+		
+        echo json_encode($result);
+        die();
+    }
+	
+	public function nbdesigner_get_artAction(){
+		$helper = Mage::helper('onlinedesign/data');
+        $result = array();
+        $path_cat = $helper->plugin_path_data().DS.'art_cat.json';
+        $path_art = $helper->plugin_path_data().DS.'arts.json';
+        $result['flag'] = 1;
+        $result['cat'] = $helper->nbdesigner_read_json_setting($path_cat);
+        $result['arts'] = $helper->nbdesigner_read_json_setting($path_art);	        
+        echo json_encode($result);
+        die();
+    }
+	
+	public function nbdesigner_get_fontAction(){ 	        
+		$helper = Mage::helper('onlinedesign/data');
+        $result = array();
+        $path_cat = $helper->plugin_path_data(). DS. 'font_cat.json';
+        $path_font = $helper->plugin_path_data(). DS. 'fonts.json';
+        $path_google_font = $helper->plugin_path_data(). DS. 'googlefonts.json';
+        $result['flag'] = 1;
+        $result['cat'] = $helper->nbdesigner_read_json_setting($path_cat);
+        $result['fonts'] = $helper->nbdesigner_read_json_setting($path_font);	        
+        $result['google_font'] = $helper->nbdesigner_read_json_setting($path_google_font);	        
+        echo json_encode($result);   
+    }
+	
+	public function nbdesigner_add_google_fontAction() {
+		$helper = Mage::helper('onlinedesign/data');
+		$name = $this->getRequest()->getParam('name');
+        /* $id = $this->getRequest()->getParam('id'); */
+        $path_font = $helper->plugin_path_data() .DS. 'googlefonts.json';
+        $list = $helper->nbdesigner_read_json_setting($path_font);
+		$id = count($list);	
+		$data = array("name" => trim($name), "id" => (string)$id);
+        $helper->nbdesigner_update_json_setting($path_font, $data, $id);
+        
+		$data_db = array();
+		$data_db['name'] = $name;
+		$data_db['font_type'] = "google";
+		$data_db['category'] = "0"; /* google category */
+		$model = Mage::getModel('onlinedesign/font');	
+		$model->setData($data_db);
+		$model->save();
+		echo 'success';
+		die();
+    }
+	
+	public function nbdesigner_delete_fontAction() {
+		$helper = Mage::helper('onlinedesign/data');
+        $id = $this->getRequest()->getParam('id');
+        $path = $helper->plugin_path_data(). DS . 'googlefonts.json';
+        $helper->nbdesigner_delete_gfont_json_setting($path, $id, true);
+        echo 'success';
+        die();
+    }
+	
+	public function nbdesigner_customer_uploadAction() {
+		$helper = Mage::helper('onlinedesign/data');
+		$allow_extension = array('jpg','jpeg','png','gif');
+        $upload_max = $helper->getUploadMaxSize();
+		if($upload_max == 0 || $upload_max == "") $upload_max = 10;
+        $allow_max_size = $upload_max*1024*1024;
+        $result =   true;
+        $res = array();
+        $size   =   $_FILES['file']["size"];
+        $name   =   $_FILES['file']["name"];    
+        $ext = $helper->nbdesigner_get_extension($name);
+        $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
+        $path = $helper->plugin_path_data(). DS . 'temp';
+        if(empty($name)) {
+            $result = false;
+            $res['mes'] = $this->__('Error occurred with file upload!');            
+        }
+        if($size > $allow_max_size){
+            $result = false;
+            $res['mes'] = $this->__('Too large file !');                
+        }
+        $check = $helper->checkFileType($name, $allow_extension);
+        if(!$check){
+            $result = false;
+            $res['mes'] = $this->__('Invalid file format!');
+        }      
+
+		if(!is_dir($path)){
+			mkdir($path, 0777);
+		}
+        if(!file_exists($path)){
+			$result = false;
+			$res['mes'] = $this->__('Have problem with server permission!');
+        }else{          
+            if($result){
+                if(move_uploaded_file($_FILES['file']["tmp_name"],$path.DS.$new_name)){
+                    $res['mes'] = $this->__('Upload success !');       
+                }else{
+                    $result = false;
+                    $res['mes'] = $this->__('Error occurred with file upload!');            
+                }                     
+            }
+        }
+        if($result){
+            $res['src'] = $helper->getMediaPath().DS.'temp'.DS.$new_name;
+            $res['flag'] = 1;
+        }else{
+            $res['flag'] = 0;
+        }
+	        
+        echo json_encode($res);
+		die();
+    }
+	
+	public function nbdesigner_get_qrcodeAction(){
+		$helper = Mage::helper('onlinedesign/data');
+        $result = array();
+        $result['flag'] = 0;
+        if(isset($_REQUEST['data'])){
+            $content = $_REQUEST['data'];
+            require_once 'includes'.DS.'class.nbdesigner.qrcode.php';
+            $qr = new Nbdesigner_Qrcode();
+            $qr->setText($content);
+            $image = $qr->getImage(500);
+			
+            $file_name = 'qrcode-'.strtotime("now") . '.png';
+            $full_name = $helper->plugin_path_data().DS.'temp'.DS. $file_name;
+            if($helper->nbdesigner_save_data_to_image($full_name, $image)){
+                $result['flag'] = 1;
+                $result['src'] =  Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA).'/nbdesigner/temp/'.$file_name;
+            };          
+        }
+        echo json_encode($result);
+        die();
+    }
+	
+	public function nbdesigner_detail_orderAction() {
+		$helper = Mage::helper('onlinedesign/data');
+		$order_id = $this->getRequest()->getParam('order_id');	
+		$download_all = $this->getRequest()->getParam('download-all');	
+		
+        if($order_id){
+            if($download_all){
+                $zip_files = array();	
+				$order = Mage::getModel('sales/order')->load($order_id);
+				$order->getAllVisibleItems();
+				$orderItems = $order->getItemsCollection()->addAttributeToSelect('*')->load();
+
+				foreach($orderItems as $item){
+					$sid = $item->getNbdesignerSession();
+					if(($sid != null || $sid != "") && $item->getNbdesignerPid()) {
+						$path = $helper->plugin_path_data().'/designs/' . $sid . '/nb_order/' .$item->getNbdesignerPid();
+						$list_images = $helper->nbdesigner_list_thumb($path, 1);
+						if(count($list_images) > 0){
+							foreach($list_images as $key => $image){
+								$zip_files[] = $image;
+							}
+						}
+					}
+                }
+
+                $pathZip = $helper->plugin_path_data().'/downloads/customer-design-'.$order_id.'.zip';
+				$nameZip = 'customer-design-'.$order_id.'.zip';
+                $helper->zip_files_and_download($zip_files, $pathZip, $nameZip);
+            }
+			
+            /* if(isset($_GET['product_id'])){
+                $product_id = $_GET['product_id'];
+                $path = $this->plugin_path_data . 'designs/' . $user_id . '/' . $order_id .'/' .$product_id;    
+                $datas = unserialize(get_post_meta($product_id, '_designer_setting', true)); 
+                $list_design = array();
+                $list_images = $this->nbdesigner_list_thumb($path, 1);
+                $up = wp_upload_dir();
+                $base_path = $up['baseurl'];
+                $mid_path = 'nbdesigner/designs/' . $user_id . '/' . $order_id .'/' .$product_id.'/';  
+                foreach ($list_images as $img){
+                    $name = basename($img);
+                    $url = $base_path.'/'.$mid_path.$name;
+                    $arr = explode('.', $name);
+                    $_frame = explode('_', $arr[0]);
+                    $frame = $_frame[1];
+                    $list_design[$frame] = $url;
+                }
+            } */
+        }
+        //require_once NBDESIGNER_PLUGIN_DIR .'views/nbdesigner-detail-order.php';
+    }
+	
+	public function nbdesigner_copy_image_from_urlAction(){
+		$helper = Mage::helper('onlinedesign/data');
+        $url = $this->getRequest()->getParam('url');
+        $ext = $helper->nbdesigner_get_extension($url);
+        $allow_extension = array('jpg','jpeg','png','gif');
+        if(!in_array(strtolower($ext), $allow_extension)) $ext = 'png';
+        $new_name = strtotime("now").substr(md5(rand(1111,9999)),0,8).'.'.$ext;
+        $path = $helper->plugin_path_data().'/temp/'.$new_name;
+        $res['src'] = $helper->getMediaPath().'/temp/'.$new_name;
+        if(@copy($url, $path)){
+            $res['flag'] = 1;
+        } else {
+            $res['flag'] = 0;
+        }  
+        echo json_encode($res);
+        die();
+    }
+	
+	public function nbdesigner_get_patternAction(){ 	        
+		$helper = Mage::helper('onlinedesign/data');
+        $result = array();
+        $path = $helper->plugin_path_data(). DS . 'data/pattern.json';
+        $result['flag'] = 1;
+        $result['data'] = $helper->nbdesigner_read_json_setting($path);	        
+        echo json_encode($result);
+        die();        
+    }    
+}

@@ -1,0 +1,363 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     rwd_default
+ * @copyright   Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+
+/**
+ * Product view template
+ *
+ * @see Mage_Catalog_Block_Product_View
+ * @see Mage_Review_Block_Product_View
+ */
+?>
+<?php $_helper = $this->helper('catalog/output'); ?>
+<?php $_product = $this->getProduct(); ?>
+<?php $sku = Mage::getModel('catalog/product')->load($_product->getId())->getSku(); ?>
+
+<script type="text/javascript">
+    var optionsPrice = new Product.OptionsPrice(<?php echo $this->getJsonConfig() ?>);
+</script>
+<section class="product-view-section">
+    <div class="product-view-section-container">
+        <?php echo $this->getChildHtml('breadcrumbs') ?>
+        <div class="product-name">
+            <h1><?php echo $_helper->productAttribute($_product, $_product->getName(), 'name') ?></h1>
+        </div>
+        <div id="messages_product_view"><?php echo $this->getMessagesBlock()->toHtml() ?></div>
+
+
+        <div class="product-view">
+
+
+            <div class="product-essential">
+                <div class="left-product-view">
+                    <div class="product-img-box">
+                        <?php echo $this->getChildHtml('media') ?>
+                    </div>
+                </div>
+                <div class="right-product-view">
+
+
+                    <form class="form-product-view"
+                          action="<?php echo $this->getSubmitUrl($_product, array('_secure' => $this->_isSecure())) ?>"
+                          method="post"
+                          id="product_addtocart_form"<?php if ($_product->getOptions()): ?> enctype="multipart/form-data"<?php endif; ?>>
+                        <?php echo $this->getBlockHtml('formkey') ?>
+                    <div class="right-product-view-container">
+                        <h6># <?php echo $sku ?></h6>
+                        <div class="available">
+                            available remaning <?php echo (int) $_product->getStockItem()->getQty(); ?>
+                        </div>
+                        <?php if ($link = $_product->getFile()):?>
+                        <div class="file-format">
+<!--                            --><?php //$link = $_product->getFile() ? Mage::getUrl('downloadable/download/file', array('product_id' => $_product->getId())) : Mage::getBaseUrl() . '(CMS-0374-1016)__1610_YTC_COMM_104ZR 19.pdf' ?>
+                            <a target="_blank" href="<?php echo Mage::getUrl('downloadable/download/file', array('product_id' => $_product->getId()))?>">
+                                <img src="<?php echo $this->getSkinUrl('images/pdf.png'); ?>" alt="">
+                                <div class="file-format-info">
+                                    <p>View File</p>
+                                    <p class="size">.pdf (0.4mb)</p>
+                                </div>
+                            </a>
+                        </div>
+                        <?php endif?>
+                        <div class="info-table">
+                            <div class="delivery-time">
+                                <p>Delivery Time</p>
+                                <p>1-3 Working Days</p>
+                            </div>
+                            <div class="max-qty">
+                                <p>Max Approval Quantity</p>
+                                <p><?php echo $_product->getStockItem()->getMaxSaleQty(); ?></p>
+                            </div>
+                        </div>
+                        <div class="pricing">
+                            <p>Pricing</p>
+                            <div class="pricing-table">
+                                <div class="pricing-table-col">
+                                    <div class="pricing-table-head">
+                                        Quantities
+                                    </div>
+                                    <div class="pricing-table-body">
+                                        1 or more
+                                    </div>
+                                </div>
+                                <div class="pricing-table-col">
+                                    <div class="pricing-table-head">
+                                        Pricing
+                                    </div>
+                                    <div class="pricing-table-body">
+                                        <?php echo $this->getPriceHtml($_product); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-sort-description">
+                            <p>Description</p>
+                            <div class="product-descr">
+                            <?php if ($_product->getShortDescription()): ?>
+                                <div class="short-description">
+                                    <div class="std"><?php echo $_helper->productAttribute($_product, nl2br($_product->getShortDescription()), 'short_description') ?></div>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($_product->getDescription()): ?>
+                                <div class="description">
+                                    <div class="std"><?php echo $_helper->productAttribute($_product, nl2br($_product->getDescription()), 'description') ?></div>
+                                </div>
+                            <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php if (($_product->getTypeId() !== 'configurable')):?>
+                        <div class="brd-b full-width color-favorite">
+                            <div class="atrribute-color">
+                                <p>Color</p>
+                                <div class="color color-red"></div>
+                                <div class="color color-yellow"></div>
+                                <div class="color color-blue"></div>
+                            </div>
+                            <?php $_product = $this->getProduct(); ?>
+                            <?php $_wishlistSubmitUrl = $this->helper('wishlist')->getAddUrl($_product); ?>
+                            <?php if ($this->helper('wishlist')->isAllow()) : ?>
+                                <a href="<?php echo $_wishlistSubmitUrl ?>" onclick="productAddToCartForm.submitLight(this, this.href); return false;" class="link-wishlist"><?php echo $this->__('Favorite') ?>
+                                    <img src="<?php echo $this->getSkinUrl('images/favorite.png'); ?>" alt="">
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+
+                                <?php echo $this->getChildHtml('alert_urls') ?>
+
+                                <?php echo $this->getChildHtml('other'); ?>
+                                <?php if ($_product->isSaleable() && $this->hasOptions()): ?>
+                                    <?php echo $this->getChildChildHtml('container1', '', true, true) ?>
+                                <?php endif; ?>
+
+
+                            <div class="add-to-cart-wrapper">
+                                <?php if (!$this->hasOptions()): ?>
+                                    <div class="add-to-box">
+                                        <?php if ($_product->isSaleable()): ?>
+                                            <?php echo $this->getChildHtml('addtocart') ?>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <?php echo $this->getChildHtml('related_products') ?>
+
+                            <div class="clearer"></div>
+                            <?php if ($_product->isSaleable() && $this->hasOptions()): ?>
+                                <?php echo $this->getChildChildHtml('container2', '', true, true) ?>
+                            <?php endif; ?>
+                    </div>
+                    <div class="right-product-view-bottom-separate"></div>
+                    <button type="button" title="Order now" class="btn-order-now btn-cart"
+                            onclick="productAddToCartForm.submit(this)">
+                        <img src="<?php echo $this->getSkinUrl('images/Shape.png'); ?>" alt="">
+                        <span>
+                            <span>Order now</span>
+                        </span>
+                    </button>
+                    <div class="order-advance">
+                        <input type="checkbox" name="order-advance" id="order-advance" value="1" title=""
+                               class="checkbox"/>
+                        <label id="order-advance-label" for="order-advance">Book an Order in advance <span>Plan ahead and place an order ahead of time.</span></label>
+                    </div>
+                    <div class="order-advance-checked ">
+                        <div class="event-day">
+                            <p>Event Day</p>
+                            <div class="order-day">
+                                <input type="hidden" id="datepicker-1" class="datepicker">
+                                <img src="<?php echo $this->getSkinUrl('images/calendar.png'); ?>" alt="">
+                                <input type="number" class="day" value="02">
+                                <input type="number" class="month" value="12">
+                                <input type="number" class="year" value="2018">
+                            </div>
+                            <p>Shipping Day</p>
+                            <div class="delivery-day">
+                                <input type="hidden" id="datepicker-2" class="datepicker">
+                                <img src="<?php echo $this->getSkinUrl('images/delivery.png'); ?>" alt="">
+                                <input type="number" class="day" value="02">
+                                <input type="number" class="month" value="12">
+                                <input type="number" class="year" value="2018">
+                            </div>
+                        </div>
+                        <div class="right-product-view-bottom-separate"></div>
+                        <a href="#">
+                            <div class="ship-address">
+                                <span>+</span>add shipping address
+                            </div>
+                        </a>
+                        <div class="ship-address-container">
+
+                        </div>
+                        <div class="right-product-view-bottom-separate"></div>
+                        <button type="button" title="Order now" class="btn-order-now btn-cart"
+                                onclick="productAddToCartForm.submit(this)">
+                            <img src="<?php echo $this->getSkinUrl('images/Shape.png'); ?>" alt="">
+                            <span>
+                            <span>Order now</span>
+                        </span>
+                        </button>
+                    </div>
+                    </form>
+                </div>
+
+                <script type="text/javascript">
+                    //<![CDATA[
+                    var productAddToCartForm = new VarienForm('product_addtocart_form');
+                    productAddToCartForm.submit = function (button, url) {
+                        if (this.validator.validate()) {
+                            var form = this.form;
+                            var oldUrl = form.action;
+
+                            if (url) {
+                                form.action = url;
+                            }
+                            var e = null;
+                            try {
+                                this.form.submit();
+                            } catch (e) {
+                            }
+                            this.form.action = oldUrl;
+                            if (e) {
+                                throw e;
+                            }
+
+                            if (button && button != 'undefined') {
+                                button.disabled = true;
+                            }
+                        }
+                    }.bind(productAddToCartForm);
+
+                    productAddToCartForm.submitLight = function (button, url) {
+                        if (this.validator) {
+                            var nv = Validation.methods;
+                            delete Validation.methods['required-entry'];
+                            delete Validation.methods['validate-one-required'];
+                            delete Validation.methods['validate-one-required-by-name'];
+                            // Remove custom datetime validators
+                            for (var methodName in Validation.methods) {
+                                if (methodName.match(/^validate-datetime-.*/i)) {
+                                    delete Validation.methods[methodName];
+                                }
+                            }
+
+                            if (this.validator.validate()) {
+                                if (url) {
+                                    this.form.action = url;
+                                }
+                                this.form.submit();
+                            }
+                            Object.extend(Validation.methods, nv);
+                        }
+                    }.bind(productAddToCartForm);
+
+                    var shipping = new Shipping({
+                        url: '<?php echo $this->getUrl('checkout/cart/catalogProductAddress') ?>',
+                        childRegionUrl: '<?php echo $this->getUrl('directory/json/childRegion') ?>',
+                        selectStateLabel: '<?php echo Mage::helper('core')->jsQuoteEscape($this->__('Select State/Province...')) ?>',
+                        regions: <?php echo $this->helper('directory')->getRegionJson() ?>
+                    });
+
+                    jQuery(function() {
+                        var pad = function (val) {
+                            if (typeof val != 'string') {
+                                val = val.toString();
+                            }
+                            if (val.length < 2) {
+                                return '0' + val;
+                            }
+                            return val;
+                        };
+                        
+                        var datepickers = jQuery('.datepicker');
+                        datepickers.datepicker({});
+
+                        datepickers.each(function () {
+                            var input = jQuery(this);
+                            input.parent().find('img').click(function () {
+                                input.datepicker('show');
+                            });
+                        });
+
+                        datepickers.change(function () {
+                            var input = jQuery(this);
+                            var parent = input.parent();
+                            var date = input.datepicker('getDate');
+                            parent.find('.day').val(pad(date.getDate()));
+                            parent.find('.month').val(pad(date.getMonth() + 1));
+                            parent.find('.year').val(date.getFullYear());
+                        });
+                    });
+                    //]]>
+                </script>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="printing-demand">
+    <div class="printing-demand-container">
+        <h6>your design</h6>
+        <h2>template<br>
+            generation</h2>
+        <button class="tg-button" type="button">Create</button>
+
+    </div>
+</section>
+
+<section class="order-request">
+    <div class="order-request-container">
+        <h6>order</h6>
+        <h2>CUSTOM ORDER <br>
+            REQUEST</h2>
+        <button class="tg-button" type="button">Order</button>
+
+    </div>
+</section>
+<?php if (!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
+<section class="help-poc">
+    <div class="help-poc-container">
+            <h6>for client</h6>
+            <h2>help-poc</h2>
+            <p>Sign In</p>
+            <?php echo $this->getMessagesBlock()->toHtml() ?>
+            <form action="<?php echo $this->getUrl('customer/account/loginPost/') ?>" method="post">
+                <?php echo $this->getBlockHtml('formkey'); ?>
+                <input type="email" autocomplete="off" placeholder="E-mail" name="login[username]" id="email"
+                       class="help-poc-input required-entry validate-email"
+                       title="<?php echo $this->quoteEscape($this->__('Email Address')) ?>"/>
+                <input type="password" autocomplete="off" placeholder="Password" name="login[password]"
+                       class="help-poc-input required-entry validate-password" id="pass"
+                       title="<?php echo $this->quoteEscape($this->__('Password')) ?>"/>
+                <?php echo $this->getChildHtml('form.additional.info'); ?>
+                <?php echo $this->getChildHtml('persistent.remember.me'); ?>
+                <?php echo $this->getChildHtml('persistent.remember.me.tooltip'); ?>
+
+                <button type="submit" class="tg-button button"
+                        title="<?php echo $this->quoteEscape($this->__('Login')) ?>" name="send"
+                        id="send2"><?php echo $this->__('Login') ?></button>
+            </form>
+    </div>
+</section>
+<?php endif; ?>

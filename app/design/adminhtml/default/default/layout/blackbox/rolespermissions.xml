@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<layout>
+    <rolespermissions_permission_index>
+        <reference name="content">
+            <block type="rolespermissions/permission" name="permission" />
+        </reference>
+    </rolespermissions_permission_index>
+    <rolespermissions_permission_edit>
+        <reference name="head">
+            <action method="setCanLoadExtJs"><flag>1</flag></action>
+            <action method="setCanLoadRulesJs"><flag>1</flag></action>
+        </reference>
+        <reference name="left">
+            <block type="rolespermissions/permission_edit_tabs" name="permission_edit_tabs">
+                <block type="rolespermissions/permission_edit_tab_main" name="permission_edit_tab_main" />
+                <block type="rolespermissions/permission_edit_tab_conditions" name="permission_edit_tab_conditions"/>
+                <!--<block type="rolespermissions/permission_edit_tab_actions" name="permission_edit_tab_actions"/>-->
+                <action method="addTab"><name>main_section</name><block>permission_edit_tab_main</block></action>
+                <action method="addTab"><name>conditions_section</name><block>permission_edit_tab_conditions</block></action>
+                <!--<action method="addTab"><name>actions_section</name><block>permission_edit_tab_actions</block></action>-->
+            </block>
+            <!--<block type="adminhtml/template" template="promo/salesrulejs.phtml" name="permission_edit_jsinit"/>-->
+        </reference>
+        <reference name="content">
+            <block type="rolespermissions/permission_edit" name="permission_edit" />
+        </reference>
+    </rolespermissions_permission_edit>
+    <rolespermissions_permission_grid>
+        <remove name="root" />
+        <block type="rolespermissions/permission_edit_tab_product" name="permission_grid" output="toHtml" />
+    </rolespermissions_permission_grid>
+</layout>

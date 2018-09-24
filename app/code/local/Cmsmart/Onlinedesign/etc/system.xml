@@ -1,0 +1,377 @@
+<?xml version="1.0"?>
+<config>
+    <tabs>
+        <cmsmart_tab translate="label" module="onlinedesign">
+            <label>Cmsmart Extension</label>
+            <sort_order>99</sort_order>
+        </cmsmart_tab>
+    </tabs>
+    <sections>
+        <onlinedesign translate="label" module="onlinedesign">
+            <label>Onlinedesign</label>
+            <tab>cmsmart_tab</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>14</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <general translate="label">
+                    <label>General</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>0</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Enable</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enabled>
+						
+						<btn_name translate="lable">
+                            <label>Label of button design</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </btn_name>			
+						
+						<thumb_size translate="lable">
+                            <label>Thumbnail preview design size</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Unit: px. Format: width x height. Example: 60x76 (pixcel)</comment>
+                        </thumb_size>
+						
+						<thumb_quality translate="lable">
+                            <label>Thumbnail Quality</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>250</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Unit: %. Quality of the generated thumbnails between 0 - 100 (%)</comment>
+                        </thumb_quality>
+						
+						<default_dpi translate="lable">
+                            <label>Default output DPI</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>300</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Dot Per Inch</comment>
+                        </default_dpi>
+						
+						<unit translate="label">
+							<label>Dimensions Unit</label>
+							<frontend_type>select</frontend_type>
+							<source_model>onlinedesign/system_config_unit</source_model>
+							<sort_order>350</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+							<can_be_empty>1</can_be_empty>
+							<comment>This controls what unit you will define lengths in.</comment>
+						</unit>
+						
+						<hide_on_mobile translate="label">
+                            <label>Not Hide On Smartphones</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>400</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Hide product designer on smartphones and display an information instead.</comment>
+                        </hide_on_mobile>
+						
+						<owner_email translate="label">
+                            <label>Admin Sender Email</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>500</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Enter recipients (comma separated) for this email.</comment>
+                        </owner_email>
+                    </fields>
+                </general>
+				
+				<text_options translate="label">
+                    <label>Text</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>100</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+						<enable_add_text translate="label">
+                            <label>Enable tool Add Text</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_add_text>
+						
+						<default_text translate="label">
+                            <label>Default Text</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Show after you click Add Text on menu of Onlinedesign.</comment>
+                        </default_text>
+						
+						<default_color translate="label">
+                            <label>Default Color</label>
+                            <frontend_type>text</frontend_type>
+							<frontend_model>onlinedesign/adminhtml_system_config_form_field_colorpicker</frontend_model>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Default Text Color.</comment>
+                        </default_color>
+						
+					 </fields>
+                </text_options>
+				
+				<clip_art translate="label">
+                    <label>Clip Art</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>200</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+						<enable_clipart translate="label">
+                            <label>Enable Tool Add Clipart</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_clipart>
+					 </fields>
+                </clip_art>
+				
+				<image_options translate="label">
+                    <label>Image</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>300</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+						<enable_add_image translate="label">
+                            <label>Enable Tool Add Image</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_add_image>
+						
+						<enable_upload_image translate="label">
+                            <label>Enable Upload Image</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_upload_image>
+						
+						<login_require translate="label">
+                            <label>Login Required</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Users must create an account in your magento website and need to be logged-in to upload images.</comment>
+                        </login_require>
+						
+						<upload_min translate="lable">
+                            <label>Min size upload</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Unit: Mb. Default: 0Mb</comment>
+                        </upload_min>
+						
+						<upload_max translate="lable">
+                            <label>Max size upload</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Unit: Mb. Default: 5Mb</comment>
+                        </upload_max>
+						
+						<enable_image_url translate="label">
+                            <label>Enable Insert Image From Url</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_image_url>
+						
+						<enable_capture_webcame translate="label">
+                            <label>Enable Capture Images By Webcam</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_capture_webcame>
+						
+						<enable_facebook translate="label">
+                            <label>Enable Facebook Photos</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_facebook>
+						
+						<facebook_api_key translate="lable">
+                            <label>Facebook API Key</label>
+							<comment><![CDATA[ For insert image from facebook. Get <a href="javascript:void(0)" id="myBtn" onClick = "open_help_faceapi(); return false;">Facebook API</a> access info.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </facebook_api_key>
+						
+						<show_term translate="label">
+                            <label>Show Terms And Conditions</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </show_term>
+						
+						<term_text translate="label">
+                            <label>Terms And Conditions Upload Image</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>HTML Tags Supported.</comment>
+                        </term_text>
+					 </fields>
+                </image_options>
+				
+				<free_draw translate="label">
+                    <label>Free Draw</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>400</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+						<enable_free_draw translate="label">
+                            <label>Enable Free Draw</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_free_draw>
+					 </fields>
+                </free_draw>
+				
+				<qr_code translate="label">
+                    <label>Qr Code</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>500</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+						<enable_qrcode translate="label">
+                            <label>Enable QRCode</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_qrcode>
+						
+						<qr_text translate="label">
+                            <label>Default QRCode Text</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>Default text for QRCode.</comment>
+                        </qr_text>
+					 </fields>
+                </qr_code>
+				
+				<color translate="label">
+                    <label>Color</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>700</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+						<show_all_color translate="label">
+                            <label>Show All Color</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+							<comment>When this option is YES. You can set more colors in menu Onlinedesign -> Manage Colors</comment>
+						</show_all_color>
+					 </fields>
+                </color>
+				
+				<info translate="label">
+                    <label>Information</label>
+                    <sort_order>901</sort_order>
+                    <frontend_type>text</frontend_type> 
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store> 
+                    <comment>Extension powered by <![CDATA[<a href="http://www.cmsmart.net" target="_blank" style='text-decoration: none'><font color="#EF1313">CMSMART</font></a>.<br/><br/>]]>Visit our website: <![CDATA[<a href="http://www.cmsmart.net" target="_blank" style='text-decoration: none'><font color="#EF1313">wwww.cmsmart.net</font></a>]]> to view more themes and extension required for your magento store.<![CDATA[<br/><br/>]]> Write ticket and get support from our at: <![CDATA[<a href="http://cmsmart.net/support_ticket/" target="_blank" style='text-decoration: none'><font color="#EF1313">Technical Support - Forum</font></a>.]]>  </comment>  
+                </info>
+            </groups>
+        </onlinedesign>
+    </sections>
+</config>

@@ -1,0 +1,5 @@
+<?php /** @var Blackbox_Notification_Block_Head_Notification_Renderer $this */ ?>
+<div class="tg_notification">
+    <span class="delete" data-id="<?php echo $this->getItem()->getId() ?>">✖</span>
+    <?php echo $this->processTemplate($this->getItem()->getContent()) ?>
+</div>

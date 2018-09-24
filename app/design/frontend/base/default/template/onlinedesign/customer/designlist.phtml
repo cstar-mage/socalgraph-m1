@@ -1,0 +1,103 @@
+<?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
+<?php $collection = $this->getCollection(); ?>
+<div class="page-title">
+    <h2><?php echo $this->__('My Orders And Designer') ?></h2>
+</div>
+
+<div>
+	<p>
+	<?php echo $this->__('+ If you have any problem with your design. Please  to the admin site via their email: <strong>%s</strong>', Mage::helper('onlinedesign/config')->getAdminEmail()); ?>
+	</p>
+	<br />
+</div>
+
+<?php echo $this->getPagerHtml(); ?>
+<?php if($collection->getSize()): ?>
+<table class="data-table" id="my-custom-table">
+    <col width="1" />
+    <col />
+    <col width="1" />
+    <thead>
+        <tr class="table_design">
+            <th><?php echo $this->__('Order') ?></th>
+            <th><?php echo $this->__('Product') ?></th>
+            <th><?php echo $this->__('Total') ?></th>
+		</tr>
+    </thead>
+    <tbody>
+		<?php
+		foreach($collection as $o){
+			$order_id = $o->getId();
+			$order = Mage::getModel('sales/order')->load($order_id);
+			$order->getAllVisibleItems();
+			$orderItems = $order->getItemsCollection()->addAttributeToSelect('*')->load();		
+			$helper = Mage::helper('onlinedesign/data');
+			$link_o = '<a href="'.Mage::getUrl('sales/order/view', array('order_id' => $order_id, '_secure'=>(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on'))).'" target="_blank">#'.$o->getIncrementId().'</a>';
+		?>
+			<tr>
+				<td><?php echo $link_o; ?></td>
+				<td>
+					<?php
+					foreach($orderItems as $item){
+						if($item->getParentItemId() == null || $item->getParentItemId() == "") {
+							$pname = $item->getName(); 
+							$pid = $item->getProductId();
+							
+							$store = Mage::app()->getStore();
+							$path = Mage::getResourceModel('core/url_rewrite')->getRequestPathByIdPath('product/'.$pid, $store);
+
+							$purl = $store->getBaseUrl($store::URL_TYPE_WEB) . $this->addItemDesignParamToPath($item, $path);
+							$link_p = '
+								<p><a href="'.$purl.'" target="_blank">'.$pname.'</a></p>
+								';
+						
+					?>
+							<span class="nobr"><?php echo $link_p; ?></span>
+					<?php
+						} /* end link product */
+						
+						$data_design = "";
+						if($item->getNbdesignerJson() != null || $item->getNbdesignerJson() != ""){
+							$data_design = $item->getNbdesignerJson();
+							$folder = Mage::helper('onlinedesign/data')->getSessionFolderFromPath($data_design);
+							$html = '<div>';
+							$list = json_decode($data_design);
+
+							foreach ($list as $img) {
+								$src = $helper->nbdesigner_create_secret_image_url($img);
+								$no_image_arr = explode(";base64,", $src);
+								if($no_image_arr[1]){
+									$html .= '<img width="60" height="60" style="border-radius: 3px; border: 1px solid #ddd; margin-top: 5px; margin-right: 5px; display: inline-block;" src="' . $src . '"/>';
+								}
+							}
+							$html .= '</div>';
+							
+							$action = Mage::getModel('onlinedesign/reject')->getAction($order_id, $pid);
+					?>
+							<span class="nobr">
+								<?php echo $html; ?>
+								<?php if($action == "decline") { ?>
+									<p>(Rejected! Click
+									<a href="<?php echo $purl."/?product_id=".$pid."&orderid=".$order_id."&folder=".$folder."&order_item_id=".$item->getId()."&task=redesign"; ?>" target="_blank">here </a>
+									to design again for the product <?php echo $pname; ?>!)
+									</p></br>
+								<?php } ?>
+							</span>
+					<?php
+							
+						} /* end image product design */
+					}
+					?>
+				</td>
+				<td><span class="nobr"><?php echo Mage::helper('core')->currency($o->getGrandTotal(), true, false); ?></span></td>
+			</tr>
+		<?php
+		}
+		?>
+    </tbody>
+</table>
+<script type="text/javascript">decorateTable('my-custom-table');</script>
+<?php echo $this->getPagerHtml(); ?>
+<?php else: ?>
+    <p><?php echo $this->__('The collection is empty.'); ?></p>
+<?php endif ?>

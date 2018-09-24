@@ -1,0 +1,45 @@
+<?php
+/** @var Blackbox_HelpDesk_Block_Adminhtml_Ticket_View_Tab_Comments $this */
+?>
+<div id="helpdesk_ticket_tabs_commetns_content">
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-edit-form fieldset-legend">Comments</h4>
+        </div>
+        <div class="fieldset" id="main_base_fieldset">
+            <div class="hor-scroll">
+                <ul>
+                    <?php foreach ($this->getTicket()->getComments() as $comment): ?>
+                    <li>
+                        <?php echo $this->getCommentHtml($comment) ?>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php if ($this->getTicket()->canPost()): ?>
+                    <div class="answer-form">
+                        <div>
+                            <h6>Answer:</h6>
+                        </div>
+                        <form id="helpdesk-ticket-answer-form" action="<?php echo $this->getAddPostUrl()?>" method="post" autocomplete="off" enctype="multipart/form-data">
+                            <input name="form_key" type="hidden" value="<?php echo $this->getFormKey() ?>" />
+                            <div>
+                                <textarea name="comment[text]" style="width: 100%;" rows="5" class="required-entry"><?php echo $this->getCommentData()->getText() ?></textarea>
+                            </div>
+                            <div>
+                                <input type="file" name="file[]" multiple="multiple">
+                            </div>
+                            <div>
+                                <input type="submit">
+                            </div>
+                        </form>
+                        <script type="text/javascript">
+                            //<![CDATA[
+                            var dataForm = new varienForm('helpdesk-ticket-answer-form', true);
+                            //]]>
+                        </script>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Import>
+            <version>0.1</version>
+        </Blackbox_Import>
+    </modules>
+    <global>
+        <helpers>
+            <blackbox_import>
+                <class>Blackbox_Import_Helper</class>
+            </blackbox_import>
+        </helpers>
+    </global>
+</config>

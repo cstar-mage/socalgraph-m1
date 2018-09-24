@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Checkout>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Mage_Checkout />
+                <Cmsmart_AdminTheme /><!-- rewrite Cmsmart_AdminTheme_Block_Adminhtml_Block_Sales_Order_View -->
+            </depends>
+        </Blackbox_Checkout>
+    </modules>
+</config>

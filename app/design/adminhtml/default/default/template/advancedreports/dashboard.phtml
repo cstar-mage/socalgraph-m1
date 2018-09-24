@@ -1,0 +1,131 @@
+<?php
+/**
+ * aheadWorks Co.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://ecommerce.aheadworks.com/AW-LICENSE.txt
+ *
+ * =================================================================
+ *                 MAGENTO EDITION USAGE NOTICE
+ * =================================================================
+ * This software is designed to work with Magento community edition and
+ * its use on an edition other than specified is prohibited. aheadWorks does not
+ * provide extension support in case of incorrect edition use.
+ * =================================================================
+ *
+ * @category   AW
+ * @package    AW_Advancedreports
+ * @version    2.8.0
+ * @copyright  Copyright (c) 2010-2012 aheadWorks Co. (http://www.aheadworks.com)
+ * @license    http://ecommerce.aheadworks.com/AW-LICENSE.txt
+ */
+?><script type="text/javascript">
+    //<![CDATA[
+    function insertChart(contentElementId, route, chartType, option, width, height, backgroundColor)
+    {
+        var ajaxParams = [];
+        ajaxParams.push('block/' + route);
+        ajaxParams.push('protocol/' + window.location.protocol);
+        ajaxParams.push('type/' + chartType);
+        ajaxParams.push('option/' + option);
+        ajaxParams.push('width/' + (width || document.getElementById(contentElementId).getWidth()));
+        ajaxParams.push('height/' + height);
+        ajaxParams.push('bkgcolor/' + backgroundColor);
+        var ajaxBlockUrl =
+                '<?php echo  $this->getUrl('adminhtml/awadvancedreports_chart/ajaxBlock') ?>' +
+                ajaxParams.join('/')
+            ;
+        ajaxBlockUrl = ajaxBlockUrl.replace(/^http[s]{0,1}/, window.location.href.replace(/:[^:].*$/i, ''));
+        new Ajax.Updater(contentElementId, ajaxBlockUrl, {
+            method: 'post',
+            parameters: {
+                isAjax: 'true',
+                form_key: FORM_KEY
+            },
+            evalScripts: true
+        });
+    }
+    //]]>
+</script>
+
+<div>
+    <div class="aw_arep_reports_list">
+        <?php echo $this->getStoreSwitcherHtml() ?>
+        <?php echo $this->getReportsListHtml() ?>
+    </div>
+    <div class="aw_arep_report_grid">
+        <div class="aw_arep_reports_dashboard">
+            <div class = "head">
+                <div class="f-left"><h3><?php echo $this->__('Dashboard') ?></h3></div>
+                <div class="f-right"><h3><?php echo $this->__('Last 30 days') ?></h3></div>
+            </div>
+            <div class = "content">
+                <div class="aw_dashboard_col main_chart">
+                    <h3><?php echo $this->__('Sales Overview')?></h3>
+                    <div id="<?php echo $this->getSalesOverviewChartId() ?>"></div>
+                    <?php echo $this->getSalesOverviewChart() ?>
+                </div>
+                <div id="dashboard_grid_bestsellers" class="aw_dashboard_col report_grid">
+                    <h3><?php echo $this->__('Bestsellers')?></h3>
+                    <table class="arep-dashboard-report-grid">
+                        <?php $data = $this->getBestsellersReport(); ?>
+                        <?php if (count($data)): ?>
+                            <?php foreach($data as $row): ?>
+                                <tr>
+                                    <td class="field-number"><?php echo $row->getSortOrder(); ?></td>
+                                    <td class="field-label"><?php echo $row->getName(); ?></td>
+                                    <td class="field-number"><?php echo round($row->getSumQty()); ?></td>
+                                    <td class="field-currency"><?php echo $this->formatCurrency($row->getSumTotal()); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td><?php echo $this->__('No data for this period') ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+                <div class="aw_dashboard_col main_chart">
+                    <h3><?php echo $this->__('Average Order Value')?></h3>
+                    <div id="<?php echo $this->getAverageOrderValueChartId() ?>"></div>
+                    <?php echo $this->getAverageOrderValueChart() ?>
+                </div>
+                <div id = "dashboard_grid_country" class="aw_dashboard_col report_grid">
+                    <h3><?php echo $this->__('Sales by Country')?></h3>
+                    <table class="arep-dashboard-report-grid">
+                        <?php if (count($this->getSalesByCountryReport())): ?>
+                            <?php foreach($this->getSalesByCountryReport() as $row): ?>
+                                <tr>
+                                    <td class="field-number"><?php echo $row['order']; ?></td>
+                                    <td class="field-label"><?php echo $row['country_name']; ?></td>
+                                    <td class="field-number"><?php echo round($row['qty_ordered']); ?></td>
+                                    <td class="field-currency"><?php echo $this->formatCurrency($row['total']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td><?php echo $this->__('No data for this period') ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+                <div class="aw_dashboard_col additional_chart">
+                    <h3><?php echo $this->__('Items per Order')?></h3>
+                    <div id="<?php echo $this->getItemsPerOrderChartId() ?>"></div>
+                    <?php echo $this->getItemsPerOrderChart() ?>
+                </div>
+                <div class="aw_dashboard_col additional_chart">
+                    <h3><?php echo $this->__('New Signups')?></h3>
+                    <div id="<?php echo $this->getNewSignupChartId() ?>"></div>
+                    <?php echo $this->getNewSignupChart() ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

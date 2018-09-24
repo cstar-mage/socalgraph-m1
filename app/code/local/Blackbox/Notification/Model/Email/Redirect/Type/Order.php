@@ -1,0 +1,5 @@
+<?php
+
+class Blackbox_Notification_Model_Email_Redirect_Type_Order extends Blackbox_Notification_Model_Email_Redirect_Type_Abstract
+{
+}

@@ -1,0 +1,22 @@
+<?php /* @var Blackbox_Epace_Block_Adminhtml_Ordersync_View_Statistics_Default $this*/ ?>
+<div class="box-right">
+    <!--Account Information-->
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-account">Statistic Information</h4>
+            <div class="tools"></div>
+        </div>
+        <div class="fieldset">
+            <div class="hor-scroll">
+                <table cellspacing="0" class="form-list">
+                    <?php foreach ($this->getEventData() as $label => $value): ?>
+                    <tr>
+                        <td class="label"><label><?=$label?></label></td>
+                        <td class="value"><strong><?=$value?></strong></td>
+                    </tr>
+                    <?php endforeach ?>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

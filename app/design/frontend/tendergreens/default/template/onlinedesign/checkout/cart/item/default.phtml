@@ -1,0 +1,90 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     rwd_default
+ * @copyright   Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php /** @var Mage_Checkout_Block_Cart_Item_Renderer $this */ ?>
+<?php
+/** @var Mage_Sales_Model_Quote_Address_Item|Mage_Sales_Model_Quote_Item $item */
+$item = $this->getItem();
+$_product = $this->getProduct();
+if ($item instanceof Mage_Sales_Model_Quote_Address_Item) {
+    $address = $item->getQuote()->getAddressById($item->getQuoteAddressId());
+    $qItemId = $item->getQuoteItemId();
+    $qItem = $item->getQuoteItem() ?: $item->getQuote()->getItemById($item->getQuoteItemId());
+} else {
+    $qItemId = $item->getId();
+    $qItem = $item;
+}
+?>
+
+<div class="cart-item-checkout">
+    <div class="t-products-image">
+        <img src="<?php echo $this->helper('catalog/image')->init($item->getProduct(), 'small_image')->resize(150, 150); ?>"
+             alt="">
+    </div>
+    <div class="t-name-sku">
+        <div class="t-products-name"><?php echo $item->getName() ?></div>
+        <div class="t-products-sku"><?php echo $item->getSku() ?></div>
+    </div>
+    <div class="t-products-descr">
+        <?php echo $_product->getDescription() ?>
+        <?php if ($messages = $this->getMessages()): ?>
+            <?php foreach ($messages as $message): ?>
+                <p class="item-msg <?php echo $message['type'] ?>">* <?php echo $this->escapeHtml($message['text']) ?></p>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        <?php
+        if (Mage::helper('core/data')->isModuleEnabled('Cmsmart_Onlinedesign')){
+            echo Mage::helper('onlinedesign/integrate')->showVirtualProductDesign($qItem);
+        }
+        ?>
+    </div>
+    <div class="t-products-qty product-cart-actions" data-rwd-label="<?php echo $this->__('Qty'); ?>">
+        <div class="qty-wrapper">
+            <span class="input-number-decrement">–</span>
+            <input min="0" pattern="\d*(\.\d+)?"
+                   data-cart-item-id="<?php echo $this->jsQuoteEscape($_product->getSku()) ?>"
+                   name="cart[<?php echo (int)$item->getQuoteAddressId() ?>][<?php echo $qItemId ?>][qty]" id="qty" maxlength="12"
+                   value="<?php echo (int)$item->getQty() ?>"
+                   title="<?php echo Mage::helper('core')->quoteEscape($this->__('Qty')) ?>"
+                   class="input-number input-text qty">
+            <span class="input-number-increment">+</span>
+        </div>
+    </div>
+    <div class="t-products-address">
+        <?php echo $this->getAddressSelectHtml() ?>
+    </div>
+    <div class="t-products-remove">
+        <button type="submit" data-cart-item-update name="update_cart_action" value="update_qty"
+                title="<?php echo Mage::helper('core')->quoteEscape($this->__('Update')); ?>"
+                class="button btn-update hide"><span><span><?php echo $this->__('Update'); ?></span></span>
+        </button>
+        <a href="<?php echo $this->getAjaxDeleteUrl() ?>"
+           title="<?php echo Mage::helper('core')->quoteEscape($this->__('Remove This Item')) ?>"
+           data-confirm="<?php echo $this->__('Are you sure you would like to remove this item from the shopping cart?') ?>"
+           class="remove">✖
+        </a>
+    </div>
+</div>

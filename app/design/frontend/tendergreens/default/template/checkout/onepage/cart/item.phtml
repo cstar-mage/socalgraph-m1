@@ -1,0 +1,28 @@
+<?php /** @var Mage_Checkout_Block_Cart_Item_Renderer $this */ ?>
+<?php
+//echo Mage::getSingleton('core/session')->getFormKey();die;
+$item = $this->getItem();
+$url = $this->getUrl(
+    'checkout/cart/ajaxDelete',
+    array(
+        'id'=>$item->getId(),
+        'form_key' => Mage::getSingleton('core/session')->getFormKey()
+        //Mage_Core_Controller_Front_Action::PARAM_NAME_URL_ENCODED => Mage::helper('core/url')->getEncodedUrl(),
+        //'_secure' => Mage::app()->getStore()->isCurrentlySecure(),
+    )
+);
+?>
+<div class="cart-item-checkout">
+    <div class="t-products-image">
+        <img src="<?php echo $this->helper('catalog/image')->init($item->getProduct(), 'small_image')->resize(70, 70); ?>" alt="">
+    </div>
+    <div class="t-products-name"><?php echo $item->getName()?></div>
+    <div class="t-products-sku"><?php echo $item->getSku()?></div>
+    <div class="t-products-qty"><?php echo $item->getQty()?></div>
+    <div class="t-products-remove">
+        <a href="<?php echo $this->getAjaxDeleteUrl()?>" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Remove This Item')) ?>"
+           data-confirm="<?php echo $this->__('Are you sure you would like to remove this item from the shopping cart?') ?>"
+           class="remove">✖
+        </a>
+    </div>
+</div>

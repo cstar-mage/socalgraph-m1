@@ -1,0 +1,53 @@
+.pointer {
+    cursor: pointer;
+}
+.pointer:hover {
+    background-color:#EEEEEE;
+}
+.ticket-options {
+    background-color:#FAFAFA;
+    display: flex;
+}
+.ticket-options div {
+    float: left;
+    margin-left: 10px;
+    border-color: black;
+    border: solid;
+    border-width: 1px;
+}
+.ticket-comments-container {
+    margin-bottom: 10px;
+}
+.comment-files {
+    margin: 5px;
+}
+.comment {
+    margin: 5px;
+    background-color: #FAFAFA;
+    border-color: black;
+    border: solid;
+    border-width: 1px;
+    display:flex;
+}
+.comment-head, .comment-body {
+    float: left;
+}
+.comment-head {
+    padding: 5px;
+    border-right: solid;
+    border-color: black;
+    border-width: 1px;
+    width: 20%;
+}
+.comment-body{
+    width: 80%;
+}
+.comment-top {
+    margin-bottom: 5px;
+    display: flex;
+}
+.comment-number {
+    background-color: #AAAAAA;
+    font-size: 11px;
+    float: right;
+}

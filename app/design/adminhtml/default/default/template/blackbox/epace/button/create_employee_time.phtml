@@ -1,0 +1,18 @@
+<?php /* @var Blackbox_Epace_Block_Adminhtml_System_Config_Form_Button_CreateEmployeeTime $this */ ?>
+<?php echo $this->getButtonHtml() ?>
+<script type="text/javascript">
+    function createEmployeeTime() {
+        var employee = encodeURIComponent(document.getElementById('epace_test_requests_employee').value);
+        var startDate = encodeURIComponent(document.getElementById('epace_test_requests_start_date').value);
+        var startTime = encodeURIComponent(document.getElementById('epace_test_requests_start_time').value);
+        var stopDate = encodeURIComponent(document.getElementById('epace_test_requests_stop_date').value);
+        var stopTime = encodeURIComponent(document.getElementById('epace_test_requests_stop_time').value);
+        setLocation('<?=$this->getUrl('epace/index/testCreateEmployeeTime', array('_current'=>true))?>' +
+            '?employee=' + employee +
+            '&startDate=' + startDate +
+            '&startTime=' + startTime +
+            '&stopDate=' + stopDate +
+            '&stopTime=' + stopTime
+        );
+    }
+</script>

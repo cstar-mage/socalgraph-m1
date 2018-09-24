@@ -1,0 +1,33 @@
+<?php
+$current_theme = Mage::getSingleton('core/design_package')->getPackageName();
+$skin_url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN).'frontend/'.$current_theme.'/default/cmsmart/onlinedesign/';
+
+$product_id = 0;
+$helper = Mage::helper('onlinedesign/data');
+$helper_config = Mage::helper('onlinedesign/config');
+if(Mage::registry('current_product')){
+	$product_id = Mage::registry('current_product')->getId(); 
+}
+
+$upload_max = $helper_config->getUploadMaxSize();
+?>
+
+<script type="text/javascript">
+	var nbds_frontend = {
+		url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_get_product_info', array('_current'=>true)); ?>",
+		save_customer_design_url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_save_customer_design', array('_current'=>true)); ?>",
+		load_cat_url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_get_art', array('_current'=>true)); ?>",
+		load_font_url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_get_font', array('_current'=>true)); ?>",
+		upload_image_url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_customer_upload', array('_current'=>true)); ?>",
+		get_qrcode_url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_get_qrcode', array('_current'=>true)); ?>",
+		copy_img_url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_copy_image_from_url', array('_current'=>true)); ?>",
+		pattern_url 		: "<?php echo $this->getUrl('onlinedesign/index/nbdesigner_get_pattern', array('_current'=>true)); ?>",
+		font_used_url 		: "<?php echo $helper->getMediaPath()."/fonts/"; ?>",
+		url_style	: "<?php echo $skin_url; ?>",
+		upload_max 	: "<?php echo $upload_max; ?>",
+		sid			: "<?php echo session_id(); ?>",
+		nbfbAppId	: "",
+		product_id	: "<?php echo $product_id; ?>",
+	};
+</script>
+

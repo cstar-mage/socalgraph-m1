@@ -1,0 +1,32 @@
+<div class="logreg-container">
+    <div class="top-text">
+        <a href="<?php echo $this->getUrl('/') ?>">Home</a>
+        <div class="red_dot"></div>
+        <p>Login</p>
+        <h1>Login</h1>
+    </div>
+
+    <div class="col2-set">
+        <div class="login-form">
+            <img src="<?php echo $this->getSkinUrl('images/google.png'); ?>" alt="">
+            <div class="col-container">
+                <h4>Sign in With Your Email</h4>
+                <p class="Pleasesignin">Please sign in with hour credentials</p>
+                <?php echo $this->getChildHtml('customer_form_login'); ?>
+
+            </div>
+        </div>
+        <div class="modal fade" id="RequestForm" tabindex="-1" role="dialog" aria-labelledby="RequestForm" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div>
+                    <div class="col-container">
+                        <h4>CREATE AN ACCOUNT</h4>
+                        <?php echo $this->getChildHtml('customer_form_register'); ?>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_CustomerStores>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Magestore_Storelocator />
+            </depends>
+        </Blackbox_CustomerStores>
+    </modules>
+</config>

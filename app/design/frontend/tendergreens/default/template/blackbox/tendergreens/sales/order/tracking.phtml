@@ -1,0 +1,143 @@
+<?php /** @var Blackbox_TenderGreens_Block_Tracking $this */ ?>
+<div class="headship">
+    <div class="trackheader">
+        <h1> TRACK PROGRESS</h1>
+    </div>
+    <?php echo $this->getMessagesBlock()->toHtml() ?>
+
+    <div class="shipping-status-track" >
+        <div class = "ordernum">
+            <h4>ORDER # <?php echo $this->getOrder()->getIncrementId() ?></h4>
+        </div>
+
+        <?php echo $this->getChildHtml('progress') ?>
+    </div>
+
+
+
+
+    <div class= "track-table">
+        <div class = "track-table-row">
+            <div class = "track-column1">
+                <h5>PRODUCT NAME</h5>
+            </div>
+            <div class = "track-column2">
+                <h5>LINK</h5>
+            </div>
+            <div class = "track-column3">
+                <h5>PRODUCT SKU</h5>
+            </div>
+            <div class = "track-column4">
+                <h5>PURCHASES</h5>
+            </div>
+            <div class = "track-column5">
+                <h5>DOWNLOADS</h5>
+            </div>
+        </div>
+
+        <?php /** @var Mage_Sales_Model_Order_Item $item */ ?>
+        <?php $i=1; foreach ($this->getOrder()->getAllVisibleItems() as $item): $i++; ?>
+            <div class="track-table-row<?=$i?>">
+                <div class="track-column1">
+                    <p><?php echo $item->getName() ?></p>
+                </div>
+                <div class="track-column2">
+                    <?php if (Mage::helper('product_file')->isFileExists($item->getProductId())): ?>
+                        <p><a target="_blank" href="<?php echo Mage::getUrl('downloadable/download/file', array('product_id' => $item->getProductId()))?>">Download</a></p>
+                    <?php endif; ?>
+                </div>
+                <div class="track-column3">
+                    <p><?php echo $item->getSku() ?></p>
+                </div>
+                <div class="track-column4">
+                    <p>Unlimited</p>
+                </div>
+                <div class="track-column5">
+                    <p><?php echo Mage::helper('product_file')->getDownloadsUsed($item) ?></p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+
+    <div class= "track-mobile">
+        <div class="mobileheader">
+            <h4>YOUR SHIPPING STATUS</h4></div>
+        <div class = "mobile-ordernum">
+            <h5>ORDER # <?php echo $this->getOrder()->getIncrementId() ?></h5>
+        </div>
+        <?php echo $this->getChildHtml('progress.mobile') ?>
+
+        <?php /** @var Mage_Sales_Model_Order_Item $item */ ?>
+        <?php $i=1; foreach ($this->getOrder()->getAllVisibleItems() as $item): $i++; ?>
+            <div class="track-mobile-table1">
+                <div class = "track-mobile-table-row">
+                    <div class = "track-mobile-column1">
+                        <h5>Product Name:</h5>
+                    </div>
+                    <div class = "track-mobile-column2">
+                        <p><?php echo $item->getName() ?></p>
+                    </div>
+                </div>
+
+                <div class = "track-mobile-table-row">
+                    <div class = "track-mobile-column1">
+                        <h5>Link:</h5>
+                    </div>
+                    <div class = "track-mobile-column2">
+                        <?php if (Mage::helper('product_file')->isFileExists($item->getProductId())): ?>
+                            <p><a target="_blank" href="<?php echo Mage::getUrl('downloadable/download/file', array('product_id' => $item->getProductId()))?>">Download</a></p>
+                        <?php endif; ?>
+                    </div>
+
+                </div>
+
+                <div class = "track-mobile-table-row">
+                    <div class = "track-mobile-column1">
+                        <h5>Product SKU:</h5>
+                    </div>
+                    <div class = "track-mobile-column2">
+                        <p><?php echo $item->getSku() ?></p>
+                    </div>
+
+                </div>
+
+                <div class = "track-mobile-table-row">
+                    <div class = "track-mobile-column1">
+                        <h5>Purchases:</h5>
+                    </div>
+                    <div class = "track-mobile-column2">
+                        <p>Unlimited</p>
+                    </div>
+
+                </div>
+
+                <div class = "track-mobile-table-row-last">
+                    <div class = "track-mobile-column1">
+                        <h5>DWN:</h5>
+                    </div>
+                    <div class = "track-mobile-column2">
+                        <p><?php echo Mage::helper('product_file')->getDownloadsUsed($item) ?></p>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+
+
+    <div class="but">
+        <div class="buttonnum1">
+            <button class="buttonde" onclick="document.location='/contacts'" ><span>Feedback</span></button>
+        </div>
+        <?php if (!$this->getOrder()->getAccepted()): ?>
+            <div class="buttonnum2">
+                <form action="/sales/order/accept" method="post">
+                    <input type="hidden" name="order_id" value="<?php echo $this->getOrder()->getId() ?>">
+                    <button type="submit" class="buttond"><span>Accept</span></button>
+                </form>
+            </div>
+        <?php endif; ?>
+
+    </div>
+</div>

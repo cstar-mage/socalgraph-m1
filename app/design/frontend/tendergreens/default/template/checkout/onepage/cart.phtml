@@ -1,0 +1,17 @@
+<?php  $items = Mage::getSingleton('checkout/session')->getQuote()->getAllItems();?>
+<div class="table-cart-item cart">
+    <h2><?php echo $this->__('Products in cart') ?></h2>
+    <div class="head-table-cart-item">
+        <div class="t-products">products</div>
+        <div class="t-sku">sku #</div>
+        <div class="t-quantity">quantity</div>
+        <div class="t-cart-icon">
+            <img src="<?php echo $this->getSkinUrl('images/cart-ico-checkout.png'); ?>" alt="">
+        </div>
+    </div>
+    <div class="body-table-cart-item">
+        <?php foreach ($items as $item):?>
+            <?php echo $this->getItemHtml($item) ?>
+        <?php endforeach; ?>
+    </div>
+</div>

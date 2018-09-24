@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Epace>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Blackbox_Soap />
+            </depends>
+        </Blackbox_Epace>
+    </modules>
+</config>

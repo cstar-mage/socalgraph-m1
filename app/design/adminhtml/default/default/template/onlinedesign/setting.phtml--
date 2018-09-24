@@ -1,0 +1,245 @@
+<?php
+	$lname = "Name: ";
+	$nbox = "frame_";
+?>
+
+<div id="wrap">
+	<div class="container">
+	<?php
+		$id     = $this->getRequest()->getParam('id');
+		$onlinedesignIds = Mage::getModel('onlinedesign/onlinedesign')->_getOnlineDesignByProduct($id);
+		$data = "";
+		if(sizeof($onlinedesignIds)) {
+			foreach ($onlinedesignIds as $od) {
+				$data = $od->getContentDesign();
+				$dpi = $od->getDpi();
+				break;
+			}
+		} else {
+			$data = 'a:2:{i:0;a:9:{s:16:"orientation_name";s:7:"frame_0";s:7:"img_src";s:72:"http://onlinedesign.com/wp-content/uploads/2016/11/2015-11-13_093640.jpg";s:11:"img_src_top";s:1:"0";s:12:"img_src_left";s:1:"0";s:13:"img_src_width";s:1:"0";s:14:"img_src_height";s:1:"0";s:16:"area_design_left";s:1:"0";s:17:"area_design_width";s:3:"300";s:18:"area_design_height";s:3:"117";}i:1;a:10:{s:10:"real_width";s:2:"99";s:16:"orientation_name";s:7:"frame_1";s:7:"img_src";s:72:"http://onlinedesign.com/wp-content/uploads/2016/11/2015-11-13_093640.jpg";s:11:"img_src_top";s:1:"0";s:12:"img_src_left";s:1:"0";s:13:"img_src_width";s:1:"0";s:14:"img_src_height";s:1:"0";s:16:"area_design_left";s:1:"0";s:17:"area_design_width";s:3:"300";s:18:"area_design_height";s:3:"117";}}';
+		}
+		
+	?>
+		<!-- <form class="form-horizontal" role="form" method="post"> -->
+		<div class="form-add-design-nbo">
+		<?php
+		if( !empty( $data ) )
+		{
+			zend_debug::dump(unserialize($data));
+			foreach( unserialize($data) as $key => $value ) :
+			if(isset($value["orientation_name"]) && $value["orientation_name"]) {
+		?>
+			<?php _e('(Click', 'nbdesigner'); ?>
+			<?php echo "abc"; ?>
+			<div class="form-group">
+				<label class="col-sm-2 control-label label-setup-image" for="txtbox<?php echo $key; ?>"><?php echo $lname; ?></label>
+				<div class="col-sm-10">
+					<input class="form-control" type="text" name="_designer_setting[<?php echo $key; ?>][orientation_name]" id="txtbox<?php echo $key; ?>" value="<?php echo $nbox.$key; ?>" />
+					<?php echo ( 0 == $key ? '<a href="#" class="btn btn-success btn-xs add-txt">Add More</a>' : '<a href="#" class="btn btn-danger btn-xs remove-txt"><i class="fa fa-times" aria-hidden="true"></i></a>' ); ?>
+				
+					<!-- add more controls -->
+					<div id="setting">
+						<div class="nbdesigner-box nbdesigner-box-collapse" style="display: block;">
+							<div class="nbdesigner-image-box">
+								<div class="nbdesigner-image-inner">
+									<div class="nbdesigner-image-original">
+										<img src="http://onlinedesign.com/wp-content/uploads/2016/11/2015-11-13_093640.jpg" class="designer_img_src" style="margin-top: 91.5px;">
+									</div>
+									<div class="nbdesigner-area-design ui-resizable ui-draggable ui-draggable-handle" id="nbdesigner-area-design-<?php echo $key; ?>" style="width: 300px; height: 117px; left: 0px; top: 91px;"> <div class="ui-resizable-handle ui-resizable-ne" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-sw" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-nw" style="z-index: 90;"></div></div>
+								</div>
+								<input class="hidden_img_src" name="_designer_setting[<?php echo $key; ?>][img_src]" value="http://onlinedesign.com/wp-content/uploads/2016/11/2015-11-13_093640.jpg" type="hidden">
+								<input class="hidden_img_src_top" name="_designer_setting[<?php echo $key; ?>][img_src_top]" value="" type="hidden">
+								<input class="hidden_img_src_left" name="_designer_setting[<?php echo $key; ?>][img_src_left]" value="" type="hidden">
+								<input class="hidden_img_src_width" name="_designer_setting[<?php echo $key; ?>][img_src_width]" value="" type="hidden">
+								<input class="hidden_img_src_height" name="_designer_setting[<?php echo $key; ?>][img_src_height]" value="" type="hidden">
+								<div class="nbdesigner_arrows">	
+									<a class="button nbdesigner_move nbdesigner_move_left" data-index="<?php echo $key; ?>" onclick="NBDESIGNADMIN.nbdesigner_move(this, 'left')"><i class="fa fa-arrow-circle-left"></i></a>
+									<a class="button nbdesigner_move nbdesigner_move_right" data-index="<?php echo $key; ?>" onclick="NBDESIGNADMIN.nbdesigner_move(this, 'right')"><i class="fa fa-arrow-circle-right"></i></a>
+									<a class="button nbdesigner_move nbdesigner_move_up" data-index="<?php echo $key; ?>" onclick="NBDESIGNADMIN.nbdesigner_move(this, 'up')"><i class="fa fa-arrow-circle-up"></i></a>
+									<a class="button nbdesigner_move nbdesigner_move_down" data-index="<?php echo $key; ?>" onclick="NBDESIGNADMIN.nbdesigner_move(this, 'down')"><i class="fa fa-arrow-circle-o-down"></i></a>
+									<a class="button nbdesigner_move nbdesigner_move_center" data-index="<?php echo $key; ?>" onclick="NBDESIGNADMIN.nbdesigner_move(this, 'center')"><i class="fa fa-arrows"></i>Fit</a>
+									<a class="button nbdesigner_move nbdesigner_move_center" style="padding-left: 7px; padding-right: 7px;" data-index="<?php echo $key; ?>" onclick="NBDESIGNADMIN.nbdesigner_move(this, 'fit')"><i class="fa fa-arrows-alt"></i>Fit</a>
+									<a class="button nbdesigner-button nbdesigner-add-image" style="margin-top: 10px;" onclick="NBDESIGNADMIN.loadImage(this)" data-index="<?php echo $key; ?>">Change image</a>
+								</div>
+							</div>
+							<div class="nbdesigner-info-box">
+								<div class="nbdesigner-info-box-inner">
+								
+									<label class="nbdesigner-setting-box-label">Real width design zone</label>
+									<div>
+										<input name="_designer_setting[<?php echo $i; ?>][real_width]" value="<?php echo $value["real_width"]; ?>" class="short real_width" onchange="NBDESIGNADMIN.updateDimensionRealOutputImage(this, 'width')" type="number">&nbsp;cm <span class="real_width_hidden"><?php echo $value["real_width"]; ?></span><small>~ Output image width: <span class="real_width_px"><?php echo round($value['real_width'] * $dpi / 2.54, 0); ?></span> px</small>
+									</div>
+								</div>
+								<div class="nbdesigner-info-box-inner">
+									<label class="nbdesigner-setting-box-label">Real height design zone</label>
+									<div>
+										<input min="1" name="_designer_setting[<?php echo $i; ?>][real_height]" value="<?php echo $value["real_height"]; ?>" class="short real_height" onchange="NBDESIGNADMIN.updateDimensionRealOutputImage(this, 'height')" type="number">&nbsp;cm <span class="real_height_hidden"><?php echo $value["real_height"]; ?></span><small>~ Output image height: <span class="real_height_px"><?php echo round($value['real_height'] * $dpi / 2.54, 0); ?></span> px</small>
+									</div>
+								</div>
+								<div class="nbdesigner-info-box-inner">
+									<label class="nbdesigner-setting-box-label">Design area margin top</label>
+									<div>
+										<input min="1" name="_designer_setting[<?php echo $i; ?>][area_design_top]" value="<?php echo $value["area_design_top"]; ?>" class="short area_design_dimension area_design_top" data-index="top" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px
+									</div>
+								</div>
+								<div class="nbdesigner-info-box-inner">
+									<label class="nbdesigner-setting-box-label">Design area margin left</label>
+									<div>
+										<input min="0" name="_designer_setting[<?php echo $key; ?>][area_design_left]" value="<?php echo $value["area_design_left"]; ?>" class="short area_design_dimension area_design_left" data-index="left" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px
+									</div>
+								</div>	
+								<div class="nbdesigner-info-box-inner">
+									<label class="nbdesigner-setting-box-label">Design area width</label>
+									<div>
+										<input min="0" name="_designer_setting[<?php echo $key; ?>][area_design_width]" value="<?php echo $value["area_design_width"]; ?>" class="short area_design_dimension area_design_width" data-index="width" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px
+									</div>
+								</div>
+								<div class="nbdesigner-info-box-inner">
+									<label class="nbdesigner-setting-box-label">Design area height</label>
+									<div>
+										<input min="0" name="_designer_setting[<?php echo $key; ?>][area_design_height]" value="<?php echo $value["area_design_height"]; ?>" class="short area_design_dimension area_design_height" data-index="height" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px
+									</div>
+								</div>					
+							</div>	
+						</div>
+					</div>
+					<!-- add more controls -->
+				</div>
+			</div>
+		<?php
+			}
+			endforeach;
+		}
+		else
+		{
+		?>
+			<div class="form-group">
+				<label class="col-sm-2 control-label" for="txtbox1"><?php echo $lname; ?><span class="label-numbers">1</span></label>
+				<div class="col-sm-10">
+					<input class="form-control" type="text" name="boxes[]" id="txtbox1" />
+					<a href="#" class="btn btn-success btn-xs add-txt">Add More</a>
+				</div>
+			</div>
+		<?php
+		}
+		?>
+			<!-- input style="margin: 0 auto; width: 200px;" class="btn btn-primary btn-block" type="submit" value="Submit" /> -->
+		<!-- </form> -->
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	
+	jQuery.noConflict();
+	
+	jQuery(document).ready(function($){
+		$("body").css('min-height', $(window).height() + 1 );
+		$(window).resize(function(){
+			$("body").css('min-height', $(window).height() + 1 );
+		});
+		$("#toggle_code").click(function(){
+			$(".syntaxhighlighter.demo_code").toggleClass( "collapsed", 500, function(){
+				$("#toggle_code").text( ( $("#toggle_code").text() == 'View Code' ) ? 'Hide Code' : 'View Code' );
+				$("#toggle_code").toggleClass( "btn-success btn-danger" );
+			});
+		});
+		 
+		//Add More
+		$(".form-add-design-nbo .add-txt").click(function(){
+			var no = $(".form-group").length;
+			if( 10 < no ) {
+				alert('Stop it!');
+				return false;
+			}
+			
+			var more_textbox = $('<div class="form-group">' +
+			'<label class="col-sm-2 control-label label-setup-image" for="txtbox' + no + '"><?php echo $lname; ?></label>' +
+			'<div class="col-sm-10"><input class="form-control" type="text" name="_designer_setting[' + no + '][orientation_name]" id="txtbox' + no + '" value="'+ "<?php echo $nbox; ?>" + no +'"/>' +
+			'<a href="#" class="btn btn-danger btn-xs remove-txt"><i class="fa fa-times" aria-hidden="true"></i></a>' +
+			
+			'<div class="nbdesigner-box nbdesigner-box-collapse" style="display: block;">' + 
+				'<div class="nbdesigner-image-box">' + 
+					'<div class="nbdesigner-image-inner">' + 
+						'<div class="nbdesigner-image-original">' + 
+							'<img src="http://onlinedesign.com/wp-content/uploads/2016/11/2015-11-13_093640.jpg" class="designer_img_src" style="margin-top: 91.5px;">' + 
+						'</div>' + 
+						'<div class="nbdesigner-area-design ui-resizable ui-draggable ui-draggable-handle" id="nbdesigner-area-design-' + no + '" style="width: 300px; height: 117px; left: 0px; top: 91px;"> <div class="ui-resizable-handle ui-resizable-ne" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-sw" style="z-index: 90;"></div><div class="ui-resizable-handle ui-resizable-nw" style="z-index: 90;"></div></div>' + 
+					'</div>' + 
+					'<input class="hidden_img_src" name="_designer_setting['+no+'][img_src]" value="http://onlinedesign.com/wp-content/uploads/2016/11/2015-11-13_093640.jpg" type="hidden">' + 
+					'<input class="hidden_img_src_top" name="_designer_setting['+no+'][img_src_top]" value="<?php echo $value["img_src_top"]; ?>" type="hidden">' + 
+					'<input class="hidden_img_src_left" name="_designer_setting['+no+'][img_src_left]" value="<?php echo $value["img_src_left"]; ?>" type="hidden">' + 
+					'<input class="hidden_img_src_width" name="_designer_setting['+no+'][img_src_width]" value="<?php echo $value["img_src_width"]; ?>" type="hidden">' + 
+					'<input class="hidden_img_src_height" name="_designer_setting['+no+'][img_src_height]" value="<?php echo $value["img_src_height"]; ?>" type="hidden">' + 
+					'<div class="nbdesigner_arrows">' + 
+						'<a class="button nbdesigner_move nbdesigner_move_left" data-index="' + no + '" onclick="NBDESIGNADMIN.nbdesigner_move(this, \'left\')"><i class="fa fa-arrow-circle-left"></i></a>' + 
+						'<a class="button nbdesigner_move nbdesigner_move_right" data-index="' + no + '" onclick="NBDESIGNADMIN.nbdesigner_move(this, \'right\')"><i class="fa fa-arrow-circle-right"></i></a>' + 
+						'<a class="button nbdesigner_move nbdesigner_move_up" data-index="' + no + '" onclick="NBDESIGNADMIN.nbdesigner_move(this, \'up\')"><i class="fa fa-arrow-circle-up"></i></a>' + 
+						'<a class="button nbdesigner_move nbdesigner_move_down" data-index="' + no + '" onclick="NBDESIGNADMIN.nbdesigner_move(this, \'down\')"><i class="fa fa-arrow-circle-o-down"></i></a>' + 
+						'<a class="button nbdesigner_move nbdesigner_move_center" data-index="' + no + '" onclick="NBDESIGNADMIN.nbdesigner_move(this, \'center\')"><i class="fa fa-arrows"></i>Fit</a>' + 
+						'<a class="button nbdesigner_move nbdesigner_move_center" style="padding-left: 7px; padding-right: 7px;" data-index="' + no + '" onclick="NBDESIGNADMIN.nbdesigner_move(this, \'fit\')"><i class="fa fa-arrows-alt"></i>Fit</a>' + 
+						'<a class="button nbdesigner-button nbdesigner-add-image" style="margin-top: 10px;" onclick="NBDESIGNADMIN.loadImage(this)" data-index="' + no + '">Change image</a>' + 
+					'</div>' + 
+				'</div>' + 
+				'<div class="nbdesigner-info-box">' + 
+					'<div class="nbdesigner-info-box-inner">' + 
+						'<label class="nbdesigner-setting-box-label">Real width design zone</label>' + 
+						'<div>' + 
+							'<input name="_designer_setting['+no+'][real_width]" value="99" class="short real_width" onchange="NBDESIGNADMIN.updateDimensionRealOutputImage(this, "width")" type="number">&nbsp;cm <span class="real_width_hidden">99</span><small>~ Output image width: <span class="real_width_px">3742</span> px</small>' + 
+						'</div>' + 
+					'</div>' + 
+					'<div class="nbdesigner-info-box-inner">' + 
+						'<label class="nbdesigner-setting-box-label">Real height design zone</label>' + 
+						'<div>' + 
+							'<input min="1" name="_designer_setting['+no+'][real_height]" value="99" class="short real_height" onchange="NBDESIGNADMIN.updateDimensionRealOutputImage(this, "height")" type="number">&nbsp;cm <span class="real_height_hidden">99</span><small>~ Output image height: <span class="real_height_px">3742</span> px</small>' + 
+						'</div>' + 
+					'</div>' + 
+					'<div class="nbdesigner-info-box-inner">' + 
+						'<label class="nbdesigner-setting-box-label">Design area margin top</label>' + 
+						'<div>' + 
+							'<input min="1" name="_designer_setting['+no+'][area_design_top]" value="91" class="short area_design_dimension area_design_top" data-index="top" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px' + 
+						'</div>' + 
+					'</div>' + 
+					'<div class="nbdesigner-info-box-inner">' + 
+						'<label class="nbdesigner-setting-box-label">Design area margin left</label>' + 
+						'<div>' + 
+							'<input min="0" name="_designer_setting['+no+'][area_design_left]" value="0" class="short area_design_dimension area_design_left" data-index="left" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px' + 
+						'</div>' + 
+					'</div>' + 
+					'<div class="nbdesigner-info-box-inner">' + 
+						'<label class="nbdesigner-setting-box-label">Design area width</label>' + 
+						'<div>' + 
+							'<input min="0" name="_designer_setting['+no+'][area_design_width]" value="300" class="short area_design_dimension area_design_width" data-index="width" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px' + 
+						'</div>' + 
+					'</div>' + 
+					'<div class="nbdesigner-info-box-inner">' + 
+						'<label class="nbdesigner-setting-box-label">Design area height</label>' + 
+						'<div>' + 
+							'<input min="0" name="_designer_setting['+no+'][area_design_height]" value="117" class="short area_design_dimension area_design_height" data-index="height" onchange="NBDESIGNADMIN.updatePositionDesignArea(this)" type="number">&nbsp;px' + 
+						'</div>' + 
+					'</div>' + 					
+				'</div>' + 
+			'</div>' + 
+			
+			'</div></div>');
+			more_textbox.hide();
+			$(".form-group:last").after(more_textbox);
+			more_textbox.fadeIn("slow");
+			return false;
+		});
+		 
+		//Remove
+		$('.form-add-design-nbo').on('click', '.remove-txt', function(){
+			$(this).parent().parent().css( 'background-color', '#FF6C6C' );
+			$(this).parent().parent().fadeOut("slow", function() {
+				$(this).parent().parent().css( 'background-color', '#FFFFFF' );
+				$(this).remove();
+				$('.label-numbers').each(function( index ){
+					$(this).text( index + 1 );
+				});
+			});
+			return false;
+		});
+	});
+</script>

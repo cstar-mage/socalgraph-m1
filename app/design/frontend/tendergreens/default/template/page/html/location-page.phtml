@@ -1,0 +1,824 @@
+<section class="location">
+    <div class="location-inner">
+        <?php echo $this->getLayout()->getBlock('breadcrumbs')->toHtml(); ?>
+        <h2>LOCATION</h2>
+        <p class="location-inner-desc">Shop by Your Store Location</p>
+        <form class="order_number" name="order_number">
+            <input type="" placeholder="Enter your city or ZIP" name="order" autocomplete="off">
+            <button type="button"><span>GO</span></button>
+        </form>
+        <h6>USE YOUR CURRENT LOCATION</h6>
+    </div>
+</section>
+<section class="forgot-store-number">
+    <a href="#"><h6>forgot your store number?</h6></a>
+</section>
+<section class="location-carts">
+    <div class="region">
+        <div class="location-carts-inner">
+            <h6>REGION</h6>
+            <h2>California</h2>
+            <div class="bg-yellow">
+                <h1>LOS ANGELES</h1>
+                <button class="tg-add-all">add all</button>
+            </div>
+            <div class="location-carts-grid">
+                <div class="location-carts-grid-inner">
+                    <div class="location-card">
+                        <div class="location-card-head" style="visibility: visible">
+
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Burbank</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Burbank') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Century City</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Century City') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Culver City</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Culver City') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Downtown LA</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Downtown LA') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>El Segundo</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('El Segundo') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Glendale</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Glendale') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card location-card-bg">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Hollywood</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Hollywood') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Marina Del Ray</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Marina Del Rey') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Pasadena</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Pasadena') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Santa Monica</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Santa Monica') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Studio City</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Studio City') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Topanga</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Topanga') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Torrance</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Torrance') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>West Hollywood</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('West Hollywood') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Westwood</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Westwood') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="location-carts-inner">
+            <div class="bg-red">
+                <h1>Orange country</h1>
+            </div>
+            <div class="location-carts-grid">
+                <div class="location-carts-grid-inner">
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Irvine Spectrum</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Irvine Spectrum') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>UC Irvine</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('UC Irvine') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="location-carts-inner">
+            <div class="bg-blue">
+                <h1>San Diego</h1>
+            </div>
+            <div class="location-carts-grid">
+                <div class="location-carts-grid-inner">
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Downtown San Diego</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Downtown San Diego') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>La Jolla - UTC</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('La Jolla - UTC') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Mission Valley</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Mission Valley') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Point Loma</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Point Loma') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="location-carts-inner">
+            <div class="bg-yellow">
+                <h1>San Francisco</h1>
+            </div>
+            <div class="location-carts-grid">
+                <div class="location-carts-grid-inner">
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Berkeley</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Berkeley') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Downtown SF</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Downtown SF') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>King Street</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('King Street') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Palo Alto</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Palo Alto') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="location-card">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Walnut Creek</h2>
+                        </div>
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <div class="location-card-serial">
+                            opens at 11:00 am
+                        </div>
+                        <?php $storelocator = Mage::helper('customer_stores')->getStorelocatorByName('Walnut Creek') ?>
+                        <?php if (Mage::helper('customer_stores')->isStorelocatorVisible($storelocator)): ?>
+                            <h6>order by location</h6>
+                            <?php $inCart = Mage::helper('blackbox_checkout')->isStorelocatorInCart($storelocator) ?>
+                            <button class="tg-add-all add-storelocator <?php echo $inCart ? 'remove' : '' ?>"
+                                    data-storelocator-id="<?php echo $storelocator->getId() ?>"></button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="region">
+        <div class="location-carts-inner">
+            <h6>REGION</h6>
+            <h2>Massachusetts</h2>
+            <div class="bg-red">
+                <h1>Boston</h1>
+            </div>
+            <div class="location-carts-grid">
+                <div class="location-carts-grid-inner">
+                    <div class="location-card location-card-red">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Chestnut Hill</h2>
+                        </div>
+                        <img src="<?php echo $this->getSkinUrl('images/location-card-img-red.png'); ?>" alt="">
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <h6>get direction</h6>
+                        <div class="location-card-footer">
+                            <h6>coming soon <br>
+                                mar 2018</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="region">
+        <div class="location-carts-inner">
+            <h6>REGION</h6>
+            <h2>New York</h2>
+            <div class="bg-blue">
+                <h1>San Diego</h1>
+            </div>
+            <div class="location-carts-grid">
+                <div class="location-carts-grid-inner">
+                    <div class="location-card location-card-blue">
+                        <div class="location-card-head">
+                            <!--<input id="location-card-check" type="checkbox" name="toppings" value="ham">
+                            <label for="location-card-check"></label>
+                            <a href="">
+                                <div class="three-points">...</div>
+                            </a>-->
+                        </div>
+                        <div class="location-card-name">
+                            <h2>Flatiron</h2>
+                        </div>
+                        <img src="<?php echo $this->getSkinUrl('images/location-card-img-blue.png'); ?>" alt="">
+                        <div class="location-card-address">
+                            <p>325 N San Fernando Blvd Burbank, CA 91502</p>
+                        </div>
+                        <h6>get direction</h6>
+                        <div class="location-card-footer">
+                            <h6>coming soon <br>
+                                mar 2018</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php echo $this->getLayout()->createBlock('tendergreens/popup_confirm')->toHtml() ?>
+<script type="text/javascript">
+    jQuery('.location-carts-grid .add-storelocator').click(function () {
+        var button = jQuery(this);
+        if (!button.hasClass('remove')) {
+            jQuery.ajax({
+                method: 'POST',
+                url: '<?php echo Mage::helper('blackbox_checkout')->getStorelocatorAddAllUrl() ?>',
+                data: {storelocator_id: button.data('storelocator-id')},
+                success: function (data) {
+                    if (data.success) {
+                        button.addClass('remove');
+                        PopupNotification.success('The address has been added to your shopping cart');
+
+                        if (data.cart_html) {
+                            AjaxCart.setContent(data.cart_html, data.form_key);
+                        }
+                    } else {
+                        PopupNotification.error(data.message || 'An error has occurred');
+                    }
+                },
+                error: function (jqXHR) {
+                    PopupNotification.error('An error has occurred');
+                }
+            });
+        } else {
+            PopupNotification.confirm('Are you sure you want to remove address from order? All associated products will be removed from checkout', function () {
+                jQuery.ajax({
+                    method: 'POST',
+                    url: '<?php echo Mage::helper('blackbox_checkout')->getStorelocatorRemoveUrl() ?>',
+                    data: {storelocator_id: button.data('storelocator-id')},
+                    success: function (data) {
+                        if (data.success) {
+                            button.removeClass('remove');
+                            PopupNotification.success('The address has been removed from shopping cart');
+
+                            if (data.cart_html) {
+                                AjaxCart.setContent(data.cart_html, data.form_key);
+                            }
+                        } else {
+                            PopupNotification.error(data.message || 'An error has occurred');
+                        }
+                    },
+                    error: function (jqXHR) {
+                        PopupNotification.error('An error has occurred');
+                    }
+                });
+            });
+        }
+    });
+</script> 

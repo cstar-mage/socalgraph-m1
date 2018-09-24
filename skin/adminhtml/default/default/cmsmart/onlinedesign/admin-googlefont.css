@@ -1,0 +1,23 @@
+.nbdesigner_google_added {
+    position: relative !important;
+}
+
+.btn-add-google-font{
+	background-color: #ed6502;
+    border: medium none;
+    color: #fff;
+    cursor: pointer;
+    height: 23px;
+    margin-left: 9px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+input#nbdesigner_google_font_seach {
+    margin-right: 10px;
+}
+
+.nbdesigner_google_added input.button {
+    padding: 3px;
+    width: 65px;
+}

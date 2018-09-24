@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Api>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Mage_Api />
+                <Mage_Checkout />
+            </depends>
+        </Blackbox_Api>
+    </modules>
+</config>

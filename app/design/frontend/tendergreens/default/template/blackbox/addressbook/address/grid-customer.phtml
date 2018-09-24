@@ -1,0 +1,70 @@
+<?php /** @var Blackbox_Checkout_Block_Address_Grid $this */ ?>
+<?php $items = $this->getItems(); ?>
+<div class="address-select-table-container" id="address-select-table-container">
+    <h2><?php echo $this->__('Additional Address Entries') ?></h2>
+    <div class="address-select-table-header">
+        <div class="address-select-search">
+            <input id="address-autocomplete-billing-address-select" autofocus="" type="text" name="q"
+                   placeholder="<?php echo $this->getInputPlaceholderText()?>"
+                   data-url="<?php echo $this->getSearchUrl()?>"
+                   onchange="addressbook.addressGridSearch(this)"
+                   value="<?php echo $this->getSearchValue() ?>" >
+        </div>
+        <?php echo $this->getPagerHtml(); ?>
+    </div>
+    <?php if ($items->getSize()): ?>
+
+
+
+
+        <div class="data-table address-select-table mobile-hide" id="addresses-table">
+
+            <?php foreach($items as $item): ?>
+                <?php /** @var Mage_Customer_Model_Address $item */ ?>
+
+                <table class="address-table">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <p><?= $item->getStorelocatorId() ? $item->getData('name') : $item->getName() ?></p>
+                            <p><?= $item->getStreetFull() ?></p>
+                        </td>
+                        <td>
+                            <p><?= $item->getEmail() ?></p>
+                            <p><?= $item->getPostcode() ?></p>
+                        </td>
+                        <td>
+                            <?php if ($item->getStorelocatorId()): ?>
+                                <p><?= $item->getTelephone() ?></p>
+                            <?php else: ?>
+                                <p><a href="#" onclick="event.preventDefault();deleteAddress(<?=$item->getId()?>)"><?php echo $this->__('Delete') ?></a></p>
+                            <?php endif; ?>
+                            <p><?= $item->getRegion() ?>, <?= $item->getCountry() ?></p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            <?php endforeach; ?>
+        </div>
+        <div class="data-table address-select-table mobile-show" id="addresses-table-mobile">
+
+            <?php foreach($items as $item): ?>
+                <?php /** @var Mage_Customer_Model_Address $item */ ?>
+
+                <div class="address-table">
+                        <div>
+                            <p><?=$item->getStorelocatorId() ? $item->getData('name') : $item->getName()?></p>
+                            <p><?=$item->getStreetFull()?></p>
+                            <p><?=$item->getTelephone()?></p>
+                            <p><?=$item->getEmail()?></p>
+                            <p><?=$item->getPostcode()?></p>
+                            <p><?=$item->getRegion()?>, <?=$item->getCountry()?></p>
+                            <?php if ($item->getId()): ?>
+                                <p><a href="#" onclick="event.preventDefault();deleteAddress(<?=$item->getId()?>)"><?php echo $this->__('Delete') ?></a></p>
+                            <?php endif; ?>
+                        </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>

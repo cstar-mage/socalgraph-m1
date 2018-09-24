@@ -1,0 +1,76 @@
+<?php include_once(Mage::getBaseDir('lib').DS.'Onlinedesign'.DS.'includes'.DS.'class.helper.php'); ?>
+<?php include_once(Mage::getBaseDir('lib').DS.'Onlinedesign'.DS.'includes'.DS.'class-util.php'); ?>
+
+<?php
+$hide_on_mobile = nbdesigner_get_option('nbdesigner_disable_on_smartphones');
+if(wp_is_mobile() &&  $hide_on_mobile == 'yes' || !wp_is_mobile()) {               
+?>
+
+<?php
+$product_id = Mage::registry('current_product')->getId();
+Mage::getSingleton('core/session')->setNbdesignerPid($product_id);
+$nbdesigner_enable = get_post_meta($product_id, "_nbdesigner_enable", true);
+
+if($nbdesigner_enable == 1) {
+	$title_btn = nbdesigner_get_option("nbdesigner_button_label");
+	if($this->getRequest()->getParam('orderid')) {
+		$title_btn = $this->__("Design Again");
+	}
+	$src = $this->getUrl('onlinedesign/index/design', array('_current'=>true, '_secure' => $this->getRequest()->isSecure()));
+	if (($pos = strpos($src, '?')) !== false) {
+	    if ($pos != strlen($src) - 1) {
+            $src .= '&';
+        }
+    } else {
+	    $src .= '?';
+    }
+    $src .= "product_id=".$product_id;
+
+    if(isset($_GET['task']) && $_GET['task'] == "create_template") {
+		if(isset($_GET['priority']) && $_GET['priority'] == "primary") {
+			$src .= "?product_id=".$product_id."&priority=primary&task=create_template";
+		} else {
+			$src .= "?product_id=".$product_id."&priority=extra&task=create_template";
+		}
+		
+		$title_btn = $this->__("Create Template");
+	} elseif(isset($_GET['task']) && $_GET['task'] == "edit_template") {
+		if(isset($_GET['priority']) && $_GET['priority'] == "primary") {
+			$src .= "?product_id=".$product_id."&priority=primary&task=edit_template&template_folder=primary";
+			$title_btn = $this->__("Edit Primary Template");
+		} else {
+			$src .= "?product_id=".$product_id."&priority=extra&task=edit_template&template_folder=".$_GET['template_folder']."";
+			$title_btn = $this->__("Edit Template");
+		}
+	} elseif(isset($_GET['task']) && $_GET['task'] == "redesign") {
+		$src = $this->getUrl('onlinedesign/index/design', array('_current'=>false, '_secure' => $this->getRequest()->isSecure())).'?folder='.$_GET["folder"].'&orderid='.$_GET["orderid"].'&product_id='.$_GET["product_id"].'&order_item_id='.$_GET["order_item_id"].'&task=redesign';
+	}
+	
+	?>
+	<div style="position: fixed; top: 0; left: 0; z-index: 999999; opacity: 0; width: 100%; height: 100%;" id="container-online-designer">
+		<iframe id="onlinedesigner-designer"  width="100%" height="100%" scrolling="no" frameborder="0" noresize="noresize" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" src="<?php echo $src; ?>">
+		</iframe>
+		<span id="closeFrameDesign" class="nbdesigner_pp_close">&times;</span>
+	</div>
+	<a id="dsgn-btn-name" style="display: none;"><?php echo $title_btn; ?></a>
+	
+	<a id="triggerDesign" class="button nbdesign-button"><?php echo $title_btn; ?></a><br />
+	<div id="nbdesigner_frontend_area"></div>
+	
+<?php } ?>
+
+<?php
+if(isset($_GET['task']) && $_GET['task'] == "create_template" ||
+	isset($_GET['task']) && $_GET['task'] == "edit_template"
+) {
+	
+?>
+<script>
+	jQuery(document).ready(function($){
+		jQuery("button.btn-cart").css("display", "none");
+		jQuery("#triggerDesign").text(jQuery("#dsgn-btn-name").text());
+	});
+</script>
+<?php } ?>
+
+<?php } ?>

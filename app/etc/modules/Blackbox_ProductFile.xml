@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_ProductFile>
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
+                <Jvs_FileAttribute />
+            </depends>
+        </Blackbox_ProductFile>
+    </modules>
+</config>

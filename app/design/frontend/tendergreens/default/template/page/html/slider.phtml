@@ -1,0 +1,41 @@
+<section class="store-front">
+    <div class="slider">
+        <div class="row">
+            <div class="large-12 columns">
+                <div class="owl-carousel owl-theme">
+                    <div class="item">
+                        <div class="slide1">
+                            <img data-u="image"
+                                 src="<?php echo $this->getSkinUrl('images/slides/slide1.png'); ?>"/>
+                            <div class="slide-content">
+                                <h1>WELCOME TO TENDER GREENS<br>
+                                    MARKETING MATERIAL </h1>
+                                <h6>This is where you can find  damn amazing marketing material.
+                                    We put an elevated spin on the traditional marketing webiste
+                                    to enhance your ordering,tracking, on-demand
+                                    printing & custom collateral.
+                                </h6>
+                                <?php if(Mage::getSingleton('customer/session')->isLoggedIn()):?>
+                                    <button class="tg-button" type="button">Order</button>
+                                <?else: ?>
+                                <a href="<?php echo $this->getBaseUrl(); ?>customer/account/login/">
+                                    <button class="tg-button" type="button">Login</button>
+                                </a>
+                                <?php endif;?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    jQuery(document).ready(function() {
+                        jQuery('.owl-carousel').owlCarousel({
+                            items: 1,
+                            margin: 10,
+                            autoHeight: true
+                        });
+                    })
+                </script>
+            </div>
+        </div>
+    </div>
+</section>

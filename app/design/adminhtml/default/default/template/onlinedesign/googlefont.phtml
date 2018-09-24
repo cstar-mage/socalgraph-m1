@@ -1,0 +1,89 @@
+<?php
+	require_once Mage::getBaseDir('lib') .DS. 'Onlinedesign'.DS.'includes'.DS.'class.nbdesigner.php';
+	
+	$helper = Mage::helper('onlinedesign/data');
+	$data_font_google = $helper->nbdesigner_read_json_setting($helper->plugin_path_data(). DS . 'googlefonts.json');
+	$list_all_google_font = $helper->nbdesigner_get_list_google_font();
+?>
+
+<div class="entry-edit-head">
+    <h4 class="icon-head head-edit-form fieldset-legend">Google Font information</h4>
+</div>
+
+<div id="font_form" class="fieldset ">
+	<div class="postbox">
+		<div class="inside nbdesigner_google_added">
+			<div class="ui-widget"><input type="search" id="nbdesigner_google_font_seach"/><input onclick="NBDESIGNADMIN.add_google_font(this)" type="button" value="<?php echo $this->__('Add'); ?>" class="button"/><img src="<?php //echo NBDESIGNER_PLUGIN_URL.'assets/images/loading.gif' ?>" class="nbdesigner_loaded" id="nbdesigner_google_font_loading" style="margin-left: 15px;"/></div>		
+			<div style="margin-top: 15px;" id="nbdesigner_container_list_google_font">
+			<?php if(is_array($data_font_google)): ?>
+				<?php foreach($data_font_google as $val):
+				?>
+					<span class="nbdesigner_google_link "><a href="https://fonts.google.com/specimen/<?php echo $val["name"] ?>" target="_blank" class=" "><span><?php echo $val["name"]; ?></span></a><span class="nbdesigner_action_delete_gf" data-index="<?php echo $val["id"]; ?>" onclick="NBDESIGNADMIN.delete_font('google',this)">&times;</span></span>
+				<?php endforeach; ?>
+			<?php else: ?>
+				<p id="nbdesigner_no_google_font"><?php echo $this->__('You don\'t have any google font'); ?></p>
+			<?php endif; ?>
+			<input type="hidden" id="nbdesigner_current_index_google_font" value="<?php if(is_array($data_font_google))echo sizeof($data_font_google); else echo "0"; ?>"/>
+			</div>
+		</div>
+		<div class="nbdesigner_google_preview" style="display: none;">
+			<h4><?php echo $this->__('Preview'); ?></h4>
+			<div id="nbdesigner_google_preview">
+				
+			</div>		
+		</div>
+	</div>
+</div>
+
+<style>
+.ui-autocomplete {
+    background-color: #fff;
+    border: 1px solid #5b9dd9;
+    box-shadow: 0 1px 2px rgba(30, 140, 190, 0.8);
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    z-index: 10000;
+}
+.ui-autocomplete-input {
+    height: 23px;
+}
+</style>
+
+<script type="text/javascript">
+	var admin_nbds  = {
+		url  :	"<?php echo $this->getUrl('onlinedesign/index/nbdesigner_get_product_info', array('_current'=>false)); ?>",
+		/* add_gfont_url 		: "<?php echo Mage::getUrl('onlinedesign/index/nbdesigner_add_google_font', array('_current'=>true, 'isAjax' => true)); ?>",
+		del_gfont_url 		: "<?php echo Mage::getUrl('onlinedesign/index/nbdesigner_delete_font', array('_current'=>true, 'isAjax' => true)); ?>", */
+		nbds_lang 	 		: {
+			error: 'Oops! Try again later!',
+			complete: 'Complete!',
+			are_you_sure: 'Are you sure?',
+			warning_mes_delete_file: 'You will not be able to recover this file!',
+			warning_mes_delete_category: 'You will not be able to recover this category!',
+			warning_mes_fill_category_name: 'Please fill category name!',
+			warning_mes_backup_data: 'Restore your last data!',
+			warning_mes_delete_lang: 'You will not be able to recover this language!',
+		}
+	};
+
+	jQuery.noConflict();
+	jQuery(document).ready(function($){
+		var google_font  = <?php echo $list_all_google_font; ?>;
+		$( "#nbdesigner_google_font_seach" ).autocomplete({
+			source: google_font,
+			select: function(event, ui){
+				$('.nbdesigner_google_preview').show();
+				$('#nbdesigner_google_preview').html('');
+				$('#nbdesigner_head').remove();
+				var _name = ui.item.value;
+				name1 = _name.replace(' ', '+');
+				var head    = '<link id="nbdesigner_head" href="https://fonts.googleapis.com/css?family='+ name1 +'" rel="stylesheet" type="text/css">';
+				var html    = '<span style="font-family: \''+ _name +'\', sans-serif ;font-size: 30px;">Abc Xyz</span>';
+				$('head').append(head);
+				$('#nbdesigner_google_preview').append(html);
+			}
+		});			
+	});
+</script>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <default>
+        <reference name="header">
+            <block type="blackbox_notification/head_notification" name="notification_head" template="blackbox/notification/container.phtml" before="-">
+                <block type="blackbox_notification/head_notification_renderer" name="notification_head.renderer" as="renderer" template="blackbox/notification/item.phtml"/>
+            </block>
+        </reference>
+    </default>
+</layout>

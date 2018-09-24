@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <!--<customer_account>
+        <reference name="customer_account_navigation">
+            <action method="addLink">
+                <name>helpdesk</name>
+                <path>support/ticket</path>
+                <label>Support</label>
+            </action>
+        </reference>
+    </customer_account>-->
+
+    <helpdesk_ticket_index>
+        <update handle="customer_account"/>
+        <reference name="head">
+            <action method="addItem"><type>skin_css</type><file>css/blackbox/helpdesk.css</file></action>
+        </reference>
+        <reference name="content">
+            <block type="helpdesk/customer_ticket_list" name="helpdesk.ticket.list" template="blackbox/helpdesk/customer/ticket/list.phtml" />
+        </reference>
+    </helpdesk_ticket_index>
+
+    <helpdesk_ticket_create>
+        <reference name="content">
+            <block type="helpdesk/customer_ticket_create" name="helpdesk.ticket.create" template="blackbox/helpdesk/customer/ticket/create.phtml" />
+        </reference>
+    </helpdesk_ticket_create>
+
+    <helpdesk_ticket_view>
+        <update handle="customer_account"/>
+        <reference name="head">
+            <action method="addItem"><type>skin_css</type><file>css/blackbox/helpdesk.css</file></action>
+        </reference>
+        <reference name="content">
+            <block type="helpdesk/customer_ticket" name="helpdesk.ticket" template="blackbox/helpdesk/customer/ticket/view.phtml">
+                <action method="addCommentRenderer"><type>default</type><block>helpdesk/customer_ticket_comment</block><template>blackbox/helpdesk/customer/ticket/comment/renderer/default.phtml</template></action>
+                <action method="addFileRenderer">
+                    <block>helpdesk/customer_ticket_comment_file</block>
+                    <template>blackbox/helpdesk/customer/ticket/comment/file/renderer/default.phtml</template>
+                    <mask>default</mask>
+                </action>
+                <action method="addFileRenderer">
+                    <block>helpdesk/customer_ticket_comment_file</block>
+                    <template>blackbox/helpdesk/customer/ticket/comment/file/renderer/image.phtml</template>
+                    <mask1>*.jpg</mask1>
+                    <mask2>*.jpeg</mask2>
+                    <mask3>*.png</mask3>
+                    <mask4>*.gif</mask4>
+                </action>
+            </block>
+        </reference>
+    </helpdesk_ticket_view>
+</layout>

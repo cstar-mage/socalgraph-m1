@@ -1,0 +1,64 @@
+<?php /** @var Blackbox_Notification_Block_Head_Notification $this */ ?>
+<div class="Notifications">
+    <a id="Notifications" href="#" class="<?php echo $this->getNewItems()->getSize() ? 'new' : '' ?>">
+        <img class="login-ico" src="<?php echo $this->getSkinUrl('images/Notifications.png'); ?>"
+             alt="">
+        <?php if ($size = $this->getNewItems()->getSize()): ?>
+            <div class="Notifications-num">
+                <span><?php echo $size ?></span>
+            </div>
+        <?php endif; ?>
+    </a>
+    <?php if (count($this->getItems())): ?>
+
+    <div class="tg-notifications hide">
+        <div class="tg-notifications-head">
+            <div class="triangle-minicart"></div>
+            <span>Notifications</span>
+            <div id="close-notification" class="close-popup">✖</div>
+        </div>
+        <div class="tg-notifications-body">
+            <?php if (count($this->getItems())): ?>
+                <?php foreach ($this->getItems() as $item): ?>
+                    <?php echo $this->getItemHtml($item) ?>
+                <?php endforeach; ?>
+            <?php else: ?>
+                You have no notifications.
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+</div>
+<script type="text/javascript">
+    <?php if ($this->getNewItems()->getSize()): ?>
+    jQuery('#Notifications').click(function () {
+        jthis = jQuery(this);
+        if (jthis.hasClass('new')) {
+            jQuery.ajax('/notification/notification/view', {
+                method: 'POST'
+            });
+            jthis.removeClass('new');
+            jthis.find('.Notifications-num').hide().find('span').html(0);
+        }
+    });
+    <?php endif; ?>
+    jQuery('.tg_notification .delete').click(function() {
+        var jthis = jQuery(this);
+        var item = jthis.closest('.tg_notification');
+        jQuery.ajax('/notification/notification/delete', {
+            method: 'POST',
+            data: {id: jthis.data('id')}
+        }).done(function(data) {
+            if (data.success) {
+                item.hide('slow', function(){ item.remove(); });
+            } else {
+                item.removeClass('deleting');
+                if (data.message) {
+                    alert(data.message);
+                }
+            }
+        });
+        item.addClass('deleting');
+    });
+</script>
