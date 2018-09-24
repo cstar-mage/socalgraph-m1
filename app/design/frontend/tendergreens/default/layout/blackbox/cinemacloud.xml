@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <cinemacloud_index_index>
+        <block type="core/template" name="root" template="blackbox/cinemacloud/login.phtml" output="toHtml">
+        </block>
+    </cinemacloud_index_index>
+
+    <customer_account_login>
+        <reference name="root">
+            <action method="setTemplate"><template>blackbox/cinemacloud/login.phtml</template></action>
+        </reference>
+    </customer_account_login>
+</layout>
