@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<layout>
+    <adminhtml_catalog_product_edit>
+        <reference name="product_tabs" >
+            <action method="addTab" ifconfig="barcode/settings/enable">
+                <tabId>barcode</tabId>
+                <block>barcode/adminhtml_catalog_product_edit_tab_barcode</block>
+            </action>
+        </reference>
+    </adminhtml_catalog_product_edit>
+
+    <adminhtml_catalog_product_barcode>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="barcode/adminhtml_catalog_product_edit_barcode" name="barcode_tab"/>
+        </block>
+    </adminhtml_catalog_product_barcode>
+</layout>

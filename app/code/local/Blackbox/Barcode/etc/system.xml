@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <sections>
+        <barcode translate="label" module="epace">
+            <label>Barcode</label>
+            <tab>blackbox</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>100</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <settings translate="label">
+                    <expanded>1</expanded>
+                    <label>Main settings</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enable translate="label">
+                            <label>Enable</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable>
+                        <filetype translate="label">
+                            <label>Filetype</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>barcode/system_config_source_filetype</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </filetype>
+                        <type translate="label">
+                            <label>Barcode Type</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>barcode/system_config_source_type</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </type>
+                        <width_factor translate="label">
+                            <label>Width Factor</label>
+                            <frontend_type>text</frontend_type>
+                            <validate>required-entry validate-digits validate-greater-than-zero</validate>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </width_factor>
+                        <height translate="label">
+                            <label>Total Height</label>
+                            <frontend_type>text</frontend_type>
+                            <validate>required-entry validate-digits validate-greater-than-zero</validate>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </height>
+                        <color translate="label">
+                            <label>Color</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </color>
+                        <data_source translate="label">
+                            <label>Data Source</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>barcode/system_config_source_data</source_model>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </data_source>
+                    </fields>
+                </settings>
+            </groups>
+        </barcode>
+    </sections>
+</config>
