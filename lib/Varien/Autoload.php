@@ -88,6 +88,7 @@ class Varien_Autoload
             $classFile =  COMPILER_INCLUDE_PATH . DIRECTORY_SEPARATOR . $class;
         } else {
             $classFile = str_replace(' ', DIRECTORY_SEPARATOR, ucwords(str_replace('_', ' ', $class)));
+            $classFile = str_replace('\\', '/', $classFile);
         }
         $classFile.= '.php';
         //echo $classFile;die();
