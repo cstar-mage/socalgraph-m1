@@ -40,7 +40,7 @@ class Blackbox_Barcode_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $class = Mage::getConfig()->getModelClassName('barcode/barcode');
         /** @var Blackbox_Barcode_Model_Barcode $barcode */
-        $barcode = new $class($product, $this->getBarcodeFiletype(), $this->getBarcodeType());
+        $barcode = new $class($product, $this->getBarcodeFiletype(), $this->getBarcodeType(), $this->getBarcodeDataSource());
         $barcode->setWidthFactor($this->getBarcodeWidthFactor())
             ->setTotalHeight($this->getBarcodeTotalHeight())
             ->setColor($this->getBarcodeColor());
