@@ -30,6 +30,17 @@ class Blackbox_Barcode_Model_Observer
         $barcode->delete();
     }
 
+    public function onSystemConfigChangedSectionBarcode($observer)
+    {
+        $folder = Mage::getBaseDir('media') . '/barcode';
+        $files = glob($folder . '/*');
+        foreach($files as $file){
+            if(is_file($file)){
+                unlink($file);
+            }
+        }
+    }
+
     protected function getDataSource(Mage_Catalog_Model_Product $product)
     {
         return $product->getBarcodeDataSource() ?: $this->getHelper()->getBarcodeDataSource();

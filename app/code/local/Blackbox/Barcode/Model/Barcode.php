@@ -42,7 +42,7 @@ class Blackbox_Barcode_Model_Barcode
         if ($create) {
             $this->generate();
         }
-        return Mage::getBaseUrl('media') . '/barcode/' . $this->product->getId() . '.' . $this->filetype;
+        return Mage::getBaseUrl('media') . 'barcode/' . $this->product->getId() . '.' . $this->filetype;
     }
 
     public function getProduct()
@@ -173,18 +173,18 @@ class Blackbox_Barcode_Model_Barcode
                     if (isset(self::$colors[$color])) {
                         return self::$colors[$color];
                     }
-                    if (preg_match('/^#?([0-9A-Fa-f]{1-6})&/', $color, $match)) {
+                    if (preg_match('/^#?([0-9A-Fa-f]{1,6})$/', $color, $match)) {
                         $number = $match[1];
                         if (strlen($number) < 6) {
                             $number = str_pad($number, 6, '0', STR_PAD_LEFT);
                         }
-                        preg_match('/^(..)(..)(..)&/', $number, $match);
+                        preg_match('/^(..)(..)(..)$/', $number, $match);
                         return [
                             hexdec($match[1]),
                             hexdec($match[2]),
                             hexdec($match[3])
                         ];
-                    } else if (preg_match('/(\d+).*(\d+).*(\d+)/', $color, $match)) {
+                    } else if (preg_match('/(\d+).*?(\d+).*?(\d+)/', $color, $match)) {
                         return [
                             (int)$match[1],
                             (int)$match[2],

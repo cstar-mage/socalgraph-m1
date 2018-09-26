@@ -54,6 +54,14 @@
                     </barcode>
                 </observers>
             </catalog_product_delete_after_done>
+            <admin_system_config_changed_section_barcode>
+                <observers>
+                    <barcode>
+                        <class>barcode/observer</class>
+                        <method>onSystemConfigChangedSectionBarcode</method>
+                    </barcode>
+                </observers>
+            </admin_system_config_changed_section_barcode>
         </events>
     </global>
     <admin>
