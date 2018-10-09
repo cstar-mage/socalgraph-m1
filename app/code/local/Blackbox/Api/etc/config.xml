@@ -7,6 +7,19 @@
     </modules>
     <global>
         <models>
+            <blackbox_api>
+                <class>Blackbox_Api_Model</class>
+            </blackbox_api>
+            <api>
+                <rewrite>
+                    <session>Blackbox_Api_Model_Session</session>
+                </rewrite>
+            </api>
+            <oauth>
+                <rewrite>
+                    <token>Blackbox_Api_Model_Oauth_Token</token>
+                </rewrite>
+            </oauth>
             <sales>
                 <rewrite>
                     <order_api>Blackbox_Api_Model_Sales_Order_Api</order_api>

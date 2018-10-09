@@ -1,6 +1,28 @@
 <config>
     <api>
+        <adapters>
+            <rest2>
+                <model>blackbox_api/server_adapter_rest</model>
+                <handler>rest2</handler>
+                <active>1</active>
+            </rest2>
+        </adapters>
+        <handlers>
+            <rest2>
+                <model>blackbox_api/server_handler</model>
+            </rest2>
+        </handlers>
         <resources>
+            <oauth translate="title" module="blackbox_api">
+                <title>Oauth</title>
+                <model>blackbox_api/oauth_api</model>
+                <methods>
+                    <login translate="title" module="blackbox_api">
+                        <title>Retrieve oauth token and secret by customer credentials and client key</title>
+                        <method>login</method>
+                    </login>
+                </methods>
+            </oauth>
             <sales_order>
                 <methods>
                     <create translate="title" module="sales">
