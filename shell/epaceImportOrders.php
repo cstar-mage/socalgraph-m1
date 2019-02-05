@@ -13,6 +13,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
     {
         $json = [];
         $customers = [];
+        $salesPersons = [];
+        $csrs = [];
 
         /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('efi/estimate_collection');
@@ -27,6 +29,21 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
         foreach ($collection->getItems() as $estimate) {
             $estimateData = $estimate->getData();
+
+            $customerId = $estimate->getData('customer');
+            if (!isset($customers[$customerId])) {
+                $customers[$customerId] = $estimate->getCustomer() ? $estimate->getCustomer()->getData() : false;
+            }
+
+            $salesPersonId = $estimate->getData('salesPerson');
+            if (!isset($salesPersons[$salesPersonId])) {
+                $salesPersons[$salesPersonId] = $estimate->getSalesPerson() ? $estimate->getSalesPerson()->getData() : false;
+            }
+
+            $csrId = $estimate->getData('csr');
+            if (!isset($csrs[$csrId])) {
+                $csrs[$csrId] = $estimate->getCSR() ? $estimate->getCSR()->getData() : false;
+            }
 
             foreach ($estimate->getProducts() as $product) {
                 $productData = $product->getData();
@@ -59,7 +76,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                         $customerId = $jobContact->getContact()->getData('customer');
                         if (!isset($customers[$customerId])) {
                             $customer = $jobContact->getContact()->getCustomer();
-                            $customers[$customerId] = $customer ? $customer->getData() : null;
+                            $customers[$customerId] = $customer ? $customer->getData() : false;
                         }
                         $jobData['jobContacts'][] = $jobContactData;
                     }
@@ -115,6 +132,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         }
 
         $json['customers'] = $customers;
+        $json['salesPersons'] = $salesPersons;
+        $json['csrs'] = $csrs;
 
 //        /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
 //        $collection = Mage::getResourceModel('efi/job_collection');

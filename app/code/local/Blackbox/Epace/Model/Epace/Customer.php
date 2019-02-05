@@ -10,7 +10,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
     public function getDefinition()
     {
         return [
-            'id' => 'int',
+            'id' => 'string',
             'custName' => '',
             'accountBalance' => '',
             'customerStatus' => '',

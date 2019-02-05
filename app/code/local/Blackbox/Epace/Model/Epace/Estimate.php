@@ -9,6 +9,21 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     protected $status = null;
 
     /**
+     * @var Blackbox_Epace_Model_Epace_Customer
+     */
+    protected $customer = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_SalesPerson
+     */
+    protected $salesPerson = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_CSR
+     */
+    protected $csr = null;
+
+    /**
      * @var Blackbox_Epace_Model_Epace_Job
      */
     protected $job = null;
@@ -24,7 +39,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     public function getStatus()
     {
         if (is_null($this->status)) {
-            $this->status = Mage::getModel('efi/estimate_status')->load($this->getData('status'));
+            $this->status = Mage::helper('epace/object')->load('efi/estimate_status', $this->getData('status'));
         }
 
         return $this->status;
@@ -37,6 +52,93 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     public function setStatus(Blackbox_Epace_Model_Epace_Estimate_Status $status)
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Customer|bool
+     */
+    public function getCustomer()
+    {
+        if (is_null($this->customer)) {
+            $this->customer = false;
+            if ($this->getData('customer')) {
+                $customer = Mage::helper('epace/object')->load('efi/customer', $this->getData('customer'));
+                if ($customer->getId()) {
+                    $this->customer = $customer;
+                }
+            }
+        }
+
+        return $this->customer;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Customer $customer
+     * @return $this
+     */
+    public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesPerson|bool
+     */
+    public function getSalesPerson()
+    {
+        if (is_null($this->salesPerson)) {
+            $this->salesPerson = false;
+            if ($this->getData('salesPerson')) {
+                $salesPerson = Mage::helper('epace/object')->load('efi/salesPerson', $this->getData('salesPerson'));
+                if ($salesPerson->getId()) {
+                    $this->salesPerson = $salesPerson;
+                }
+            }
+        }
+
+        return $this->salesPerson;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesPerson $salesPerson
+     * @return $this
+     */
+    public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
+    {
+        $this->salesPerson = $salesPerson;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_CSR|bool
+     */
+    public function getCSR()
+    {
+        if (is_null($this->csr)) {
+            $this->csr = false;
+            if ($this->getData('csr')) {
+                $csr = Mage::helper('epace/object')->load('efi/cSR', $this->getData('csr'));
+                if ($csr->getId()) {
+                    $this->csr = $csr;
+                }
+            }
+        }
+
+        return $this->csr;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_CSR $csr
+     * @return $this
+     */
+    public function setCSR(Blackbox_Epace_Model_Epace_CSR $csr)
+    {
+        $this->csr = $csr;
 
         return $this;
     }
@@ -99,14 +201,14 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'estimateNumber' => '',
             'priceSummaryLevel' => '',
             'fromCombo' => '',
-            'salesPerson' => '',
-            'csr' => '',
+            'salesPerson' => 'int',
+            'csr' => 'int',
             'estimator' => '',
             'entryDate' => '',
             'entryTime' => '',
             'enteredBy' => '',
             'followUpDate' => '',
-            'customer' => '',
+            'customer' => 'string',
             'customerProspectName' => '',
             'description' => '',
             'notes' => '',
