@@ -20,6 +20,7 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
     const JOB_STATUS_OPEN = 'O';
     const JOB_STATUS_CLOSED = 'C';
 
+    /** @var Blackbox_Soap_Model_Api */
     protected $api;
     protected $namespace = 'soap';
     protected $auth;
@@ -182,36 +183,73 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
         return $this->sendParamsToServer(null, $params, '', $this->getMethodUrl('ReadObject'), array($this->getAuthHeader()));
     }
 
-    public function findObjects($in0, $in1)
+    public function readEstimate($id)
     {
-        $params = array(
-            'find' => array(
-                'xmlns' => 'urn://pace2020.com/epace/sdk/FindObjects',
-                'in0' => $in0,
-                'in1' => $in1
-            )
-        );
+        return $this->readObject('estimate', [
+            'id' => $id
+        ]);
+    }
 
-        $result = $this->sendParamsToServer(null, $params, '', $this->getMethodUrl('FindObjects'), array($this->getAuthHeader()));
-        if (!$result) {
-            $this->throwException('Wrong response', $result);
+    public function readObject($objectType, $params)
+    {
+        $_params = [];
+        foreach ($params as $key => $value) {
+            $_params[$key] = [
+                'xmlns' => 'http://pace2020.com/epace/object',
+                $value
+            ];
         }
-        $responseNode = $result->children('ns1', true)->findResponse;
+
+        $operation = 'read' . ucfirst($objectType);
+        $body = [
+            $operation => [
+                'xmlns' => 'urn://pace2020.com/epace/sdk/ReadObject',
+                lcfirst($objectType) => $_params
+            ]
+        ];
+
+        return $this->getObjectResponse($body, 'read', $objectType);
+    }
+
+    public function findObjects($objectType, $filter, $sort = null, $offset = null, $limit = null)
+    {
+        $method = 'find';
+        $methodParams = [
+            'xmlns' => 'urn://pace2020.com/epace/sdk/FindObjects',
+            'in0' => $objectType,
+            'in1' => $filter
+        ];
+
+        if ($sort) {
+            $method = 'findAndSort';
+            $methodParams['in2'] = $sort;
+        }
+
+        if ($offset || $limit) {
+            $method = 'findSortAndLimit';
+            if (!isset($methodParams['in2'])) {
+                $methodParams['in2'] = '';
+            }
+            $methodParams['in3'] = (int)$offset;
+            $methodParams['in4'] = (int)$limit;
+        }
+
+        $params = [
+            $method => $methodParams
+        ];
+
+        $body = $this->sendParamsToServer(null, $params, '', $this->getMethodUrl('FindObjects'), array($this->getAuthHeader()));
+
+        $responseNode = $body->children('urn://pace2020.com/epace/sdk/FindObjects')->{$method . 'Response'};
         if (!$responseNode) {
-            $this->throwException('No response node found.', $result);
+            $this->throwException('No response node found.', $body);
         }
         $out = $responseNode->children()->out;
         if (!$out) {
-            $this->throwException('No "out" node found.', $result);
+            $this->throwException('No "out" node found.', $body);
         }
 
-        $result = [];
-        foreach ($out->string as $node)
-        {
-            $result[] = (string)$node;
-        }
-
-        return $result;
+        return (array)$out->string;
     }
 
     public function createEmployeeTime($employee, $startDate, $startTime, $stopDate = null, $stopTime = null, array $otherSettings = array())
@@ -302,7 +340,7 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
         $params = array(
             'create' . ucfirst($objectType) => array(
                 'xmlns' => 'urn://pace2020.com/epace/sdk/CreateObject',
-                $objectType => $settingNodes
+                lcfirst($objectType) => $settingNodes
             )
         );
 
@@ -320,25 +358,34 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
         $params = array(
             'update' . ucfirst($objectType) => array(
                 'xmlns' => 'urn://pace2020.com/epace/sdk/UpdateObject',
-                $objectType => $settingNodes
+                lcfirst($objectType) => $settingNodes
             )
         );
 
         return $this->getObjectResponse($params, 'update', $objectType);
     }
 
-    protected function getObjectResponse($params, $method, $objectType)
+    protected function getObjectResponse($params, $method, $objectType, $ns1 = null)
     {
         $result = $this->sendParamsToServer(null, $params, '', $this->getMethodUrl(ucfirst($method) . 'Object'), array($this->getAuthHeader()));
-        $responseNodeName = $method . ucfirst($objectType) . 'Response';
+        return $this->parseResponseBody($result, $method . ucfirst($objectType), $ns1);
+    }
 
-        $responseNode = $result->children('ns1', true)->$responseNodeName;
+    protected function parseResponseBody(SimpleXMLElement $body, $method, $ns1 = null)
+    {
+        $responseNodeName = $method . 'Response';
+
+        if (is_null($ns1)) {
+            $responseNode = $body->children('ns1', true)->$responseNodeName;
+        } else {
+            $responseNode = $body->children($ns1)->$responseNodeName;
+        }
         if (!$responseNode) {
-            $this->throwException('No response node found.', $result);
+            $this->throwException('No response node found.', $body);
         }
         $out = $responseNode->children()->out;
         if (!$out) {
-            $this->throwException('No "out" node found.', $result);
+            $this->throwException('No "out" node found.', $body);
         }
 
         return (array)$this->api->xmlToArray($out->children('ns2', true));
@@ -370,7 +417,7 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
         $response = $api->sendParamsToServer($headerParams, $bodyParams, $action, $url, $headers);
 
         if (!$response) {
-            throw new Exception('No resonse. Method: "' . $url . '"');
+            throw new Exception('No response. Method: "' . $url . '"');
         }
 
         $xml = simplexml_load_string($response);
