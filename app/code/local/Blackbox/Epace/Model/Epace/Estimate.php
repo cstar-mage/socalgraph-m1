@@ -1,27 +1,55 @@
 <?php
 
-
+/**
+ * @method int getEstimateNumber()
+ * @method string getPriceSummaryLevel()
+ * @method string getMetrixID()
+ * @method bool getFromCombo()
+ * @method int getEstimator()
+ * @method string getEntryDate()
+ * @method string getEntryTime()
+ * @method string getEnteredBy()
+ * @method string getFollowUpDate()
+ * @method string getCustomerProspectName()
+ * @method string getDescription()
+ * @method int getStatus()
+ * @method string getRewardDate()
+ * @method int getLastJob()
+ * @method bool getEstimateRequest()
+ * @method bool getShipToContact()
+ * @method bool getBillToContact()
+ * @method int getTaxableCode()
+ * @method bool getAddCRMOpportunity()
+ * @method bool getAddCRMActivity()
+ * @method string getFreightOnBoard()
+ * @method bool getDebug()
+ * @method string getAltCurrency()
+ * @method float getAltCurrencyRate()
+ * @method string getAltCurrencyRateSource()
+ * @method string getAltCurrencyRateSourceNote()
+ * @method bool getForceQuotedPriceOnConvert()
+ * @method bool getCommittedFromMetrix()
+ * @method bool getAllowVAT()
+ * @method bool getRepetitiveRuns()
+ * @method int getManufacturingLocation()
+ * @method bool getHighestEstimateVersion()
+ * @method bool getAutoAddQuoteLetter()
+ * @method string getLastChangedDate()
+ * @method string getLastChangedTime()
+ * @method string getLastChangedBy()
+ * @method int getTotalParts()
+ * @method int getTotalPages()
+ *
+ * Class Blackbox_Epace_Model_Epace_Estimate
+ */
 class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_AbstractObject
 {
+    use Blackbox_Epace_Model_Epace_PersonsTrait;
+
     /**
      * @var Blackbox_Epace_Model_Epace_Estimate_Status
      */
     protected $status = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Customer
-     */
-    protected $customer = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesPerson
-     */
-    protected $salesPerson = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_CSR
-     */
-    protected $csr = null;
 
     /**
      * @var Blackbox_Epace_Model_Epace_Job
@@ -52,93 +80,6 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     public function setStatus(Blackbox_Epace_Model_Epace_Estimate_Status $status)
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * @return Blackbox_Epace_Model_Epace_Customer|bool
-     */
-    public function getCustomer()
-    {
-        if (is_null($this->customer)) {
-            $this->customer = false;
-            if ($this->getData('customer')) {
-                $customer = Mage::helper('epace/object')->load('efi/customer', $this->getData('customer'));
-                if ($customer->getId()) {
-                    $this->customer = $customer;
-                }
-            }
-        }
-
-        return $this->customer;
-    }
-
-    /**
-     * @param Blackbox_Epace_Model_Epace_Customer $customer
-     * @return $this
-     */
-    public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
-    {
-        $this->customer = $customer;
-
-        return $this;
-    }
-
-    /**
-     * @return Blackbox_Epace_Model_Epace_SalesPerson|bool
-     */
-    public function getSalesPerson()
-    {
-        if (is_null($this->salesPerson)) {
-            $this->salesPerson = false;
-            if ($this->getData('salesPerson')) {
-                $salesPerson = Mage::helper('epace/object')->load('efi/salesPerson', $this->getData('salesPerson'));
-                if ($salesPerson->getId()) {
-                    $this->salesPerson = $salesPerson;
-                }
-            }
-        }
-
-        return $this->salesPerson;
-    }
-
-    /**
-     * @param Blackbox_Epace_Model_Epace_SalesPerson $salesPerson
-     * @return $this
-     */
-    public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
-    {
-        $this->salesPerson = $salesPerson;
-
-        return $this;
-    }
-
-    /**
-     * @return Blackbox_Epace_Model_Epace_CSR|bool
-     */
-    public function getCSR()
-    {
-        if (is_null($this->csr)) {
-            $this->csr = false;
-            if ($this->getData('csr')) {
-                $csr = Mage::helper('epace/object')->load('efi/cSR', $this->getData('csr'));
-                if ($csr->getId()) {
-                    $this->csr = $csr;
-                }
-            }
-        }
-
-        return $this->csr;
-    }
-
-    /**
-     * @param Blackbox_Epace_Model_Epace_CSR $csr
-     * @return $this
-     */
-    public function setCSR(Blackbox_Epace_Model_Epace_CSR $csr)
-    {
-        $this->csr = $csr;
 
         return $this;
     }
@@ -176,9 +117,21 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     }
 
     /**
+     * @return Blackbox_Epace_Model_Epace_Job[]
+     */
+    public function getJobs()
+    {
+        /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
+        $collection = Mage::getResourceModel('efi/job_collection');
+        $collection->addFilter('altCurrencyRateSource', 'Estimate')
+            ->addFilter('altCurrencyRateSourceNote', (int)$this->getId());
+        return $collection->getItems();
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Job|bool
      */
-    public function getJob()
+    public function getLastJob()
     {
         if (is_null($this->job)) {
             $this->job = false;
@@ -210,6 +163,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'followUpDate' => '',
             'customer' => 'string',
             'customerProspectName' => '',
+            'prospectName' => '',
             'description' => '',
             'notes' => '',
             'status' => '',

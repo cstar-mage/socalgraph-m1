@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<layout>
+    <adminhtml_epace_estimate_grid>
+        <update handle="formkey"/>
+        <block type="epacei/adminhtml_estimate_grid" name="epace_estimate.grid" output="toHtml"></block>
+    </adminhtml_epace_estimate_grid>
+
+    <adminhtml_epace_estimate_index>
+        <reference name="content">
+            <block type="epacei/adminhtml_estimate" name="epace_estimate.grid.container"></block>
+        </reference>
+    </adminhtml_epace_estimate_index>
+</layout>

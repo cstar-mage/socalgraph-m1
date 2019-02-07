@@ -1,0 +1,221 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    Mage
+ * @package     Mage_Adminhtml
+ * @copyright  Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
+/**
+ * Adminhtml epacei estimates grid
+ *
+ * @category   Mage
+ * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
+ */
+class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_Block_Widget_Grid
+{
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setId('epacei_estimate_grid');
+        $this->setUseAjax(true);
+        $this->setDefaultSort('created_at');
+        $this->setDefaultDir('DESC');
+        $this->setSaveParametersInSession(true);
+    }
+
+    /**
+     * Retrieve collection class
+     *
+     * @return string
+     */
+    protected function _getCollectionClass()
+    {
+        return 'epacei/estimate_grid_collection';
+    }
+
+    protected function _prepareCollection()
+    {
+        $collection = Mage::getResourceModel($this->_getCollectionClass());
+        $this->setCollection($collection);
+        return parent::_prepareCollection();
+    }
+
+    protected function _prepareColumns()
+    {
+
+        $this->addColumn('real_estimate_id', array(
+            'header'=> Mage::helper('epacei')->__('Order #'),
+            'width' => '80px',
+            'type'  => 'text',
+            'index' => 'increment_id',
+        ));
+
+        if (!Mage::app()->isSingleStoreMode()) {
+            $this->addColumn('store_id', array(
+                'header'    => Mage::helper('epacei')->__('Purchased From (Store)'),
+                'index'     => 'store_id',
+                'type'      => 'store',
+                'store_view'=> true,
+                'display_deleted' => true,
+                'escape'  => true,
+            ));
+        }
+
+        $this->addColumn('created_at', array(
+            'header' => Mage::helper('epacei')->__('Purchased On'),
+            'index' => 'created_at',
+            'type' => 'datetime',
+            'width' => '100px',
+        ));
+
+        $this->addColumn('billing_name', array(
+            'header' => Mage::helper('epacei')->__('Bill to Name'),
+            'index' => 'billing_name',
+        ));
+
+        $this->addColumn('shipping_name', array(
+            'header' => Mage::helper('epacei')->__('Ship to Name'),
+            'index' => 'shipping_name',
+        ));
+
+        $this->addColumn('base_grand_total', array(
+            'header' => Mage::helper('epacei')->__('G.T. (Base)'),
+            'index' => 'base_grand_total',
+            'type'  => 'currency',
+            'currency' => 'base_currency_code',
+        ));
+
+        $this->addColumn('grand_total', array(
+            'header' => Mage::helper('epacei')->__('G.T. (Purchased)'),
+            'index' => 'grand_total',
+            'type'  => 'currency',
+            'currency' => 'estimate_currency_code',
+        ));
+
+        $this->addColumn('status', array(
+            'header' => Mage::helper('epacei')->__('Status'),
+            'index' => 'status',
+            'type'  => 'options',
+            'width' => '70px',
+            'options' => Mage::getSingleton('epacei/estimate_config')->getStatuses(),
+        ));
+
+        if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/view')) {
+            $this->addColumn('action',
+                array(
+                    'header'    => Mage::helper('epacei')->__('Action'),
+                    'width'     => '50px',
+                    'type'      => 'action',
+                    'getter'     => 'getId',
+                    'actions'   => array(
+                        array(
+                            'caption' => Mage::helper('epacei')->__('View'),
+                            'url'     => array('base'=>'*/epacei_estimate/view'),
+                            'field'   => 'estimate_id',
+                            'data-column' => 'action',
+                        )
+                    ),
+                    'filter'    => false,
+                    'sortable'  => false,
+                    'index'     => 'stores',
+                    'is_system' => true,
+            ));
+        }
+        $this->addRssList('rss/estimate/new', Mage::helper('epacei')->__('New Order RSS'));
+
+        $this->addExportType('*/*/exportCsv', Mage::helper('epacei')->__('CSV'));
+        $this->addExportType('*/*/exportExcel', Mage::helper('epacei')->__('Excel XML'));
+
+        return parent::_prepareColumns();
+    }
+
+    protected function _prepareMassaction()
+    {
+        $this->setMassactionIdField('entity_id');
+        $this->getMassactionBlock()->setFormFieldName('estimate_ids');
+        $this->getMassactionBlock()->setUseSelectAll(false);
+
+        if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/cancel')) {
+            $this->getMassactionBlock()->addItem('cancel_estimate', array(
+                 'label'=> Mage::helper('epacei')->__('Cancel'),
+                 'url'  => $this->getUrl('*/epacei_estimate/massCancel'),
+            ));
+        }
+
+        if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/hold')) {
+            $this->getMassactionBlock()->addItem('hold_estimate', array(
+                 'label'=> Mage::helper('epacei')->__('Hold'),
+                 'url'  => $this->getUrl('*/epacei_estimate/massHold'),
+            ));
+        }
+
+        if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/unhold')) {
+            $this->getMassactionBlock()->addItem('unhold_estimate', array(
+                 'label'=> Mage::helper('epacei')->__('Unhold'),
+                 'url'  => $this->getUrl('*/epacei_estimate/massUnhold'),
+            ));
+        }
+
+        $this->getMassactionBlock()->addItem('pdfinvoices_estimate', array(
+             'label'=> Mage::helper('epacei')->__('Print Invoices'),
+             'url'  => $this->getUrl('*/epacei_estimate/pdfinvoices'),
+        ));
+
+        $this->getMassactionBlock()->addItem('pdfshipments_estimate', array(
+             'label'=> Mage::helper('epacei')->__('Print Packingslips'),
+             'url'  => $this->getUrl('*/epacei_estimate/pdfshipments'),
+        ));
+
+        $this->getMassactionBlock()->addItem('pdfcreditmemos_estimate', array(
+             'label'=> Mage::helper('epacei')->__('Print Credit Memos'),
+             'url'  => $this->getUrl('*/epacei_estimate/pdfcreditmemos'),
+        ));
+
+        $this->getMassactionBlock()->addItem('pdfdocs_estimate', array(
+             'label'=> Mage::helper('epacei')->__('Print All'),
+             'url'  => $this->getUrl('*/epacei_estimate/pdfdocs'),
+        ));
+
+        $this->getMassactionBlock()->addItem('print_shipping_label', array(
+             'label'=> Mage::helper('epacei')->__('Print Shipping Labels'),
+             'url'  => $this->getUrl('*/epacei_estimate_shipment/massPrintShippingLabel'),
+        ));
+
+        return $this;
+    }
+
+    public function getRowUrl($row)
+    {
+        if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/view')) {
+            return $this->getUrl('*/epacei_estimate/view', array('estimate_id' => $row->getId()));
+        }
+        return false;
+    }
+
+    public function getGridUrl()
+    {
+        return $this->getUrl('*/*/grid', array('_current'=>true));
+    }
+
+}

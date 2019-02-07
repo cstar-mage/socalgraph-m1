@@ -1,11 +1,31 @@
 <?php
 
+/**
+ * @method string getDescription()
+ * @method float getEstimatedCost()
+ * @method float getQtyOrdered()
+ * @method float getValue()
+ * @method float getQuotedPrice()
+ * @method float getTargetSellPrice()
+ *
+ * Class Blackbox_Epace_Model_Epace_Job_Part
+ */
 class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job_AbstractChild
 {
     /**
      * @var Blackbox_Epace_Model_Epace_Job_Product
      */
     protected $product = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Estimate
+     */
+    protected $estimate = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Estimate_Part
+     */
+    protected $estimatePart = null;
 
     protected function _construct()
     {
@@ -32,6 +52,66 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     public function setProduct(Blackbox_Epace_Model_Epace_Job_Product $product)
     {
         $this->product = $product;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Estimate|bool
+     */
+    public function getEstimate()
+    {
+        if (is_null($this->estimate)) {
+            $this->estimate = false;
+            /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
+            $collection = Mage::getResourceModel('efi/estimate_collection');
+            $collection->addFilter('estimateNumber', $this->getData('estimate'));
+            $collection->setPageSize(1)->setCurPage(1);
+            $estimate = $collection->getFirstItem();
+            if ($estimate && $estimate->getId()) {
+                $this->estimate = $estimate;
+            }
+        }
+        return $this->estimate;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Estimate $estimate
+     * @return $this
+     */
+    public function setEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
+    {
+        $this->estimate = $estimate;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Estimate_Part|false
+     */
+    public function getEstimatePart()
+    {
+        if (is_null($this->estimatePart)) {
+            $this->estimatePart = false;
+
+            if (!empty($this->getData('estimatePart')) && $this->getEstimate()) {
+                $part = $this->getEstimate()->getParts()[(int)$this->getData('estimatePart')];
+                if ($part) {
+                    $this->estimatePart = $part;
+                }
+            }
+        }
+
+        return $this->estimatePart;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Estimate_Part $estimatePart
+     * @return $this
+     */
+    public function setEstimatePart(Blackbox_Epace_Model_Epace_Estimate_Part $estimatePart)
+    {
+        $this->estimatePart = $estimatePart;
 
         return $this;
     }
@@ -101,6 +181,17 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     public function getSizeAllowances()
     {
         return $this->_getPartItems('efi/job_part_sizeAllowance_collection');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Invoice[]
+     */
+    public function getInvoices()
+    {
+        return $this->_getPartItems('efi/invoice_collection', [
+            'job' => $this->getData('job'),
+            'jobPart' => $this->getData('jobPart')
+        ]);
     }
 
     public function getDefinition()

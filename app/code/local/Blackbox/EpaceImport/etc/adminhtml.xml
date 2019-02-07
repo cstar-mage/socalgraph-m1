@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <sales>
+            <children>
+                <estimate translate="title" module="epacei">
+                    <title>Estimates</title>
+                    <action>adminhtml/epace_estimate</action>
+                    <sort_order>15</sort_order>
+                    <depends><module>Mage_Sales</module></depends>
+                </estimate>
+            </children>
+        </sales>
+     </menu>
+     <acl>
+        <resources>
+            <admin>
+                <children>
+                    <epace translate="title" module="epacei">
+                        <title>Epace</title>
+                        <sort_order>666</sort_order>
+                        <children>
+                            <estimate translate="title">
+                                <title>Estimates</title>
+                            </estimate>
+                        </children>
+                    </epace>
+                    <sales>
+                        <children>
+                            <estimate translate="title">
+                                <title>Estimates</title>
+                                <sort_order>229</sort_order>
+                            </estimate>
+                        </children>
+                    </sales>
+                </children>
+            </admin>
+        </resources>
+     </acl>
+</config>

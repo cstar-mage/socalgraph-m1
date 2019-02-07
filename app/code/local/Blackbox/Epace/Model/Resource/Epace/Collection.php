@@ -164,6 +164,13 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
         return $this->_totalRecords;
     }
 
+    public function clearFilters()
+    {
+        $this->_filters = [];
+
+        return $this;
+    }
+
     protected function _renderFilters()
     {
         if ($this->_isFiltersRendered) {

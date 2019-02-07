@@ -11,6 +11,14 @@ class Blackbox_Epace_Model_Epace_Job_Contact extends Blackbox_Epace_Model_Epace_
     }
 
     /**
+     * @return int
+     */
+    public function getContactId()
+    {
+        return $this->getData('contact');
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Contact|bool
      */
     public function getContact()

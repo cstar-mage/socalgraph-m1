@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @method string getDescription()
+ *
+ * Class Blackbox_Epace_Model_Epace_Estimate_Part
+ */
 class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epace_Estimate_AbstractChild
 {
     /**

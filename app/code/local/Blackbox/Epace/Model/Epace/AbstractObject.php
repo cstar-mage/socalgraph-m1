@@ -89,4 +89,9 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
 
         return $data;
     }
+
+    protected function _underscore($name)
+    {
+        return lcfirst($name); // use keys from epace as is
+    }
 }

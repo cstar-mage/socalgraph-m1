@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * @method string getDescription()
+ * @method int getQtyOrdered()
+ * @method float getProductValue()
+ * @method float getAmountToInvoice()
+ * @method float getOriginalQuotedPrice()
+ * @method float getAmountInvoiced()
+ * @method int getQtyRemaining()
+ *
+ * Class Blackbox_Epace_Model_Epace_Job_Product
+ */
 class Blackbox_Epace_Model_Epace_Job_Product extends Blackbox_Epace_Model_Epace_Job_AbstractChild
 {
     protected function _construct()

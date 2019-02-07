@@ -57,6 +57,14 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
     }
 
     /**
+     * @return int
+     */
+    public function getContactId()
+    {
+        return $this->getData('contactNumber');
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Contact|bool
      */
     public function getContact()
@@ -64,7 +72,7 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
         if (is_null($this->contact)) {
             $this->contact = false;
             if ($this->getData('contactNumber')) {
-                $contact = Mage::getModel('efi/contact')->load($this->getData('contactNumber'));
+                $contact = Mage::helper('epace/object')->load('efi/contact', $this->getData('contactNumber'));
                 if ($contact->getId()) {
                     $this->contact = $contact;
                 }
@@ -83,6 +91,14 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
         $this->contact = $contact;
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getJobContactId()
+    {
+        return $this->getData('jobContact');
     }
 
     /**

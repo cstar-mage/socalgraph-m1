@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @method string getDescription()
+ *
+ * Class Blackbox_Epace_Model_Epace_Ship_Via
+ */
 class Blackbox_Epace_Model_Epace_Ship_Via extends Blackbox_Epace_Model_Epace_AbstractObject
 {
     /**

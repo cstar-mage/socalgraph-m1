@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @method string getName()
+ * @method bool getActive()
+ *
+ * Class Blackbox_Epace_Model_Epace_Ship_Provider
+ */
 class Blackbox_Epace_Model_Epace_Ship_Provider extends Blackbox_Epace_Model_Epace_AbstractObject
 {
     protected function _construct()

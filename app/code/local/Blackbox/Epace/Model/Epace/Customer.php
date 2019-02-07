@@ -1,10 +1,184 @@
 <?php
 
+/**
+ * @method string getCustName()
+ * @method float getAccountBalance()
+ * @method string getCustomerStatus()
+ * @method string getAddress1()
+ * @method float getAging1()
+ * @method float getAging2()
+ * @method float getAging3()
+ * @method string getAging4()
+ * @method float getAgingCurrent()
+ * @method float getAgingServiceCharge1()
+ * @method float getAgingServiceCharge2()
+ * @method float getAgingServiceCharge3()
+ * @method float getAgingServiceCharge4()
+ * @method float getAgingServiceChargeCurrent()
+ * @method float getAvgPaymentDays()
+ * @method string getCity()
+ * @method int getCustomerType()
+ * @method float getCreditLimit()
+ * @method string getDateHighBalance()
+ * @method string getDateLastInvoice()
+ * @method string getDateSetup()
+ * @method int getDefaultDaysUntilJobDue()
+ * @method float getHighestBalance()
+ * @method bool getOrderAlert()
+ * @method int getPhoneNumber()
+ * @method int getSalesCategory()
+ * @method string getSalesTax()
+ * @method float getSalesYTD()
+ * @method int getShipToContact()
+ * @method int getShipVia()
+ * @method string getState()
+ * @method int getStatementCycle()
+ * @method int getTaxableCode()
+ * @method int getTerms()
+ * @method float getWipBalance()
+ * @method int getZip()
+ * @method bool getCreditCardProcessingEnabled()
+ * @method string getShipToFormat()
+ * @method string getNextServiceChargeDate()
+ * @method bool getApplyDiscountToInvoice()
+ * @method bool getCalculateTax()
+ * @method bool getCalculateFreight()
+ * @method bool getDisplayPrice()
+ * @method int getDefaultQuoteLetterType()
+ * @method int getShipInNameOf()
+ * @method string getDefaultCurrency()
+ * @method bool getAllowFailedFreightCheckout()
+ * @method int getPlantManagerId()
+ * @method bool getDsfShared()
+ * @method bool getRequireBillOfLadingPerJob()
+ * @method bool getDsfCustomer()
+ * @method bool getUseAlternateText()
+ * @method bool getAutoAddContact()
+ * @method bool getPrintStreamShared()
+ * @method bool getPrintStreamCustomer()
+ * @method bool getBillToAlt()
+ * @method bool getShipBillToAlt()
+ * @method bool getDefaultAlt()
+ * @method bool getShipToAlt()
+ * @method string getInvoiceDeliveryMethod()
+ * @method string getStatementDeliveryMethod()
+ * @method bool getSageAccountingEnabled()
+ * @method bool getJeevesAccountingEnabled()
+ * @method float getAgingTotal()
+ * @method float getAging1Percent()
+ * @method float getAging2Percent()
+ * @method float getAging3Percent()
+ * @method float getAging4Percent()
+ * @method float getCustomerTypeAgingTotalPercent()
+ * @method int getUnpostedPaymentBalance()
+ * @method float getProbability()
+ * @method string getStateKey()
+ *
+ * Class Blackbox_Epace_Model_Epace_Customer
+ */
 class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_AbstractObject
 {
+    /**
+     * @var Blackbox_Epace_Model_Epace_SalesPerson
+     */
+    protected $salesPerson = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_CSR
+     */
+    protected $csr = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Country
+     */
+    protected $country = null;
+
     protected function _construct()
     {
         $this->_init('Customer', 'id');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesPerson|bool
+     */
+    public function getSalesPerson()
+    {
+        if (is_null($this->salesPerson)) {
+            $this->salesPerson = false;
+            if ($this->getData('salesPerson')) {
+                $salesPerson = Mage::helper('epace/object')->load('efi/salesPerson', $this->getData('salesPerson'));
+                if ($salesPerson->getId()) {
+                    $this->salesPerson = $salesPerson;
+                }
+            }
+        }
+
+        return $this->salesPerson;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesPerson $salesPerson
+     * @return $this
+     */
+    public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
+    {
+        $this->salesPerson = $salesPerson;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_CSR|bool
+     */
+    public function getCSR()
+    {
+        if (is_null($this->csr)) {
+            $this->csr = false;
+            if ($this->getData('csr')) {
+                $csr = Mage::helper('epace/object')->load('efi/cSR', $this->getData('csr'));
+                if ($csr->getId()) {
+                    $this->csr = $csr;
+                }
+            }
+        }
+
+        return $this->csr;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_CSR $csr
+     * @return $this
+     */
+    public function setCSR(Blackbox_Epace_Model_Epace_CSR $csr)
+    {
+        $this->csr = $csr;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Country|bool
+     */
+    public function getCountry()
+    {
+        if (is_null($this->country)) {
+            $this->country = false;
+            if ($this->getData('country')) {
+                $country = Mage::helper('epace/object')->load('efi/country', $this->getData('country'));
+                if ($country->getId()) {
+                    $this->country = $country;
+                }
+            }
+        }
+
+        return $this->country;
+    }
+
+    public function setCountry(Blackbox_Epace_Model_Epace_Country $country)
+    {
+        $this->country = $country;
+
+        return $this;
     }
 
     public function getDefinition()
@@ -27,13 +201,13 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'agingServiceCharge4' => '',
             'agingServiceChargeCurrent' => '',
             'avgPaymentDays' => '',
-            'city' => '',
-            'customerType' => '',
+            'city' => 'string',
+            'customerType' => 'int',
             'contactFirstName' => '',
             'contactLastName' => '',
-            'country' => '',
+            'country' => 'int',
             'creditLimit' => '',
-            'csr' => '',
+            'csr' => 'int',
             'dateHighBalance' => '',
             'dateLastInvoice' => '',
             'dateSetup' => '',
@@ -91,7 +265,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'customerTypeAgingTotalPercent' => '',
             'unpostedPaymentBalance' => '',
             'probability' => '',
-            'stateKey' => '',
+            'stateKey' => 'string',
         ];
     }
 }
