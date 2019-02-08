@@ -784,7 +784,12 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             return $this->salesPersonCustomerMap[$salesPerson->getId()];
         }
 
-        $customer = Mage::getModel('customer/customer')->setWebsiteId($this->getWebsiteId())->loadByEmail($salesPerson->getEmail());
+        $email = $salesPerson->getEmail();
+        if (!$email) {
+            $email = 'salesPerson' . $salesPerson->getId() .'epace@socalgraph.com';
+        }
+
+        $customer = Mage::getModel('customer/customer')->setWebsiteId($this->getWebsiteId())->loadByEmail($email);
         if (!$customer->getId()) {
             $name = explode(' ', $salesPerson->getName(), 2);
             $customer
@@ -792,11 +797,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 ->setStore($this->getStore())
                 ->setFirstname($name[0])
                 ->setLastname($name[1])
-                ->setEmail($salesPerson->getEmail())
+                ->setEmail($email)
                 ->setPassword('password');
-            if (!$customer->getEmail()) {
-                $customer->setEmail('salesPerson' . $salesPerson->getId() .'epace@socalgraph.com');
-            }
             $customer->save();
             $this->writeln('Created customer ' . $customer->getId() . ' from SalesPerson ' . $salesPerson->getId());
         }
