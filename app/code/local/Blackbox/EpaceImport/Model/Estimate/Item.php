@@ -262,6 +262,16 @@ class Blackbox_EpaceImport_Model_Estimate_Item extends Mage_Core_Model_Abstract
         return $this->_estimate;
     }
 
+    public function getQtyOrdered()
+    {
+        return $this->getQty();
+    }
+
+    public function setQtyOrdered($qty)
+    {
+        return $this->setQty($qty);
+    }
+
     /**
      * Retrieve backordered qty of children items
      *
