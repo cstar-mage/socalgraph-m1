@@ -794,6 +794,9 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 ->setLastname($name[1])
                 ->setEmail($salesPerson->getEmail())
                 ->setPassword('password');
+            if (!$customer->getEmail()) {
+                $customer->setEmail('salesPerson' . $salesPerson->getId() .'epace@socalgraph.com');
+            }
             $customer->save();
             $this->writeln('Created customer ' . $customer->getId() . ' from SalesPerson ' . $salesPerson->getId());
         }
