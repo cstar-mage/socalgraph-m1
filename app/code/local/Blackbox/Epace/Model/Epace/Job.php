@@ -9,7 +9,6 @@
  * @method int getJob()
  * @method int getJobType()
  * @method int getTotalParts()
- * @method string getAdminStatus()
  * @method int getTerms()
  * @method float getAllowableOvers()
  * @method string getDateSetup()
@@ -82,6 +81,16 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
     use Blackbox_Epace_Model_Epace_PersonsTrait;
 
     /**
+     * @var Blackbox_Epace_Model_Epace_Job_Status
+     */
+    protected $status;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Job_Status
+     */
+    protected $prevStatus;
+
+    /**
      * @var Blackbox_Epace_Model_Epace_Quote
      */
     protected $quote;
@@ -99,6 +108,76 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
     protected function _construct()
     {
         $this->_init('Job', 'job');
+    }
+
+    public function getAdminStatusCode()
+    {
+        return $this->getData('adminStatus');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Status|bool
+     */
+    public function getAdminStatus()
+    {
+        if (is_null($this->status)) {
+            $this->status = false;
+            if ($this->getData('adminStatus')) {
+                $status = Mage::helper('epace/object')->load('efi/job_status', $this->getData('adminStatus'));
+                if ($status->getId()) {
+                    $this->status = $status;
+                }
+            }
+        }
+        return $this->status;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job_Status $status
+     * @return $this
+     */
+    public function setAdminStatus(Blackbox_Epace_Model_Epace_Job_Status $status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrevAdminStatusCode()
+    {
+        return $this->getData('prevAdminStatus');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Status|bool
+     */
+    public function getPrevAdminStatus()
+    {
+        if (is_null($this->prevStatus)) {
+            $this->prevStatus = false;
+            if ($this->getData('prevAdminStatus')) {
+                $status = Mage::helper('epace/object')->load('efi/job_status', $this->getData('prevAdminStatus'));
+                if ($status->getId()) {
+                    $this->prevStatus = $status;
+                }
+            }
+        }
+
+        return $this->prevStatus;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job_Status $status
+     * @return $this
+     */
+    public function setPrevAdminStatus(Blackbox_Epace_Model_Epace_Job_Status $status)
+    {
+        $this->prevStatus = $status;
+
+        return $this;
     }
 
     /**
@@ -131,6 +210,15 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
         return $this->getData('altCurrencyRateSource') == 'Estimate';
     }
 
+    public function getEstimateId()
+    {
+        if ($this->isSourceEstimate()) {
+            return $this->getAltCurrencyRateSourceNote();
+        } else {
+            return '';
+        }
+    }
+
     public function getEstimate()
     {
         if (is_null($this->estimate)) {
@@ -145,6 +233,13 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
         }
 
         return $this->estimate;
+    }
+
+    public function setEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
+    {
+        $this->estimate = $estimate;
+
+        return $this;
     }
 
     public function getShipVia()

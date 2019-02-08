@@ -1,30 +1,5 @@
 <?php
 /**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magento.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magento.com for more information.
- *
- * @category    Mage
- * @package     Mage_Adminhtml
- * @copyright  Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
-
-/**
  * Adminhtml epacei estimate create
  *
  * @category   Mage
@@ -47,7 +22,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Create extends Mage_Adminhtm
         $customerId = $this->_getSession()->getCustomerId();
         $storeId    = $this->_getSession()->getStoreId();
 
-        $this->_updateButton('save', 'label', Mage::helper('epacei')->__('Submit Order'));
+        $this->_updateButton('save', 'label', Mage::helper('epacei')->__('Submit Estimate'));
         $this->_updateButton('save', 'onclick', "estimate.submit()");
         $this->_updateButton('save', 'id', 'submit_estimate_top_button');
         if (is_null($customerId) || !$storeId) {
@@ -123,9 +98,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Create extends Mage_Adminhtm
 
     public function getCancelUrl()
     {
-        if ($this->_getSession()->getOrder()->getId()) {
+        if ($this->_getSession()->getEstimate()->getId()) {
             $url = $this->getUrl('*/epacei_estimate/view', array(
-                'estimate_id' => Mage::getSingleton('adminhtml/session_quote')->getOrder()->getId()
+                'estimate_id' => Mage::getSingleton('adminhtml/session_quote')->getEstimate()->getId()
             ));
         } else {
             $url = $this->getUrl('*/*/cancel');

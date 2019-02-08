@@ -12,9 +12,7 @@
  * @method string getFollowUpDate()
  * @method string getCustomerProspectName()
  * @method string getDescription()
- * @method int getStatus()
  * @method string getRewardDate()
- * @method int getLastJob()
  * @method bool getEstimateRequest()
  * @method bool getShipToContact()
  * @method bool getBillToContact()
@@ -59,6 +57,11 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     protected function _construct()
     {
         $this->_init('Estimate', 'id');
+    }
+
+    public function getStatusId()
+    {
+        return $this->getData('status');
     }
 
     /**
@@ -125,7 +128,15 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
         $collection = Mage::getResourceModel('efi/job_collection');
         $collection->addFilter('altCurrencyRateSource', 'Estimate')
             ->addFilter('altCurrencyRateSourceNote', (int)$this->getId());
-        return $collection->getItems();
+
+        $items = $collection->getItems();
+        foreach ($items as $item) {
+            if ($this->getId() == $item->getEstimateId()) {
+                $item->setEstimate($this);
+            }
+        }
+
+        return $items;
     }
 
     /**

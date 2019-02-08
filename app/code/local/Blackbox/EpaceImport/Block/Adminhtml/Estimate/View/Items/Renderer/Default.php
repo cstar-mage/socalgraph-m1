@@ -1,29 +1,4 @@
 <?php
-/**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magento.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magento.com for more information.
- *
- * @category    Mage
- * @package     Mage_Adminhtml
- * @copyright  Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
-
 
 /**
  * Adminhtml epacei estimate item renderer
@@ -31,7 +6,7 @@
  * @category   Mage
  * @package    Mage_Adminhtml
  */
-class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Items_Renderer_Default extends Mage_Adminhtml_Block_Sales_Items_Abstract
+class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Items_Renderer_Default extends Blackbox_EpaceImport_Block_Adminhtml_Estimate_Items_Abstract
 {
     public function getItem()
     {
@@ -70,14 +45,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Items_Renderer_Default 
     }
 
     /**
-     * Giftmessage object
-     *
-     * @deprecated after 1.4.2.0
-     * @var Mage_GiftMessage_Model_Message
-     */
-    protected $_giftMessage = array();
-
-    /**
      * Retrive default value for giftmessage sender
      *
      * @deprecated after 1.4.2.0
@@ -89,8 +56,8 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Items_Renderer_Default 
             return '';
         }
 
-        if($this->getItem()->getOrder()) {
-            return $this->getItem()->getOrder()->getBillingAddress()->getName();
+        if($this->getItem()->getEstimate()) {
+            return $this->getItem()->getEstimate()->getBillingAddress()->getName();
         }
 
         return $this->getItem()->getBillingAddress()->getName();
@@ -108,11 +75,11 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Items_Renderer_Default 
             return '';
         }
 
-        if($this->getItem()->getOrder()) {
-            if ($this->getItem()->getOrder()->getShippingAddress()) {
-                return $this->getItem()->getOrder()->getShippingAddress()->getName();
-            } else if ($this->getItem()->getOrder()->getBillingAddress()) {
-                return $this->getItem()->getOrder()->getBillingAddress()->getName();
+        if($this->getItem()->getEstimate()) {
+            if ($this->getItem()->getEstimate()->getShippingAddress()) {
+                return $this->getItem()->getEstimate()->getShippingAddress()->getName();
+            } else if ($this->getItem()->getEstimate()->getBillingAddress()) {
+                return $this->getItem()->getEstimate()->getBillingAddress()->getName();
             }
         }
 
@@ -126,70 +93,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Items_Renderer_Default 
     }
 
     /**
-     * Retrive real name for field
-     *
-     * @deprecated after 1.4.2.0
-     * @param string $name
-     * @return string
-     */
-    public function getFieldName($name)
-    {
-        return 'giftmessage[' . $this->getItem()->getId() . '][' . $name . ']';
-    }
-
-    /**
-     * Initialize gift message for entity
-     *
-     * @deprecated after 1.4.2.0
-     * @return Blackbox_EpaceImport_Block_Adminhtml_Estimate_Edit_Items_Grid_Renderer_Name_Giftmessage
-     */
-    protected function _initMessage()
-    {
-        $this->_giftMessage[$this->getItem()->getGiftMessageId()] =
-            $this->helper('giftmessage/message')->getGiftMessage($this->getItem()->getGiftMessageId());
-
-        // init default values for giftmessage form
-        if(!$this->getMessage()->getSender()) {
-            $this->getMessage()->setSender($this->getDefaultSender());
-        }
-        if(!$this->getMessage()->getRecipient()) {
-            $this->getMessage()->setRecipient($this->getDefaultRecipient());
-        }
-
-        return $this;
-    }
-
-    /**
-     * Retrive gift message for entity
-     *
-     * @deprecated after 1.4.2.0
-     * @return Mage_GiftMessage_Model_Message
-     */
-    public function getMessage()
-    {
-        if(!isset($this->_giftMessage[$this->getItem()->getGiftMessageId()])) {
-            $this->_initMessage();
-        }
-
-        return $this->_giftMessage[$this->getItem()->getGiftMessageId()];
-    }
-
-    /**
-     * Retrieve save url
-     *
-     * @deprecated after 1.4.2.0
-     * @return array
-     */
-    public function getSaveUrl()
-    {
-        return $this->getUrl('*/epacei_estimate_view_giftmessage/save', array(
-            'entity'    => $this->getItem()->getId(),
-            'type'      => 'estimate_item',
-            'reload'    => true
-        ));
-    }
-
-    /**
      * Retrive block html id
      *
      * @deprecated after 1.4.2.0
@@ -198,19 +101,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Items_Renderer_Default 
     public function getHtmlId()
     {
         return substr($this->getFieldIdPrefix(), 0, -1);
-    }
-
-    /**
-     * Indicates that block can display giftmessages form
-     *
-     * @deprecated after 1.4.2.0
-     * @return boolean
-     */
-    public function canDisplayGiftmessage()
-    {
-        return $this->helper('giftmessage/message')->getIsMessagesAvailable(
-            'estimate_item', $this->getItem(), $this->getItem()->getOrder()->getStoreId()
-        );
     }
 
     /**

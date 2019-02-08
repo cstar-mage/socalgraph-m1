@@ -1,30 +1,5 @@
 <?php
 /**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magento.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magento.com for more information.
- *
- * @category    Mage
- * @package     Mage_Adminhtml
- * @copyright  Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
-
-/**
  * Adminhtml epacei estimates grid
  *
  * @category   Mage
@@ -65,7 +40,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
     {
 
         $this->addColumn('real_estimate_id', array(
-            'header'=> Mage::helper('epacei')->__('Order #'),
+            'header'=> Mage::helper('epacei')->__('Estimate #'),
             'width' => '80px',
             'type'  => 'text',
             'index' => 'increment_id',
@@ -87,16 +62,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
             'index' => 'created_at',
             'type' => 'datetime',
             'width' => '100px',
-        ));
-
-        $this->addColumn('billing_name', array(
-            'header' => Mage::helper('epacei')->__('Bill to Name'),
-            'index' => 'billing_name',
-        ));
-
-        $this->addColumn('shipping_name', array(
-            'header' => Mage::helper('epacei')->__('Ship to Name'),
-            'index' => 'shipping_name',
         ));
 
         $this->addColumn('base_grand_total', array(
@@ -131,7 +96,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
                     'actions'   => array(
                         array(
                             'caption' => Mage::helper('epacei')->__('View'),
-                            'url'     => array('base'=>'*/epacei_estimate/view'),
+                            'url'     => array('base'=>'*/epace_estimate/view'),
                             'field'   => 'estimate_id',
                             'data-column' => 'action',
                         )
@@ -142,7 +107,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
                     'is_system' => true,
             ));
         }
-        $this->addRssList('rss/estimate/new', Mage::helper('epacei')->__('New Order RSS'));
+        $this->addRssList('rss/estimate/new', Mage::helper('epacei')->__('New Estimate RSS'));
 
         $this->addExportType('*/*/exportCsv', Mage::helper('epacei')->__('CSV'));
         $this->addExportType('*/*/exportExcel', Mage::helper('epacei')->__('Excel XML'));
@@ -159,47 +124,13 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
         if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/cancel')) {
             $this->getMassactionBlock()->addItem('cancel_estimate', array(
                  'label'=> Mage::helper('epacei')->__('Cancel'),
-                 'url'  => $this->getUrl('*/epacei_estimate/massCancel'),
+                 'url'  => $this->getUrl('*/epace_estimate/massCancel'),
             ));
         }
-
-        if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/hold')) {
-            $this->getMassactionBlock()->addItem('hold_estimate', array(
-                 'label'=> Mage::helper('epacei')->__('Hold'),
-                 'url'  => $this->getUrl('*/epacei_estimate/massHold'),
-            ));
-        }
-
-        if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/unhold')) {
-            $this->getMassactionBlock()->addItem('unhold_estimate', array(
-                 'label'=> Mage::helper('epacei')->__('Unhold'),
-                 'url'  => $this->getUrl('*/epacei_estimate/massUnhold'),
-            ));
-        }
-
-        $this->getMassactionBlock()->addItem('pdfinvoices_estimate', array(
-             'label'=> Mage::helper('epacei')->__('Print Invoices'),
-             'url'  => $this->getUrl('*/epacei_estimate/pdfinvoices'),
-        ));
-
-        $this->getMassactionBlock()->addItem('pdfshipments_estimate', array(
-             'label'=> Mage::helper('epacei')->__('Print Packingslips'),
-             'url'  => $this->getUrl('*/epacei_estimate/pdfshipments'),
-        ));
-
-        $this->getMassactionBlock()->addItem('pdfcreditmemos_estimate', array(
-             'label'=> Mage::helper('epacei')->__('Print Credit Memos'),
-             'url'  => $this->getUrl('*/epacei_estimate/pdfcreditmemos'),
-        ));
 
         $this->getMassactionBlock()->addItem('pdfdocs_estimate', array(
              'label'=> Mage::helper('epacei')->__('Print All'),
-             'url'  => $this->getUrl('*/epacei_estimate/pdfdocs'),
-        ));
-
-        $this->getMassactionBlock()->addItem('print_shipping_label', array(
-             'label'=> Mage::helper('epacei')->__('Print Shipping Labels'),
-             'url'  => $this->getUrl('*/epacei_estimate_shipment/massPrintShippingLabel'),
+             'url'  => $this->getUrl('*/epace_estimate/pdfdocs'),
         ));
 
         return $this;
@@ -208,7 +139,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
     public function getRowUrl($row)
     {
         if (Mage::getSingleton('admin/session')->isAllowed('epacei/estimate/actions/view')) {
-            return $this->getUrl('*/epacei_estimate/view', array('estimate_id' => $row->getId()));
+            return $this->getUrl('*/epace_estimate/view', array('estimate_id' => $row->getId()));
         }
         return false;
     }

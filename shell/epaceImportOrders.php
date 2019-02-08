@@ -204,10 +204,10 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('efi/estimate_collection');
         if ($from) {
-            $collection->addFilter('entryDate', ['gt' => new DateTime($from)]);
+            $collection->addFilter('entryDate', ['gteq' => new DateTime($from)]);
         }
         if ($to) {
-            $collection->addFilter('entryDate', ['lt' => new DateTime($to)]);
+            $collection->addFilter('entryDate', ['lteq' => new DateTime($to)]);
         }
 
         $ids = $collection->loadIds();
@@ -215,7 +215,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $i = 0;
         $this->writeln('Found ' . $count . ' estimates.');
         foreach ($ids as $estimateId) {
-            $this->writeln('Estimate ' . ++$i . '/' . $count);
+            $this->writeln('Estimate ' . ++$i . '/' . $count . ': ' . $estimateId);
             /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
             $estimate = Mage::getModel('efi/estimate')->load($estimateId);
             $this->importEstimate($estimate);
@@ -273,7 +273,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'base_subtotal' => 'base_row_total',
                 'subtotal' => 'row_total',
                 'tax_amount' => 'tax_amount',
-                'total_qty_ordered' => 'qty',
+                'total_qty' => 'qty',
                 'base_subtotal_incl_tax' => 'row_total_incl_tax',
                 'subtotal_incl_tax' => 'row_total_incl_tax'
             ];
@@ -295,7 +295,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'customer_id' => $customer->getId(),
                 'store_to_base_rate' => 1,
                 'store_to_order_rate' => 1,
-                'increment_id' => 'EPACEESTIMATE_' . $estimate->getEstimateNumber(),
+                'increment_id' => 'EPACEESTIMATE_' . $estimate->getId(),
                 'base_currency_code' => $this->getStore()->getBaseCurrencyCode(),
                 'customer_email' => $customer->getEmail(),
                 'customer_firstname' => $customer->getFirstname(),
@@ -303,8 +303,10 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'customer_middlename' => $customer->getMiddlename(),
                 'customer_prefix' => $customer->getPrefix(),
                 'customer_suffix' => $customer->getSuffix(),
+                'customer_is_guest' => 0,
+                'customer_group_id' => $customer->getGroupId(),
                 'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
-                'order_currency_code' => $this->getStore()->getBaseCurrencyCode(),
+                'estimate_currency_code' => $this->getStore()->getBaseCurrencyCode(),
                 'store_currency_code' => $this->getStore()->getBaseCurrencyCode(),
                 'store_name' => $this->getStore()->getName(),
                 'created_at' => strtotime($estimate->getEntryDate()) + strtotime($estimate->getEntryTime()),
@@ -323,6 +325,10 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 $i = 0;
                 foreach ($estimate->getJobs() as $job) {
                     $this->writeln("\t" . 'Job ' . ++$i . '/' . $count);
+                    if ($job->getEstimateId() != $estimate->getId()) {
+                        $this->writeln('Job source does match with estimate.');
+                        continue;
+                    }
                     $order = $this->importJob($magentoEstimate, $job);
                 }
             }
@@ -500,6 +506,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             'base_shipping_incl_tax' => 0
         ]);
 
+        $this->setOrderStatus($order, $job->getAdminStatusCode());
+
         $contacts = [];
         $contactIdToShipmentMap = [];
 
@@ -553,13 +561,17 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         }
 
         if (!$billingAddressAdded) {
+            $shipping = false;
             $contact = null;
             foreach ($contacts as $contactId => $contactData) {
                 if (is_null($contact)) {
                     $contact = $contactData['contact'];
-                } else if ($contactData['shipping']) {
+                } else if ($contactData['billing']) {
                     $contact = $contactData['contact'];
                     break;
+                } else if ($contactData['shipping'] && !$shipping) {
+                    $contact = $contactData['contact'];
+                    $shipping = true;
                 }
             }
 
@@ -575,6 +587,38 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $order->setPayment($payment);
 
         $order->save();
+    }
+
+    /**
+     * @param string $jobStatus
+     * @return string
+     */
+    protected function setOrderStatus(Mage_Sales_Model_Order $order, $jobStatus)
+    {
+        $statuses = [
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_AUTO_BILLING_OK => 'processing',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_CLOSED => 'closed',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_COST_TRANSFER => 'processing',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_CREDIT_HOLD => 'holded',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_JOB_CANCELLED => 'canceled',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_OPEN => ['state' => 'new', 'status' => 'pending'],
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_PARTL_BILL => 'pending',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_SEND_TO_PRINERGY => 'processing',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_SHIPPED => 'complete',
+            Blackbox_Epace_Model_Epace_Job_Status::STATUS_TO_PLANTMANAGER => 'processing'
+        ];
+        $status = $statuses[$jobStatus];
+        if (!$status) {
+            $status = [
+                'state' => 'new',
+                'status' => 'pending'
+            ];
+        }
+        if (is_array($status)) {
+            $order->setData('state', $status['state'])->setData('status', $status['status']);
+        } else {
+            $order->setData('state', $status)->setData('status', $status);
+        }
     }
 
     protected function addAddressToOrder(Mage_Sales_Model_Order $order, Blackbox_Epace_Model_Epace_Contact $contact, $type)
@@ -598,7 +642,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $address = Mage::getModel('sales/order_address');
         $address->addData([
             'customer_id' => $customerId,
-            'type' => $type,
+            'address_type' => $type,
             'fax' => '',
             'region' => $regionName,
             'postcode' => $contact->getZip(),
@@ -609,7 +653,6 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             'telephone' => $contact->getMobilePhoneNumber() ?: $contact->getBusinessPhoneExtension() . ' ' . $contact->getBusinessPhoneNumber(),
             'country_id' => $contact->getCountry()->getIsoCountry(),
             'firstname' => $contact->getFirstName(),
-            'address_type' => 'shipping',
             'company' => $contact->getCompanyName()
         ]);
         $order->addAddress($address);

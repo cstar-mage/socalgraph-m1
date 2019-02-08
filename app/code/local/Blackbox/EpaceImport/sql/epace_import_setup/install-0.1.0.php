@@ -44,24 +44,24 @@ $table = $installer->getConnection()
     ), 'Base Tax Amount')
     ->addColumn('base_to_global_rate', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Base To Global Rate')
-    ->addColumn('base_to_order_rate', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
+    ->addColumn('base_to_estimate_rate', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Base To Order Rate')
-    ->addColumn('base_total_qty_ordered', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
-    ), 'Base Total Qty Ordered')
+    ->addColumn('base_total_qty', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
+    ), 'Base Total Qty')
     ->addColumn('discount_amount', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Discount Amount')
     ->addColumn('grand_total', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Grand Total')
     ->addColumn('store_to_base_rate', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Store To Base Rate')
-    ->addColumn('store_to_order_rate', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
+    ->addColumn('store_to_estimate_rate', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Store To Order Rate')
     ->addColumn('subtotal', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Subtotal')
     ->addColumn('tax_amount', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Tax Amount')
-    ->addColumn('total_qty_ordered', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
-    ), 'Total Qty Ordered')
+    ->addColumn('total_qty', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
+    ), 'Total Qty')
     ->addColumn('customer_is_guest', Varien_Db_Ddl_Table::TYPE_SMALLINT, null, array(
         'unsigned'  => true,
     ), 'Customer Is Guest')
@@ -127,7 +127,7 @@ $table = $installer->getConnection()
     ), 'Global Currency Code')
     ->addColumn('hold_before_status', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
     ), 'Hold Before Status')
-    ->addColumn('order_currency_code', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ->addColumn('estimate_currency_code', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
     ), 'Order Currency Code')
     ->addColumn('original_increment_id', Varien_Db_Ddl_Table::TYPE_TEXT, 50, array(
     ), 'Original Increment Id')
@@ -231,7 +231,7 @@ $table = $installer->getConnection()
     ), 'Increment Id')
     ->addColumn('base_currency_code', Varien_Db_Ddl_Table::TYPE_TEXT, 3, array(
     ), 'Base Currency Code')
-    ->addColumn('order_currency_code', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ->addColumn('estimate_currency_code', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
     ), 'Order Currency Code')
     ->addColumn('created_at', Varien_Db_Ddl_Table::TYPE_TIMESTAMP, null, array(
     ), 'Created At')
@@ -429,7 +429,7 @@ $table = $installer->getConnection()
     ), 'Base Tax Before Discount')
     ->addColumn('tax_before_discount', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Tax Before Discount')
-    ->addColumn('ext_order_item_id', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ->addColumn('ext_estimate_item_id', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
     ), 'Ext Order Item Id')
     ->addColumn('price_incl_tax', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Price Incl Tax')
@@ -480,8 +480,8 @@ $installer->getConnection()->addForeignKey($installer->getFkName('sales/order', 
     $installer->getTable('sales/order'), 'estimate_id', $installer->getTable('epacei/estimate'), 'entity_id', Varien_Db_Adapter_Interface::FK_ACTION_SET_NULL);
 
 $installer->getConnection()->addColumn($installer->getTable('sales/order'), 'epace_job_id', array(
-    'type'      => Varien_Db_Ddl_Table::TYPE_INTEGER,
-    'unsgigned' => true,
+    'type'      => Varien_Db_Ddl_Table::TYPE_TEXT,
+    'length'    => 255,
     'nullable'  => true,
     'comment'   => 'Job Id'
 ));

@@ -14,9 +14,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Abstract extends Mage_Adminh
      *
      * @return Blackbox_EpaceImport_Model_Estimate
      */
-    public function getOrder()
+    public function getEstimate()
     {
-        if ($this->hasOrder()) {
+        if ($this->hasEstimate()) {
             return $this->getData('estimate');
         }
         if (Mage::registry('current_estimate')) {
@@ -32,7 +32,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Abstract extends Mage_Adminh
     {
         $obj = $this->getData('price_data_object');
         if (is_null($obj)) {
-            return $this->getOrder();
+            return $this->getEstimate();
         }
         return $obj;
     }
@@ -52,7 +52,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Abstract extends Mage_Adminh
      *
      * @return array
      */
-    public function getOrderTotalData()
+    public function getEstimateTotalData()
     {
         return array();
     }
@@ -62,7 +62,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Abstract extends Mage_Adminh
      *
      * @return array
      */
-    public function getOrderInfoData()
+    public function getEstimateInfoData()
     {
         return array();
     }

@@ -1,31 +1,6 @@
 <?php
 /**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magento.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magento.com for more information.
- *
- * @category    Mage
- * @package     Mage_Adminhtml
- * @copyright  Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
-
-/**
- * Order history block
+ * Estimate history block
  *
  * @category   Mage
  * @package    Mage_Adminhtml
@@ -41,22 +16,22 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Info extends Blackbox_E
         if (!$this->getParentBlock()) {
             Mage::throwException(Mage::helper('adminhtml')->__('Invalid parent block for this block.'));
         }
-        $this->setOrder($this->getParentBlock()->getOrder());
+        $this->setEstimate($this->getParentBlock()->getEstimate());
 
-        foreach ($this->getParentBlock()->getOrderInfoData() as $k => $v) {
+        foreach ($this->getParentBlock()->getEstimateInfoData() as $k => $v) {
             $this->setDataUsingMethod($k, $v);
         }
 
         parent::_beforeToHtml();
     }
 
-    public function getOrderStoreName()
+    public function getEstimateStoreName()
     {
-        if ($this->getOrder()) {
-            $storeId = $this->getOrder()->getStoreId();
+        if ($this->getEstimate()) {
+            $storeId = $this->getEstimate()->getStoreId();
             if (is_null($storeId)) {
                 $deleted = Mage::helper('adminhtml')->__(' [deleted]');
-                return nl2br($this->getOrder()->getStoreName()) . $deleted;
+                return nl2br($this->getEstimate()->getStoreName()) . $deleted;
             }
             $store = Mage::app()->getStore($storeId);
             $name = array(
@@ -71,18 +46,18 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Info extends Blackbox_E
 
     public function getCustomerGroupName()
     {
-        if ($this->getOrder()) {
-            return Mage::getModel('customer/group')->load((int)$this->getOrder()->getCustomerGroupId())->getCode();
+        if ($this->getEstimate()) {
+            return Mage::getModel('customer/group')->load((int)$this->getEstimate()->getCustomerGroupId())->getCode();
         }
         return null;
     }
 
     public function getCustomerViewUrl()
     {
-        if ($this->getOrder()->getCustomerIsGuest() || !$this->getOrder()->getCustomerId()) {
+        if ($this->getEstimate()->getCustomerIsGuest() || !$this->getEstimate()->getCustomerId()) {
             return false;
         }
-        return $this->getUrl('*/customer/edit', array('id' => $this->getOrder()->getCustomerId()));
+        return $this->getUrl('*/customer/edit', array('id' => $this->getEstimate()->getCustomerId()));
     }
 
     public function getViewUrl($estimateId)
@@ -92,18 +67,18 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Info extends Blackbox_E
 
     /**
      * Find sort estimate for account data
-     * Sort Order used as array key
+     * Sort Estimate used as array key
      *
      * @param array $data
-     * @param int $sortOrder
+     * @param int $sortEstimate
      * @return int
      */
-    protected function _prepareAccountDataSortOrder(array $data, $sortOrder)
+    protected function _prepareAccountDataSortEstimate(array $data, $sortEstimate)
     {
-        if (isset($data[$sortOrder])) {
-            return $this->_prepareAccountDataSortOrder($data, $sortOrder + 1);
+        if (isset($data[$sortEstimate])) {
+            return $this->_prepareAccountDataSortEstimate($data, $sortEstimate + 1);
         }
-        return $sortOrder;
+        return $sortEstimate;
     }
 
     /**
@@ -127,14 +102,14 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Info extends Blackbox_E
                 continue;
             }
             $estimateKey   = sprintf('customer_%s', $attribute->getAttributeCode());
-            $estimateValue = $this->getOrder()->getData($estimateKey);
+            $estimateValue = $this->getEstimate()->getData($estimateKey);
             if ($estimateValue != '') {
                 $customer->setData($attribute->getAttributeCode(), $estimateValue);
                 $dataModel  = Mage_Customer_Model_Attribute_Data::factory($attribute, $customer);
                 $value      = $dataModel->outputValue(Mage_Customer_Model_Attribute_Data::OUTPUT_FORMAT_HTML);
-                $sortOrder  = $attribute->getSortOrder() + $attribute->getIsUserDefined() ? 200 : 0;
-                $sortOrder  = $this->_prepareAccountDataSortOrder($accountData, $sortOrder);
-                $accountData[$sortOrder] = array(
+                $sortEstimate  = $attribute->getSortEstimate() + $attribute->getIsUserDefined() ? 200 : 0;
+                $sortEstimate  = $this->_prepareAccountDataSortEstimate($accountData, $sortEstimate);
+                $accountData[$sortEstimate] = array(
                     'label' => $attribute->getFrontendLabel(),
                     'value' => $this->escapeHtml($value, array('br'))
                 );
@@ -158,7 +133,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Info extends Blackbox_E
         if (empty($label)) {
             $label = $this->__('Edit');
         }
-        $url = $this->getUrl('*/epacei_estimate/address', array('address_id'=>$address->getId()));
+        $url = $this->getUrl('*/epace_estimate/address', array('address_id'=>$address->getId()));
         return '<a href="'.$url.'">' . $label . '</a>';
     }
 
@@ -168,6 +143,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Info extends Blackbox_E
      */
     public function shouldDisplayCustomerIp()
     {
-        return !Mage::getStoreConfigFlag('epacei/general/hide_customer_ip', $this->getOrder()->getStoreId());
+        return !Mage::getStoreConfigFlag('epacei/general/hide_customer_ip', $this->getEstimate()->getStoreId());
     }
 }

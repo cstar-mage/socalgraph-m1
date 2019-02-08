@@ -1,31 +1,6 @@
 <?php
 /**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magento.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magento.com for more information.
- *
- * @category    Mage
- * @package     Mage_Adminhtml
- * @copyright  Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
-
-/**
- * Adminhtml sales orders controller
+ * Adminhtml sales estimates controller
  *
  * @category    Mage
  * @package     Mage_Adminhtml
@@ -64,7 +39,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Initialize order model instance
+     * Initialize estimate model instance
      *
      * @return Blackbox_EpaceImport_Model_Estimate || false
      */
@@ -74,13 +49,13 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
         $estimate = Mage::getModel('epacei/estimate')->load($id);
 
         if (!$estimate->getId()) {
-            $this->_getSession()->addError($this->__('This order no longer exists.'));
+            $this->_getSession()->addError($this->__('This estimate no longer exists.'));
             $this->_redirect('*/*/');
             $this->setFlag('', self::FLAG_NO_DISPATCH, true);
             return false;
         }
         Mage::register('epacei_estimate', $estimate);
-        Mage::register('current_order', $estimate);
+        Mage::register('current_estimate', $estimate);
         return $estimate;
     }
 
@@ -105,7 +80,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * View order detale
+     * View estimate detale
      */
     public function viewAction()
     {
@@ -113,14 +88,6 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
 
         $estimate = $this->_initEstimate();
         if ($estimate) {
-
-            $isActionsNotPermitted = $estimate->getActionFlag(
-                Blackbox_EpaceImport_Model_Estimate::ACTION_FLAG_PRODUCTS_PERMISSION_DENIED
-            );
-            if ($isActionsNotPermitted) {
-                $this->_getSession()->addError($this->__('You don\'t have permissions to manage this order because of one or more products are not permitted for your website.'));
-            }
-
             $this->_initAction();
 
             $this->_title(sprintf("#%s", $estimate->getRealEstimateId()));
@@ -130,7 +97,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Add order comment action
+     * Add estimate comment action
      */
     public function addCommentAction()
     {
@@ -162,7 +129,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
             catch (Exception $e) {
                 $response = array(
                     'error'     => true,
-                    'message'   => $this->__('Cannot add order history.')
+                    'message'   => $this->__('Cannot add estimate history.')
                 );
             }
             if (is_array($response)) {
@@ -206,7 +173,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Generate order history for ajax request
+     * Generate estimate history for ajax request
      */
     public function commentsHistoryAction()
     {
@@ -221,7 +188,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Cancel selected orders
+     * Cancel selected estimates
      */
     public function massCancelAction()
     {
@@ -240,19 +207,19 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
         }
         if ($countNonCancelEstimate) {
             if ($countCancelEstimate) {
-                $this->_getSession()->addError($this->__('%s order(s) cannot be canceled', $countNonCancelEstimate));
+                $this->_getSession()->addError($this->__('%s estimate(s) cannot be canceled', $countNonCancelEstimate));
             } else {
-                $this->_getSession()->addError($this->__('The order(s) cannot be canceled'));
+                $this->_getSession()->addError($this->__('The estimate(s) cannot be canceled'));
             }
         }
         if ($countCancelEstimate) {
-            $this->_getSession()->addSuccess($this->__('%s order(s) have been canceled.', $countCancelEstimate));
+            $this->_getSession()->addSuccess($this->__('%s estimate(s) have been canceled.', $countCancelEstimate));
         }
         $this->_redirect('*/*/');
     }
 
     /**
-     * Hold selected orders
+     * Hold selected estimates
      */
     public function massHoldAction()
     {
@@ -272,20 +239,20 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
 
         if ($countNonHoldEstimate) {
             if ($countHoldEstimate) {
-                $this->_getSession()->addError($this->__('%s order(s) were not put on hold.', $countNonHoldEstimate));
+                $this->_getSession()->addError($this->__('%s estimate(s) were not put on hold.', $countNonHoldEstimate));
             } else {
-                $this->_getSession()->addError($this->__('No order(s) were put on hold.'));
+                $this->_getSession()->addError($this->__('No estimate(s) were put on hold.'));
             }
         }
         if ($countHoldEstimate) {
-            $this->_getSession()->addSuccess($this->__('%s order(s) have been put on hold.', $countHoldEstimate));
+            $this->_getSession()->addSuccess($this->__('%s estimate(s) have been put on hold.', $countHoldEstimate));
         }
 
         $this->_redirect('*/*/');
     }
 
     /**
-     * Unhold selected orders
+     * Unhold selected estimates
      */
     public function massUnholdAction()
     {
@@ -305,19 +272,19 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
         }
         if ($countNonUnholdEstimate) {
             if ($countUnholdEstimate) {
-                $this->_getSession()->addError($this->__('%s order(s) were not released from holding status.', $countNonUnholdEstimate));
+                $this->_getSession()->addError($this->__('%s estimate(s) were not released from holding status.', $countNonUnholdEstimate));
             } else {
-                $this->_getSession()->addError($this->__('No order(s) were released from holding status.'));
+                $this->_getSession()->addError($this->__('No estimate(s) were released from holding status.'));
             }
         }
         if ($countUnholdEstimate) {
-            $this->_getSession()->addSuccess($this->__('%s order(s) have been released from holding status.', $countUnholdEstimate));
+            $this->_getSession()->addSuccess($this->__('%s estimate(s) have been released from holding status.', $countUnholdEstimate));
         }
         $this->_redirect('*/*/');
     }
 
     /**
-     * Change status for selected orders
+     * Change status for selected estimates
      */
     public function massStatusAction()
     {
@@ -325,7 +292,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Print documents for selected orders
+     * Print documents for selected estimates
      */
     public function massPrintAction()
     {
@@ -334,7 +301,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Print invoices for selected orders
+     * Print invoices for selected estimates
      */
     public function pdfinvoicesAction(){
         $estimateIds = $this->getRequest()->getPost('estimate_ids');
@@ -360,7 +327,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
                     'application/pdf'
                 );
             } else {
-                $this->_getSession()->addError($this->__('There are no printable documents related to selected orders.'));
+                $this->_getSession()->addError($this->__('There are no printable documents related to selected estimates.'));
                 $this->_redirect('*/*/');
             }
         }
@@ -368,7 +335,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Print shipments for selected orders
+     * Print shipments for selected estimates
      */
     public function pdfshipmentsAction(){
         $estimateIds = $this->getRequest()->getPost('estimate_ids');
@@ -394,7 +361,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
                     'application/pdf'
                 );
             } else {
-                $this->_getSession()->addError($this->__('There are no printable documents related to selected orders.'));
+                $this->_getSession()->addError($this->__('There are no printable documents related to selected estimates.'));
                 $this->_redirect('*/*/');
             }
         }
@@ -402,7 +369,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Print creditmemos for selected orders
+     * Print creditmemos for selected estimates
      */
     public function pdfcreditmemosAction(){
         $estimateIds = $this->getRequest()->getPost('estimate_ids');
@@ -428,7 +395,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
                     'application/pdf'
                 );
             } else {
-                $this->_getSession()->addError($this->__('There are no printable documents related to selected orders.'));
+                $this->_getSession()->addError($this->__('There are no printable documents related to selected estimates.'));
                 $this->_redirect('*/*/');
             }
         }
@@ -436,7 +403,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Print all documents for selected orders
+     * Print all documents for selected estimates
      */
     public function pdfdocsAction(){
         $estimateIds = $this->getRequest()->getPost('estimate_ids');
@@ -488,7 +455,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
                     $pdf->render(), 'application/pdf'
                 );
             } else {
-                $this->_getSession()->addError($this->__('There are no printable documents related to selected orders.'));
+                $this->_getSession()->addError($this->__('There are no printable documents related to selected estimates.'));
                 $this->_redirect('*/*/');
             }
         }
@@ -496,7 +463,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Atempt to void the order payment
+     * Atempt to void the estimate payment
      */
     public function voidPaymentAction()
     {
@@ -560,21 +527,21 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Export order grid to CSV format
+     * Export estimate grid to CSV format
      */
     public function exportCsvAction()
     {
-        $fileName   = 'orders.csv';
+        $fileName   = 'estimates.csv';
         $grid       = $this->getLayout()->createBlock('epacei/adminhtml_estimate_grid');
         $this->_prepareDownloadResponse($fileName, $grid->getCsvFile());
     }
 
     /**
-     *  Export order grid to Excel XML format
+     *  Export estimate grid to Excel XML format
      */
     public function exportExcelAction()
     {
-        $fileName   = 'orders.xml';
+        $fileName   = 'estimates.xml';
         $grid       = $this->getLayout()->createBlock('epacei/adminhtml_estimate_grid');
         $this->_prepareDownloadResponse($fileName, $grid->getExcelFile($fileName));
     }

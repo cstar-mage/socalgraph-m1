@@ -30,8 +30,8 @@ class Blackbox_Epace_Model_Epace_Job_Status extends Blackbox_Epace_Model_Epace_A
     public function getDefinition()
     {
         return [
-            'id' => 'int',
-            'description' => '',
+            'id' => 'string',
+            'description' => 'string',
             'admin' => 'bool',
             'production' => 'bool',
             'adminToProduction' => 'bool',

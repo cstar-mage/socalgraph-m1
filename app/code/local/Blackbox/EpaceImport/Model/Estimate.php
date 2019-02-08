@@ -1,30 +1,5 @@
 <?php
 /**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magento.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magento.com for more information.
- *
- * @category    Mage
- * @package     Blackbox_EpaceImport
- * @copyright  Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
-
-/**
  * Estimate model
  *
  * Supported events:
@@ -105,8 +80,8 @@
  * @method Blackbox_EpaceImport_Model_Estimate setBaseTotalOnlineRefunded(float $value)
  * @method float getBaseTotalPaid()
  * @method Blackbox_EpaceImport_Model_Estimate setBaseTotalPaid(float $value)
- * @method float getBaseTotalQtyEstimateed()
- * @method Blackbox_EpaceImport_Model_Estimate setBaseTotalQtyEstimateed(float $value)
+ * @method float getBaseTotalQty()
+ * @method Blackbox_EpaceImport_Model_Estimate setBaseTotalQty(float $value)
  * @method float getBaseTotalRefunded()
  * @method Blackbox_EpaceImport_Model_Estimate setBaseTotalRefunded(float $value)
  * @method float getDiscountAmount()
@@ -161,8 +136,8 @@
  * @method Blackbox_EpaceImport_Model_Estimate setTotalOnlineRefunded(float $value)
  * @method float getTotalPaid()
  * @method Blackbox_EpaceImport_Model_Estimate setTotalPaid(float $value)
- * @method float getTotalQtyEstimateed()
- * @method Blackbox_EpaceImport_Model_Estimate setTotalQtyEstimateed(float $value)
+ * @method float getTotalQty()
+ * @method Blackbox_EpaceImport_Model_Estimate setTotalQty(float $value)
  * @method float getTotalRefunded()
  * @method Blackbox_EpaceImport_Model_Estimate setTotalRefunded(float $value)
  * @method int getCanShipPartially()
@@ -494,9 +469,6 @@ class Blackbox_EpaceImport_Model_Estimate extends Mage_Sales_Model_Abstract
      */
     public function canComment()
     {
-        if ($this->getActionFlag(self::ACTION_FLAG_COMMENT) === false) {
-            return false;
-        }
         return true;
     }
 
@@ -507,17 +479,7 @@ class Blackbox_EpaceImport_Model_Estimate extends Mage_Sales_Model_Abstract
      */
     public function canEdit()
     {
-        $status = $this->getStatus();
-        if ($this->isCanceled()
-            || $status === self::STATUS_CONVERTED_TO_JOB) {
-            return false;
-        }
-
-        if ($this->getActionFlag(self::ACTION_FLAG_EDIT) === false) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     /**

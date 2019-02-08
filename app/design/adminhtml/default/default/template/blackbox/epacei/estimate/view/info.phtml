@@ -1,0 +1,111 @@
+<?php $_estimate = $this->getEstimate() ?>
+<?php
+$estimateAdminDate = $this->formatDate($_estimate->getCreatedAtDate(), 'medium', true);
+$estimateStoreDate = $this->formatDate($_estimate->getCreatedAtStoreDate(), 'medium', true);
+?>
+<div class="box-left">
+    <!--Estimate Information-->
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <a href="<?php echo $this->getViewUrl($_estimate->getId()) ?>"><?php echo Mage::helper('sales')->__('Estimate # %s', $_estimate->getRealEstimateId()) ?></a>
+        </div>
+        <div class="fieldset">
+            <table cellspacing="0" class="form-list">
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Estimate Date') ?></label></td>
+                <td class="value"><strong><?php echo $estimateAdminDate ?></strong></td>
+            </tr>
+            <?php if ($estimateAdminDate != $estimateStoreDate):?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Estimate Date (%s)', $_estimate->getCreatedAtStoreDate()->getTimezone()) ?></label></td>
+                <td class="value"><strong><?php echo $estimateStoreDate ?></strong></td>
+            </tr>
+            <?php endif;?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Estimate Status') ?></label></td>
+                <td class="value"><strong><span id="order_status"><?php echo $_estimate->getStatusLabel() ?></span></strong></td>
+            </tr>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Purchased From') ?></label></td>
+                <td class="value"><strong><?php echo $this->getEstimateStoreName(); ?></strong></td>
+            </tr>
+            <?php if($_estimate->getRelationChildId()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Link to the New Estimate') ?></label></td>
+                <td class="value"><a href="<?php echo $this->getViewUrl($_estimate->getRelationChildId()) ?>">
+                    <?php echo $_estimate->getRelationChildRealId() ?>
+                </a></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_estimate->getRelationParentId()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Link to the Previous Estimate') ?></label></td>
+                <td class="value"><a href="<?php echo $this->getViewUrl($_estimate->getRelationParentId()) ?>">
+                    <?php echo $_estimate->getRelationParentRealId() ?>
+                </a></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_estimate->getRemoteIp() && $this->shouldDisplayCustomerIp()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Placed from IP') ?></label></td>
+                <td class="value"><strong><?php echo $this->escapeHtml($_estimate->getRemoteIp()); echo ($_estimate->getXForwardedFor())?' (' . $this->escapeHtml($_estimate->getXForwardedFor()) . ')':''; ?></strong></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_estimate->getGlobalCurrencyCode() != $_estimate->getBaseCurrencyCode()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('%s / %s rate:', $_estimate->getGlobalCurrencyCode(), $_estimate->getBaseCurrencyCode()) ?></label></td>
+                <td class="value"><strong><?php echo $_estimate->getBaseToGlobalRate() ?></strong></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_estimate->getBaseCurrencyCode() != $_estimate->getEstimateCurrencyCode()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('%s / %s rate:', $_estimate->getEstimateCurrencyCode(), $_estimate->getBaseCurrencyCode()) ?></label></td>
+                <td class="value"><strong><?php echo $_estimate->getBaseToEstimateRate() ?></strong></td>
+            </tr>
+            <?php endif; ?>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="box-right">
+    <!--Account Information-->
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-account"><?php echo Mage::helper('sales')->__('Account Information') ?></h4>
+            <div class="tools"><?php echo $this->getAccountEditLink()?></div>
+        </div>
+        <div class="fieldset">
+            <div class="hor-scroll">
+                <table cellspacing="0" class="form-list">
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Customer Name') ?></label></td>
+                    <td class="value">
+                    <?php if ($_customerUrl=$this->getCustomerViewUrl()) : ?>
+                        <a href="<?php echo $_customerUrl ?>" target="_blank"><strong><?php echo $this->escapeHtml($_estimate->getCustomerName()) ?></strong></a>
+                    <?php else: ?>
+                        <strong><?php echo $this->escapeHtml($_estimate->getCustomerName()) ?></strong>
+                    <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Email') ?></label></td>
+                    <td class="value"><a href="mailto:<?php echo $this->escapeHtml($_estimate->getCustomerEmail()) ?>"><strong><?php echo $this->escapeHtml($_estimate->getCustomerEmail()) ?></strong></a></td>
+                </tr>
+                <?php if ($_groupName = $this->getCustomerGroupName()) : ?>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Customer Group') ?></label></td>
+                    <td class="value"><strong><?php echo $this->escapeHtml($_groupName) ?></strong></td>
+                </tr>
+                <?php endif; ?>
+                <?php foreach ($this->getCustomerAccountData() as $data):?>
+                <tr>
+                    <td class="label"><label><?php echo $data['label'] ?></label></td>
+                    <td class="value"><strong><?php echo $data['value'] ?></strong></td>
+                </tr>
+                <?php endforeach;?>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clear"></div>

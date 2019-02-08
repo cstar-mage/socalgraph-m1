@@ -47,8 +47,8 @@
  * @method Blackbox_EpaceImport_Model_Estimate_Item setQtyCanceled(float $value)
  * @method float getQtyInvoiced()
  * @method Blackbox_EpaceImport_Model_Estimate_Item setQtyInvoiced(float $value)
- * @method float getQtyOrdered()
- * @method Blackbox_EpaceImport_Model_Estimate_Item setQtyOrdered(float $value)
+ * @method float getQty()
+ * @method Blackbox_EpaceImport_Model_Estimate_Item setQty(float $value)
  * @method float getQtyRefunded()
  * @method Blackbox_EpaceImport_Model_Estimate_Item setQtyRefunded(float $value)
  * @method float getQtyShipped()
@@ -235,144 +235,6 @@ class Blackbox_EpaceImport_Model_Estimate_Item extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Check item invoice availability
-     *
-     * @return bool
-     */
-    public function canInvoice()
-    {
-        return $this->getQtyToInvoice()>0;
-    }
-
-    /**
-     * Check item ship availability
-     *
-     * @return bool
-     */
-    public function canShip()
-    {
-        return $this->getQtyToShip()>0;
-    }
-
-    /**
-     * Check item refund availability
-     *
-     * @return bool
-     */
-    public function canRefund()
-    {
-        return $this->getQtyToRefund()>0;
-    }
-
-    /**
-     * Retrieve item qty available for ship
-     *
-     * @return float|integer
-     */
-    public function getQtyToShip()
-    {
-        if ($this->isDummy(true)) {
-            return 0;
-        }
-
-        return $this->getSimpleQtyToShip();
-    }
-
-    /**
-     * Retrieve item qty available for ship
-     *
-     * @return float|integer
-     */
-    public function getSimpleQtyToShip()
-    {
-        $qty = $this->getQtyOrdered()
-            - $this->getQtyShipped()
-            - $this->getQtyRefunded()
-            - $this->getQtyCanceled();
-        return max($qty, 0);
-    }
-
-    /**
-     * Retrieve item qty available for invoice
-     *
-     * @return float|integer
-     */
-    public function getQtyToInvoice()
-    {
-        if ($this->isDummy()) {
-            return 0;
-        }
-
-        $qty = $this->getQtyOrdered()
-            - $this->getQtyInvoiced()
-            - $this->getQtyCanceled();
-        return max($qty, 0);
-    }
-
-    /**
-     * Retrieve item qty available for refund
-     *
-     * @return float|integer
-     */
-    public function getQtyToRefund()
-    {
-        if ($this->isDummy()) {
-            return 0;
-        }
-        return max($this->getQtyInvoiced()-$this->getQtyRefunded(), 0);
-    }
-
-    /**
-     * Retrieve item qty available for cancel
-     *
-     * @return float|integer
-     */
-    public function getQtyToCancel()
-    {
-        if ($this->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
-            $qtyToCancel = $this->getQtyToCancelBundle();
-        } elseif ($this->getParentItem()
-            && $this->getParentItem()->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
-        ) {
-            $qtyToCancel = $this->getQtyToCancelBundleItem();
-        } else {
-            $qtyToCancel = min($this->getQtyToInvoice(), $this->getQtyToShip());
-        }
-        return max($qtyToCancel, 0);
-    }
-
-    /**
-     * Retrieve Bundle item qty available for cancel
-     * getQtyToInvoice() will always deliver 0 for Bundle
-     *
-     * @return float|integer
-     */
-    public function getQtyToCancelBundle()
-    {
-        if ($this->isDummy()) {
-            $qty = $this->getQtyOrdered()
-                - $this->getQtyInvoiced()
-                - $this->getQtyCanceled();
-            return min(max($qty, 0), $this->getQtyToShip());
-        }
-        return min($this->getQtyToInvoice(), $this->getQtyToShip());
-    }
-
-    /**
-     * Retrieve Bundle child item qty available for cancel
-     * getQtyToShip() always returns 0 for BundleItems that ship together
-     *
-     * @return float|integer
-     */
-    public function getQtyToCancelBundleItem()
-    {
-        if ($this->isDummy(true)) {
-            return min($this->getQtyToInvoice(), $this->getSimpleQtyToShip());
-        }
-        return min($this->getQtyToInvoice(), $this->getQtyToShip());
-    }
-
-    /**
      * Declare estimate
      *
      * @param   Blackbox_EpaceImport_Model_Estimate $estimate
@@ -413,54 +275,6 @@ class Blackbox_EpaceImport_Model_Estimate_Item extends Mage_Core_Model_Abstract
         }
 
         return $backordered;
-    }
-
-    /**
-     * Retrieve status
-     *
-     * @return string
-     */
-    public function getStatus()
-    {
-        return $this->getStatusName($this->getStatusId());
-    }
-
-    /**
-     * Retrieve status name
-     *
-     * @return string
-     */
-    public static function getStatusName($statusId)
-    {
-        if (is_null(self::$_statuses)) {
-            self::getStatuses();
-        }
-        if (isset(self::$_statuses[$statusId])) {
-            return self::$_statuses[$statusId];
-        }
-        return Mage::helper('sales')->__('Unknown Status');
-    }
-
-    /**
-     * Cancel estimate item
-     *
-     * @return Blackbox_EpaceImport_Model_Estimate_Item
-     */
-    public function cancel()
-    {
-        if ($this->getStatusId() !== self::STATUS_CANCELED) {
-            Mage::dispatchEvent('epacei_estimate_item_cancel', array('item'=>$this));
-            $this->setQtyCanceled($this->getQtyToCancel());
-            $this->setTaxCanceled(
-                $this->getTaxCanceled() +
-                $this->getBaseTaxAmount() * $this->getQtyCanceled() / $this->getQtyOrdered()
-            );
-            $this->setHiddenTaxCanceled(
-                $this->getHiddenTaxCanceled() +
-                $this->getHiddenTaxAmount() * $this->getQtyCanceled() / $this->getQtyOrdered()
-            );
-        }
-        return $this;
     }
 
     /**
@@ -670,7 +484,7 @@ class Blackbox_EpaceImport_Model_Estimate_Item extends Mage_Core_Model_Abstract
             $option = array();
         }
         $buyRequest = new Varien_Object($option);
-        $buyRequest->setQty($this->getQtyOrdered() * 1);
+        $buyRequest->setQty($this->getQty() * 1);
         return $buyRequest;
     }
 
