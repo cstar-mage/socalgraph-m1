@@ -373,6 +373,9 @@ $table = $installer->getConnection()
         'nullable'  => false,
         'default'   => '0',
     ), 'No Discount')
+    ->addColumn('qty', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
+        'default'   => '0.0000',
+    ), 'Qty')
     ->addColumn('base_cost', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
         'default'   => '0.0000',
     ), 'Base Cost')
