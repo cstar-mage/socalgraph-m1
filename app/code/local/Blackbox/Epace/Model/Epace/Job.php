@@ -244,17 +244,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
 
     public function getShipVia()
     {
-        if (is_null($this->shipVia)) {
-            $this->shipVia = false;
-            if ($this->getData('shipVia')) {
-                $shipVia = Mage::helper('epace/object')->load('efi/ship_via', $this->getData('shipVia'));
-                if ($shipVia->getId()) {
-                    $this->shipVia = $shipVia;
-                }
-            }
-        }
-
-        return $this->shipVia;
+        return $this->_getObject('shipVia', 'shipVia', 'efi/ship_via', true);
     }
 
     /**
@@ -406,14 +396,10 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
 
     protected function _getJobItems($collectionName)
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
-        $collection = Mage::getResourceModel($collectionName);
-        /** @var Blackbox_Epace_Model_Epace_Job_AbstractChild[] $items */
-        $items = $collection->addFilter('job', $this->getId())->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems($collectionName, [
+            'job' => $this->getId()
+        ], function ($item) {
             $item->setJob($this);
-        }
-
-        return $items;
+        });
     }
 }

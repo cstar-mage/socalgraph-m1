@@ -2,6 +2,8 @@
 
 abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
 {
+    public static $debug = false;
+
     /**
      * @var Blackbox_Epace_Helper_Api
      */
@@ -11,6 +13,8 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
      * @var string
      */
     protected $_objectType;
+
+    private $_childItems = [];
 
     public function __construct()
     {
@@ -93,5 +97,44 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
     protected function _underscore($name)
     {
         return lcfirst($name); // use keys from epace as is
+    }
+
+    protected function _getObject($objectField, $dataField, $modelClassName, $useCache = false)
+    {
+        if (is_null($this->$objectField)) {
+            $this->$objectField = false;
+            if (!empty($this->getData($dataField))) {
+                /** @var Blackbox_Epace_Model_Epace_AbstractObject $object */
+                if ($useCache) {
+                    $object = Mage::helper('epace/object')->load($modelClassName, $this->getData($dataField));
+                } else {
+                    $object = Mage::getModel($modelClassName)->load($this->getData($dataField));
+                }
+                if ($object->getId()) {
+                    $this->$objectField = $object;
+                } else if (self::$debug) {
+                    throw new \Exception("Unable to load object {$object->getObjectType()} with id {$this->getData($dataField)} linked by {$this->getObjectType()} in field $objectField");
+                }
+            }
+        }
+
+        return $this->$objectField;
+    }
+
+    protected function _getChildItems($collectionName, $filters, callable $initCallback = null)
+    {
+        if (!isset($this->_childItems[$collectionName])) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
+            $collection = Mage::getResourceModel($collectionName);
+            foreach ($filters as $field => $value) {
+                $collection->addFilter($field, $value);
+            }
+            $this->_childItems[$collectionName] = $collection->getItems();
+            foreach ($this->_childItems[$collectionName] as $item) {
+                call_user_func($initCallback, $item);
+            }
+        }
+
+        return $this->_childItems[$collectionName];
     }
 }

@@ -14,6 +14,36 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
      */
     protected $jobPartJob = null;
 
+    /**
+     * @var Blackbox_Epace_Model_Epace_Job_Material
+     */
+    protected $jobMaterial;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Job_Part_PressForm
+     */
+    protected $jobPartPressForm;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Job_Component
+     */
+    protected $jobComponent;
+
+    /**
+     * @var
+     */
+    protected $proof;
+
+    /**
+     * @var
+     */
+    protected $jobPartItem;
+
+    /**
+     * @var bool
+     */
+    protected $linksInitialized = false;
+
     protected function _construct()
     {
         $this->_init('CartonContent', 'id');
@@ -24,17 +54,7 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
      */
     public function getCarton()
     {
-        if (is_null($this->carton)) {
-            $this->carton = false;
-            if ($this->getData('carton')) {
-                $carton = Mage::getModel('efi/carton')->load($this->getData('carton'));
-                if ($carton->getId()) {
-                    $this->carton = $carton;
-                }
-            }
-        }
-
-        return $this->carton;
+        return $this->_getObject('carton', 'carton', 'efi/carton');
     }
 
     /**
@@ -45,6 +65,10 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
     {
         $this->carton = $carton;
 
+        if (!$this->linksInitialized) {
+            $this->_initLinks();
+        }
+
         return $this;
     }
 
@@ -53,17 +77,7 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
      */
     public function getJobPartJob()
     {
-        if (is_null($this->jobPartJob)) {
-            $this->jobPartJob = false;
-            if ($this->getData('jobPartJob')) {
-                $job = Mage::getModel('efi/job')->load($this->getData('jobPartJob'));
-                if ($job->getId()) {
-                    $this->jobPartJob = $job;
-                }
-            }
-        }
-
-        return $this->jobPartJob;
+        return $this->_getObject('jobPartJob', 'jobPartJob', 'efi/job');
     }
 
     /**
@@ -77,16 +91,90 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
         return $this;
     }
 
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Material|bool
+     */
+    public function getJobMaterial()
+    {
+        return $this->_getObject('jobMaterial', 'jobMaterial', 'efi/job_material');
+    }
+
+    public function setJobMaterial(Blackbox_Epace_Model_Epace_Job_Material $jobMaterial)
+    {
+        $this->jobMaterial = $jobMaterial;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Part_PressForm|bool
+     */
+    public function getJobPartPressForm()
+    {
+        return $this->_getObject('jobPartPressForm', 'jobPartPressForm', 'efi/job_part_pressForm');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job_Part_PressForm $pressForm
+     * @return $this
+     */
+    public function setJobPartPressForm(Blackbox_Epace_Model_Epace_Job_Part_PressForm $pressForm)
+    {
+        $this->jobPartPressForm = $pressForm;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Component|bool
+     */
+    public function getJobComponent()
+    {
+        return $this->_getObject('jobComponent', 'jobComponent', 'efi/job_component');
+    }
+
+    public function setJobComponent(Blackbox_Epace_Model_Epace_Job_Component $jobComponent)
+    {
+        $this->jobComponent = $jobComponent;
+
+        return $this;
+    }
+
     public function getDefinition()
     {
         return [
             'id' => 'int',
-            'carton' => '',
-            'quantity' => '',
-            'jobPartJob' => '',
-            'jobPart' => '',
+            'note' => 'string',
+            'carton' => 'int',
+            'quantity' => 'int',
+            'job' => 'string',
+            'jobProduct' => '',
+            'jobPartJob' => 'string',
+            'jobPart' => 'string',
+            'jobPartPressForm' => 'int',
+            'jobComponent' => 'int',
+            'proof' => 'int',
             'content' => 'string',
-            'JobPartKey' => '',
+            'JobPartKey' => 'string',
         ];
+    }
+
+    public function getJobPartKey()
+    {
+        return $this->getData('JobPartKey');
+    }
+
+    protected function _initLinks()
+    {
+        if ($this->carton && $this->carton->getShipment() && ($job = $this->carton->getShipment()->getJob())) {
+            if (!$this->job && !empty($this->getData('job')) && $this->getData('job') == $job->getId()) {
+                $this->job = $job;
+            }
+            if (!$this->jobPartJob && !empty($this->getData('jobPartJob')) && $this->getData('jobPartJob') == $job->getId()) {
+                $this->jobPartJob = $job;
+            }
+        }
+
+        $this->linksInitialized = true;
     }
 }

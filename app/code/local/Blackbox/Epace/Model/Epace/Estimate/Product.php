@@ -17,14 +17,11 @@ class Blackbox_Epace_Model_Epace_Estimate_Product extends Blackbox_Epace_Model_E
      */
     public function getParts()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Part_Collection $collection */
-        $collection = Mage::getResourceModel('efi/estimate_part_collection');
-        $parts = $collection->addFilter('estimateProduct', (int)$this->getId())->getItems();
-        foreach ($parts as $part) {
+        return $this->_getChildItems('efi/estimate_part_collection', [
+            'estimateProduct' => (int)$this->getId()
+        ], function ($part) {
             $part->setEstimate($this->getEstimate())->setProduct($this);
-        }
-
-        return $parts;
+        });
     }
 
     /**
@@ -32,14 +29,11 @@ class Blackbox_Epace_Model_Epace_Estimate_Product extends Blackbox_Epace_Model_E
      */
     public function getPriceSummaries()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Product_PriceSummary_Collection $collection */
-        $collection = Mage::getResourceModel('efi/estimate_product_priceSummary_collection');
-        $priceSummaries = $collection->addFilter('estimateProduct ', (int)$this->getId())->getItems();
-        foreach ($priceSummaries as $priceSummary) {
+        return $this->_getChildItems('efi/estimate_product_priceSummary_collection', [
+            'estimateProduct' => (int)$this->getId()
+        ], function ($priceSummary) {
             $priceSummary->setProduct($this);
-        }
-
-        return $priceSummaries;
+        });
     }
 
     public function getDefinition()

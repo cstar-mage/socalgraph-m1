@@ -46,14 +46,11 @@ class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epac
      */
     public function getQuantities()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Quantity_Collection $collection */
-        $collection = Mage::getResourceModel('efi/estimate_quantity_collection');
-        $quantities = $collection->addFilter('estimatePart', (int)$this->getId())->getItems();
-        foreach ($quantities as $quantity) {
+        return $this->_getChildItems('efi/estimate_quantity_collection', [
+            'estimatePart' => (int)$this->getId()
+        ], function ($quantity) {
             $quantity->setEstimate($this->getEstimate())->setPart($this);
-        }
-
-        return $quantities;
+        });
     }
 
     /**
@@ -61,14 +58,11 @@ class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epac
      */
     public function getSizeAllowances()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Part_SizeAllowance_Collection $collection */
-        $collection = Mage::getResourceModel('efi/estimate_part_sizeAllowance_collection');
-        $sizeAllowances = $collection->addFilter('estimatePart', (int)$this->getId())->getItems();
-        foreach ($sizeAllowances as $sizeAllowance) {
+        return $this->_getChildItems('efi/estimate_part_sizeAllowance_collection', [
+            'estimatePart' => (int)$this->getId()
+        ], function ($sizeAllowance) {
             $sizeAllowance->setPart($this);
-        }
-
-        return $sizeAllowances;
+        });
     }
 
     public function getDefinition()

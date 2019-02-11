@@ -18,13 +18,11 @@ class Blackbox_Epace_Model_Epace_Ship_Provider extends Blackbox_Epace_Model_Epac
      */
     public function getShipVias()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Ship_Via_Collection $collection */
-        $collection = Mage::getResourceModel('efi/ship_via_collection');
-        $items = $collection->addFilter('provider', $this->getId())->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems('efi/ship_via_collection', [
+            'provider' => $this->getId()
+        ], function ($item) {
             $item->setShipProvider($this);
-        }
-        return $items;
+        });
     }
 
     public function getDefinition()

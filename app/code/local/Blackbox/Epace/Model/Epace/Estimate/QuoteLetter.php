@@ -9,13 +9,11 @@ class Blackbox_Epace_Model_Epace_Estimate_QuoteLetter extends Blackbox_Epace_Mod
 
     public function getNotes()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_QuoteLetter_Note_Collection $collection */
-        $collection = Mage::getResourceModel('efi/estimate_quoteLetter_note_collection');
-        $items = $collection->addFilter('estimateQuoteLetter', $this->getId())->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems('efi/estimate_quoteLetter_note_collection', [
+            'estimateQuoteLetter' => $this->getId()
+        ], function ($item) {
             $item->setQuoteLetter($this);
-        }
-        return $this;
+        });
     }
 
     public function getDefinition()

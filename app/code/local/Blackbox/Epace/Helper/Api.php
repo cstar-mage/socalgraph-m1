@@ -302,14 +302,14 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
         $response = $api->sendXmlToServer('', '', $method, array($this->getAuthHeader()));
 
         if (!$response) {
-            throw new Exception('No resonse. Method: "' . $method . '"');
+            throw new Exception('No response. Method: "' . $method . '"');
         }
 
         $xml = simplexml_load_string($response);
 
         if ($xml === false) {
             $e = new Exception('Response is not valid xml. Method: "' . $method . '"');
-            $e->respnse = $response;
+            $e->response = $response;
             throw $e;
         }
 
@@ -424,7 +424,7 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
 
         if ($xml === false) {
             $e = new Exception('Response is not valid xml. Method: "' . $url . '"');
-            $e->respnse = $response;
+            $e->response = $response;
             throw $e;
         }
 
@@ -433,7 +433,7 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
             $body = $children->Body;
 
             if (isset($body->Fault)) {
-                throw new Exception($body->Fault->children()->faultstring);
+                $this->throwException($body->Fault->children()->faultstring, $body);
             }
 
             return $body;

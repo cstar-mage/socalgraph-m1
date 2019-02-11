@@ -1,9 +1,28 @@
 <?php
 
-class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_AbstractObject
+/**
+ * @method int getCount()
+ * @method int getQuantity()
+ * @method bool getAddDefaultContent()
+ * @method string getNote()
+ * @method int getTrackingNumber()
+ * @method string getActualDate()
+ * @method string getActualTime()
+ * @method int getSkidCount()
+ * @method float getWeight()
+ * @method float getCost()
+ * @method string getTrackingLink()
+ * @method int getTotalQuantity()
+ * @method int getTotalSkidQuantity()
+ *
+ * Class Blackbox_Epace_Model_Epace_Carton
+ */
+class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Shipment_ChildAbstract
 {
-    /** @var  Blackbox_Epace_Model_Epace_Job_Shipment */
-    protected $shipment;
+    /**
+     * @var Blackbox_Epace_Model_Epace_Skid
+     */
+    protected $skid;
 
     protected function _construct()
     {
@@ -11,30 +30,30 @@ class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Abstr
     }
 
     /**
-     * @return Blackbox_Epace_Model_Epace_Job_Shipment|bool
+     * @return Blackbox_Epace_Model_Epace_Skid|bool
      */
-    public function getShipment()
+    protected function getSkid()
     {
-        if (is_null($this->shipment)) {
-            $this->shipment = false;
-            if ($this->getData('shipment')) {
-                $shipment = Mage::getModel('efi/job_shipment')->load($this->getData('shipment'));
-                if ($shipment->getId()) {
-                    $this->shipment = $shipment;
+        if (is_null($this->skid)) {
+            $this->skid = false;
+            if (!empty($this->getData('skid'))) {
+                $skid = Mage::getModel('efi/skid')->load($this->getData('skid'));
+                if ($skid->getId()) {
+                    $this->skid = $skid;
                 }
             }
         }
 
-        return $this->shipment;
+        return $this->skid;
     }
 
     /**
-     * @param Blackbox_Epace_Model_Epace_Job_Shipment $shipment
+     * @param Blackbox_Epace_Model_Epace_Skid $skid
      * @return $this
      */
-    public function setShipment(Blackbox_Epace_Model_Epace_Job_Shipment $shipment)
+    public function setSkid(Blackbox_Epace_Model_Epace_Skid $skid)
     {
-        $this->shipment = $shipment;
+        $this->skid = $skid;
 
         return $this;
     }
@@ -44,20 +63,18 @@ class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Abstr
      */
     public function getContents()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Carton_Content_Collection $collection */
-        $collection = Mage::getResourceModel('efi/carton_content_collection');
-        $items = $collection->addFilter('carton', $this->getId())->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems('efi/carton_content_collection', [
+            'carton' => $this->getId()
+        ], function ($item) {
             $item->setCarton($this);
-        }
-        return $items;
+        });
     }
 
     public function getDefinition()
     {
         return [
             'id' => 'int',
-            'shipment' => '',
+            'shipment' => 'int',
             'count' => '',
             'quantity' => '',
             'addDefaultContent' => 'bool',
@@ -65,12 +82,18 @@ class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Abstr
             'trackingNumber' => '',
             'actualDate' => '',
             'actualTime' => '',
-            'skidCount' => '',
-            'weight' => '',
+            'skidCount' => 'int',
+            'skid' => 'int',
+            'weight' => 'float',
             'cost' => '',
             'trackingLink' => '',
             'totalQuantity' => '',
             'totalSkidQuantity' => '',
         ];
+    }
+
+    protected function getShipmentKey()
+    {
+        return 'shipment';
     }
 }

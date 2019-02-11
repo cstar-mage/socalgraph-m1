@@ -1,12 +1,168 @@
 <?php
 
 /**
+ * @method bool getAllowancesChanged()
+ * @method float getTabSpine()
+ * @method float getTabFace()
+ * @method float getTabHead()
+ * @method float getTabFoot()
+ * @method float getBleedsSpine()
+ * @method float getBleedsFace()
+ * @method float getBleedsHead()
+ * @method float getBleedsFoot()
+ * @method float getTrimSpine()
+ * @method float getTrimFace()
+ * @method float getTrimHead()
+ * @method float getTrimFoot()
+ * @method float getOddPanelSpineSize()
+ * @method int getNumOddPanelsSpine()
+ * @method float getOddPanelWidthSize()
+ * @method int getNumOddPanelsWidth()
+ * @method float getSpineSize()
+ * @method bool getMetrixEnabled()
+ * @method string getActualShipDate()
+ * @method float getBilledAmt()
+ * @method int getBillRate()
+ * @method string getBillUOM()
+ * @method int getBinderyMethod()
+ * @method string getBinderyWork()
+ * @method int getBleedsAcross()
+ * @method int getBleedsAlong()
+ * @method int getColorsS1()
+ * @method int getColorsS2()
+ * @method int getColorsTotal()
+ * @method float getCoTotal()
+ * @method string getDateSetup()
  * @method string getDescription()
+ * @method string getDesktop()
+ * @method float getEstCostPerM()
  * @method float getEstimatedCost()
- * @method float getQtyOrdered()
- * @method float getValue()
+ * @method int getEstimator()
+ * @method float getFlatSizeH()
+ * @method float getFlatSizeW()
+ * @method float getFinalSizeH()
+ * @method float getFinalSizeW()
+ * @method float getTrimSizeHeight()
+ * @method float getTrimSizeWidth()
+ * @method int getFolderNumUp()
+ * @method int getFoldPattern()
+ * @method string getFoldPatternDesc()
+ * @method int getGrainSpecifications()
+ * @method string getInkDescS1()
+ * @method string getInkDescS2()
+ * @method string getInvoiceDate()
+ * @method int getInvoiceSequence()
+ * @method float getJobCost01()
+ * @method int getJobPart()
+ * @method int getJobType()
+ * @method int getLastActCode()
+ * @method string getLastActDate()
+ * @method string getLastActTime()
+ * @method string getLastCODate()
+ * @method int getLastCODept()
+ * @method string getLastCOTime()
+ * @method string getMaterialProvided()
+ * @method int getNumPrsShtsOut()
+ * @method int getNumSigs()
+ * @method bool getLoadBalanced()
+ * @method int getPages()
+ * @method int getParallelFolds()
+ * @method string getPrep()
+ * @method bool getSeparateLayout()
+ * @method int getPress1()
+ * @method int getPressSheetNumOut()
+ * @method string getJobProductType()
+ * @method string getProductionStatus()
+ * @method int getQtyOrdered()
+ * @method int getQtyShipped()
+ * @method int getQtyToMfg()
  * @method float getQuotedPrice()
+ * @method bool getQuotedPriceForced()
+ * @method float getQuotePerM()
+ * @method int getRightFolds()
+ * @method int getRunMethod()
+ * @method int getSalesCategory()
+ * @method int getSheetsNetRequired()
+ * @method int getSheetsOffPress()
+ * @method float getSheetsToPress()
+ * @method int getStitcherNumUp()
+ * @method string getTimeSetUp()
+ * @method float getTotalHours()
+ * @method bool getUseBasicJacket()
+ * @method int getNumPressForms()
+ * @method int getNumSigsOddPressForm()
+ * @method int getNumPlies()
+ * @method bool getCalculating()
+ * @method int getManufacturingLocation()
+ * @method int getOriginalManufacturingLocation()
+ * @method float getNonImageHead()
+ * @method float getNonImageFoot()
+ * @method float getNonImageSpine()
+ * @method float getNonImageFace()
+ * @method int getRun()
+ * @method string getPaceConnectFileType()
+ * @method int getShippingWorkflow()
+ * @method int getPrepressWorkflow()
+ * @method bool getUseLegacyPrintFlowFormat()
+ * @method int getShipToJobContact()
+ * @method bool getDirectMailPart()
+ * @method string getBindingSide()
+ * @method string getJogSide()
+ * @method bool getJdfSubmitted()
+ * @method string getLastStatusChangedDate()
+ * @method string getLastStatusChangedTime()
+ * @method bool getProofRequired()
+ * @method bool getProofPart()
+ * @method int getResolution()
+ * @method bool getTileProduct()
+ * @method string getSeamDirection()
+ * @method bool getUsePressForms()
+ * @method bool getGangable()
+ * @method int getJobProduct()
+ * @method bool getFinishedAutoImport()
+ * @method float getValue()
+ * @method int getProductionType()
+ * @method string getQueueDestination()
+ * @method bool getRequiresImposition()
+ * @method string getComponentDescription()
+ * @method int getEstimateVersion()
+ * @method bool getInvoiceW2POrderAmount()
+ * @method bool getInvoiceW2PShippingAmount()
+ * @method bool getInvoiceW2PTaxAmount()
+ * @method bool getInvoiceW2PHandlingAmount()
+ * @method int getPrintRunMethod()
+ * @method bool getMxmlLayoutInvalid()
+ * @method float getOriginalQuotedPrice()
+ * @method bool getOriginalQuotedPriceForced()
+ * @method float getOriginalQuotedPricePerM()
+ * @method bool getOriginalQuotedPricePerMForced()
+ * @method float getTransactionHours()
+ * @method int getTransactionCosts()
+ * @method string getColors()
+ * @method float getTotalCost()
  * @method float getTargetSellPrice()
+ * @method float getQuantityRemaining()
+ * @method bool getScheduled()
+ * @method bool getIncludeMailing()
+ * @method float getCalculatedTabSpine()
+ * @method float getCalculatedTabFace()
+ * @method float getCalculatedTabHead()
+ * @method float getCalculatedTabFoot()
+ * @method float getCalculatedBleedsSpine()
+ * @method float getCalculatedBleedsFace()
+ * @method float getCalculatedBleedsHead()
+ * @method float getCalculatedBleedsFoot()
+ * @method float getCalculatedTrimSpine()
+ * @method float getCalculatedTrimFace()
+ * @method float getCalculatedTrimHead()
+ * @method float getCalculatedTrimFoot()
+ * @method float getCalculatedOddPanelSpineSize()
+ * @method int getCalculatedNumOddPanelsSpine()
+ * @method float getCalculatedOddPanelWidthSize()
+ * @method int getCalculatedNumOddPanelsWidth()
+ * @method float getCalculatedSpineSize()
+ * @method string getPrimaryKey()
+ * @method string getFoldPatternKey()
  *
  * Class Blackbox_Epace_Model_Epace_Job_Part
  */
@@ -133,11 +289,35 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     }
 
     /**
+     * @return Blackbox_Epace_model_Epace_Change_Order[]
+     */
+    public function getChangeOrders()
+    {
+        return $this->_getPartItems('efi/change_order_collection');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Part_Item[]
+     */
+    public function getItems()
+    {
+        return $this->_getPartItems('efi/job_part_item_collection');
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Job_Part_PressForm[]
      */
     public function getPressForms()
     {
         return $this->_getPartItems('efi/job_part_pressForm_collection');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Component[]
+     */
+    public function getComponents()
+    {
+        return $this->_getPartItems('efi/job_component_collection');
     }
 
     /**
@@ -188,10 +368,7 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
      */
     public function getInvoices()
     {
-        return $this->_getPartItems('efi/invoice_collection', [
-            'job' => $this->getData('job'),
-            'jobPart' => $this->getData('jobPart')
-        ]);
+        return $this->_getPartItems('efi/invoice_collection');
     }
 
     public function getDefinition()
@@ -355,24 +532,16 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     {
         if (!$filters) {
             $filters = [
-                'jobPart' => $this->getId()
+                'job' => $this->getData('job'),
+                'jobPart' => $this->getData('jobPart')
             ];
         }
-        /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
-        $collection = Mage::getResourceModel($collectionName);
-        foreach ($filters as $field => $value) {
-            $collection->addFilter($field, $value);
-        }
-        /** @var Blackbox_Epace_Model_Epace_Job_Part_AbstractChild[] $items */
-        $items = $collection->getItems();
         $job = $this->getJob();
-        foreach ($items as $item) {
+        return $this->_getChildItems($collectionName, $filters, function ($item) use ($job) {
             if ($job) {
                 $item->setJob($job);
             }
             $item->setPart($this);
-        }
-
-        return $items;
+        });
     }
 }

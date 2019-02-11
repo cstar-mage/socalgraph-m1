@@ -12,14 +12,11 @@ class Blackbox_Epace_Model_Epace_FinishingOperation extends Blackbox_Epace_Model
      */
     public function getSpeeds()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_FinishingOperation_Speed_Collection $collection */
-        $collection = Mage::getResourceModel('efi/finishingOperation_speed_collection');
-        $collection->addFilter('finishingOperation', $this->getId());
-        $items = $collection->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems('efi/finishingOperation_speed_collection', [
+            'finishingOperation' => $this->getId()
+        ], function ($item) {
             $item->setFinishingOperation($this);
-        }
-        return $items;
+        });
     }
 
     public function getDefinition()

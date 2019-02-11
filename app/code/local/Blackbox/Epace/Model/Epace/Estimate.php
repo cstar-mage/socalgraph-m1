@@ -69,11 +69,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getStatus()
     {
-        if (is_null($this->status)) {
-            $this->status = Mage::helper('epace/object')->load('efi/estimate_status', $this->getData('status'));
-        }
-
-        return $this->status;
+        return $this->_getObject('status', 'status', 'efi/estimate_status', true);
     }
 
     /**
@@ -124,19 +120,14 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getJobs()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
-        $collection = Mage::getResourceModel('efi/job_collection');
-        $collection->addFilter('altCurrencyRateSource', 'Estimate')
-            ->addFilter('altCurrencyRateSourceNote', (int)$this->getId());
-
-        $items = $collection->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems('efi/job_collection', [
+            'altCurrencyRateSource' => 'Estimate',
+            'altCurrencyRateSourceNote' => (int)$this->getId()
+        ], function ($item) {
             if ($this->getId() == $item->getEstimateId()) {
                 $item->setEstimate($this);
             }
-        }
-
-        return $items;
+        });
     }
 
     /**
@@ -209,14 +200,10 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
 
     protected function _getEstimateItems($collectionName)
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
-        $collection = Mage::getResourceModel($collectionName);
-        /** @var Blackbox_Epace_Model_Epace_Estimate_AbstractChild $items */
-        $items = $collection->addFilter('estimate', (int)$this->getId())->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems($collectionName, [
+            'estimate' => (int)$this->getId()
+        ], function ($item) {
             $item->setEstimate($this);
-        }
-
-        return $items;
+        });
     }
 }

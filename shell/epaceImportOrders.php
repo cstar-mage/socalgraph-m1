@@ -23,8 +23,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
     public function run()
     {
-        //$this->dump();
-        $this->import();
+        $this->dump();
+        //$this->import();
     }
 
     protected function _construct()
@@ -34,6 +34,29 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
     protected function dump()
     {
+//        /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $collection */
+//        $collection = Mage::getResourceModel('efi/job_shipment_collection');
+//        foreach ($collection->loadIds() as $id) {
+//            /** @var Blackbox_Epace_Model_Epace_Job_Shipment $shipment */
+//            $shipment = Mage::getModel('efi/job_shipment')->load($id);
+//            $job = $shipment->getJob();
+//            if (!$job->isSourceEstimate()) {
+//                continue;
+//            }
+//            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Part_Collection $partCollection */
+//            $partCollection = Mage::getResourceModel('efi/job_part_collection');
+//            $partCollection->addFilter('job', $job->getId());
+//
+//            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Product_Collection $jobProductCollection */
+//            $jobProductCollection = Mage::getResourceModel('efi/job_product_collection');
+//            $jobProductCollection->addFilter('job', $job->getId());
+//
+//            if ($partCollection->getSize() > 1 && $jobProductCollection->getSize() > 1) {
+//                $this->writeln($job->getId());
+//            }
+//        }
+//        return;
+
 //        /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
 //        $collection = Mage::getResourceModel('efi/estimate_collection');
 //        $collection->addFilter('status', Blackbox_Epace_Model_Epace_Estimate_Status::STATUS_CONVERTED_TO_JOB);
@@ -66,7 +89,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         //$collection->addFilter('id', 52434);
         //$collection->addFilter('id', 11547);
         //$collection->addFilter('id', 10883);
-        $collection->addFilter('id', 38329);
+        $collection->addFilter('id', 11410);
 
         foreach ($collection->getItems() as $estimate) {
             $estimateData = $estimate->getData();
@@ -149,6 +172,9 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                             }
                             $shipmentData['cartons'][] = $cartonData;
                         }
+                        foreach ($shipment->getSkids() as $skid) {
+                            $shipmentData['skids'][] = $skid->getData();
+                        }
                         $jobData['shipments'][] = $shipmentData;
                     }
                     foreach ($job->getNotes() as $note) {
@@ -162,8 +188,19 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                         foreach ($part->getPrePressOps() as $prePressOp) {
                             $partData['prePressOps'][] = $prePressOp->getData();
                         }
+                        foreach ($part->getChangeOrders() as $changeOrder) {
+                            $changeOrderData = $changeOrder->getData();
+                            $changeOrderData['_type'] = $changeOrder->getType()->getData();
+                            $partData['changeOrders'][] = $changeOrderData;
+                        }
+                        foreach ($part->getItems() as $item) {
+                            $partData['items'][] = $item->getData();
+                        }
                         foreach ($part->getPressForms() as $pressForm) {
                             $partData['pressForms'][] = $pressForm->getData();
+                        }
+                        foreach ($part->getComponents() as $component) {
+                            $partData['components'][] = $component->getData();
                         }
                         foreach ($part->getFinishingOps() as $finishingOp) {
                             $partData['finishingOps'][] = $finishingOp->getData();
@@ -261,6 +298,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                             'product_type' => $magentoProduct->getTypeId(),
                             'row_total_incl_tax' => $quantity->getData('grandTotal'),
                             'base_row_total_incl_tax' => $quantity->getData('grandTotal'),
+                            'estimate_part_id' => $part->getId(),
+                            'estimate_quantity_id' => $quantity->getId()
                         ]);
                         $magentoEstimate->addItem($item);
                     }
@@ -437,7 +476,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'price_incl_tax' => $priceInclTax,
                 'base_price_incl_tax' => $priceInclTax,
                 'row_total_incl_tax' => $part->getValue() + $taxAmount,
-                'base_row_total_incl_tax' => $part->getValue() + $taxAmount
+                'base_row_total_incl_tax' => $part->getValue() + $taxAmount,
+                'epace_job_part' => $part->getJobPart()
             ]);
             $order->addItem($item);
         }
@@ -503,7 +543,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             'created_at' => strtotime($job->getDateSetup()) + strtotime($job->getTimeSetUp()),
             'total_item_count' => count($job->getParts()),
             'shipping_incl_tax' => 0,
-            'base_shipping_incl_tax' => 0
+            'base_shipping_incl_tax' => 0,
         ]);
 
         $this->setOrderStatus($order, $job->getAdminStatusCode());
@@ -589,6 +629,44 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $order->save();
     }
 
+    protected function importShipment(Mage_Sales_Model_Order $order, Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment)
+    {
+        $orderShipment = Mage::getModel('sales/order_shipment');
+
+        $weight = 0;
+
+        $shippedOrderItems = [];
+        $tracks = [];
+
+        foreach ($jobShipment->getCartons() as $carton) {
+            foreach ($carton->getContents() as $content) {
+                if ($material = $content->getJobMaterial()) {
+
+                }
+            }
+
+        }
+
+        $shippingMethod = $this->getShippingMethod($jobShipment->getShipVia());
+        $customer = $this->loadOrCreateMagentoCustomer($jobShipment->getContact()->getSalesPerson());
+
+        $orderShipment->setData([
+            'store_id' => $this->getStore()->getId(),
+            'total_weight' => $jobShipment->getWeight(),
+            'total_qty' => $jobShipment->getQuantity(),
+            'email_sent' => null,
+            'order_id' => $order->getId(),
+            'customer_id' => $customer->getId(),
+            'shipping_address_id' => '',
+            'billing_address_id' => $order->getBillingAddressId(),
+            'shipment_status' => '',
+            'increment_id' => 'EPACE_SHIPMENT_' . $jobShipment->getId(),
+            'created_at' => strtotime($jobShipment->getDate()) + strtotime($jobShipment->getTime()),
+            'packages' => null,
+            'shipping_label' => null
+        ]);
+    }
+
     /**
      * @param string $jobStatus
      * @return string
@@ -658,124 +736,6 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $order->addAddress($address);
 
         return $address;
-    }
-
-    protected function submitOrder(Blackbox_Checkout_Model_Sales_Quote $quote, $incrementId)
-    {
-        $isVirtual = $quote->isVirtual();
-
-        $transaction = Mage::getModel('core/resource_transaction');
-        if ($quote->getCustomerId()) {
-            $transaction->addObject($quote->getCustomer());
-        }
-        $transaction->addObject($quote);
-
-        //$quote->reserveOrderId();
-        $quote->setReservedOrderId($incrementId);
-        if ($isVirtual) {
-            $order = $this->_convertor->addressToOrder($quote->getBillingAddress());
-        } else {
-            $order = $this->_convertor->addressToOrder($quote->getShippingAddress(true));
-        }
-        $order->setBillingAddress($this->_convertor->addressToOrderAddress($quote->getBillingAddress()));
-        if ($quote->getBillingAddress()->getCustomerAddress()) {
-            $order->getBillingAddress()->setCustomerAddress($quote->getBillingAddress()->getCustomerAddress());
-        }
-        $orderData = [];
-        if (!$isVirtual) {
-            $fields = array(
-                'subtotal_incl_tax',
-                'base_subtotal_incl_tax',
-                'weight',
-                'subtotal',
-                'tax_amount',
-                'discount_amount',
-                'shipping_amount',
-                'shipping_incl_tax',
-                'shipping_tax_amount',
-                'grand_total',
-                'base_subtotal',
-                'base_tax_amount',
-                'base_discount_amount',
-                'base_shipping_amount',
-                'base_shipping_incl_tax',
-                'base_shipping_tax_amount',
-                'base_grand_total',
-                'hidden_tax_amount',
-                'base_hidden_tax_amount',
-                'shipping_hidden_tax_amount',
-                'base_shipping_hidden_tax_amount',
-                'base_shipping_hidden_tax_amnt',
-                'shipping_discount_amount',
-                'base_shipping_discount_amount',
-                'subtotal_incl_tax',
-                'base_subtotal_incl_tax'
-            );
-            foreach ($fields as $field) {
-                $orderData[$field] = 0;
-            }
-
-            $shippingAddresses = $quote->getAllShippingAddresses();
-            $orderAddresses = array();
-            foreach($shippingAddresses as $address) {
-                foreach ($fields as $field) {
-                    $orderData[$field] += (float)$address->getData($field);
-                }
-                $orderAddresses[] = ($orderAddress = $this->_convertor->addressToOrderAddress($address));
-                if ($address->getCustomerAddress()) {
-                    $orderAddress->setCustomerAddress($address->getCustomerAddress());
-                }
-            }
-            $order->setShippingAddresses($orderAddresses);
-        }
-        $order->setPayment($this->_convertor->paymentToOrderPayment($quote->getPayment()));
-
-        foreach ($orderData as $key => $value) {
-            $order->setData($key, $value);
-        }
-
-        foreach ($quote->getAllItems() as $item) {
-            $orderItem = $this->_convertor->itemToOrderItem($item);
-            if ($item->getParentItem()) {
-                $orderItem->setParentItem($order->getItemByQuoteItemId($item->getParentItem()->getId()));
-            }
-            $order->addItem($orderItem);
-        }
-
-        $order->setQuote($quote);
-
-        $order->setStatus('pending')->setState('new');
-
-        $transaction->addObject($order);
-        //$transaction->addCommitCallback(array($order, 'place'));
-        $transaction->addCommitCallback(array($order, 'save'));
-
-        /**
-         * We can use configuration data for declare new order status
-         */
-        //Mage::dispatchEvent('checkout_type_onepage_save_order', array('order'=>$order, 'quote'=>$quote));
-        //Mage::dispatchEvent('sales_model_service_quote_submit_before', array('order'=>$order, 'quote'=>$quote));
-        try {
-            $transaction->save();
-            $quote->setIsActive(false);
-            //Mage::dispatchEvent('sales_model_service_quote_submit_success', array('order'=>$order, 'quote'=>$quote));
-        } catch (Exception $e) {
-            //reset order ID's on exception, because order not saved
-            $order->setId(null);
-            /** @var $item Mage_Sales_Model_Order_Item */
-            foreach ($order->getItemsCollection() as $item) {
-                $item->setOrderId(null);
-                $item->setItemId(null);
-            }
-
-            //Mage::dispatchEvent('sales_model_service_quote_submit_failure', array('order'=>$order, 'quote'=>$quote));
-            throw $e;
-        }
-    }
-
-    protected function importShipment(Mage_Sales_Model_Order $oder, Blackbox_Epace_Model_Epace_Job_Shipment $shipment)
-    {
-
     }
 
     protected function loadOrCreateMagentoCustomer(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)

@@ -158,7 +158,7 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
             'state' => '',
             'zip' => '',
             'country' => 'int',
-            'customer' => 'int',
+            'customer' => 'string',
             'residential' => 'bool',
             'active' => 'bool',
             'prospect' => 'bool',

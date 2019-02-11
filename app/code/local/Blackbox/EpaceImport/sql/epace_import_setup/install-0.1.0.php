@@ -326,7 +326,7 @@ $table = $installer->getConnection()
         'unsigned'  => true,
         'nullable'  => false,
         'default'   => '0',
-    ), 'Order Id')
+    ), 'Estimate Id')
     ->addColumn('parent_item_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
         'unsigned'  => true,
     ), 'Parent Item Id')

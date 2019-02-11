@@ -84,7 +84,6 @@
  * @method bool getQuickInvoice()
  * @method bool getShowQuickInvoiceReport()
  * @method bool getTaxingRequired()
- * @method string getJobPartKey()
  *
  * Class Blackbox_Epace_Model_Epace_Invoice
  */
@@ -252,14 +251,10 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
 
     protected function _getInvoiceChildren($collectionName)
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
-        $collection = Mage::getResourceModel($collectionName);
-        /** @var Blackbox_Epace_Model_Epace_Invoice_ChildAbstract[] $items */
-        $items = $collection->addFilter('invoice', $this->getId())->getItems();
-        foreach ($items as $item) {
+        return $this->_getChildItems($collectionName, [
+            'invoice' => $this->getId()
+        ], function ($item) {
             $item->setInvoice($this);
-        }
-
-        return $items;
+        });
     }
 }

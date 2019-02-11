@@ -23,18 +23,14 @@ class Blackbox_Epace_Model_Epace_Job_Product extends Blackbox_Epace_Model_Epace_
      */
     public function getParts()
     {
-        /** @var Blackbox_Epace_Model_Resource_Epace_Job_Part_Collection $collection */
-        $collection = Mage::getResourceModel('efi/job_part_collection');
-        $parts = $collection->addFilter('jobProduct', (int)$this->getId())->getItems();
-        $job = $this->getJob();
-        foreach ($parts as $part) {
-            if ($job) {
-                $part->setJob($job);
+        return $this->_getChildItems('efi/job_part_collection', [
+            'jobProduct' => (int)$this->getId()
+        ], function ($part) {
+            if ($this->getJob()) {
+                $part->setJob($this->getJob());
             }
             $part->setProduct($this);
-        }
-
-        return $parts;
+        });
     }
 
     public function getDefinition()

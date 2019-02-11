@@ -23,17 +23,7 @@ class Blackbox_Epace_Model_Epace_Job_Contact extends Blackbox_Epace_Model_Epace_
      */
     public function getContact()
     {
-        if (is_null($this->contact)) {
-            $this->contact = false;
-            if ($this->getData('contact')) {
-                $contact = Mage::getModel('efi/contact')->load($this->getData('contact'));
-                if ($contact->getId()) {
-                    $this->contact = $contact;
-                }
-            }
-        }
-
-        return $this->contact;
+        return $this->_getObject('contact', 'contact', 'efi/contact', true);
     }
 
     /**
