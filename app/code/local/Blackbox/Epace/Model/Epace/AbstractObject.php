@@ -138,10 +138,14 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
     protected function _loadObject($modelClass, $id, $globalCache = false)
     {
         if ($globalCache) {
-            return Mage::helper('epace/object')->load($modelClass, $id);
+            $object = Mage::helper('epace/object')->load($modelClass, $id);
         } else {
-            return $this->_getCache()->load($modelClass, $id);
+            $object = $this->_getCache()->load($modelClass, $id);
         }
+        if (!$object) {
+            $object = Mage::getModel($modelClass);
+        }
+        return $object;
     }
 
     protected function _getChildItems($collectionName, $filters, callable $initCallback = null)
