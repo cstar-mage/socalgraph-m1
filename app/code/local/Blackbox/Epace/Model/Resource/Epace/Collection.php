@@ -43,13 +43,15 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
      */
     private $_cache = null;
 
-    public function __construct(Blackbox_Epace_Model_Epace_Cache $cache = null)
+    public function __construct($cache = null)
     {
         $this->_construct();
         if (empty($this->_model)) {
             throw new \Exception('Collection model should be initialized in _construct method.');
         }
-        $this->_cache = $cache;
+        if ($cache instanceof Blackbox_Epace_Model_Epace_Cache) {
+            $this->_cache = $cache;
+        }
     }
 
     protected abstract function _construct();

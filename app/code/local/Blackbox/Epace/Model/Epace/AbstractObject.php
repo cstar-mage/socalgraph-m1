@@ -21,13 +21,15 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
      */
     private $_cache = null;
 
-    public function __construct(Blackbox_Epace_Model_Epace_Cache $cache = null)
+    public function __construct($cache = null)
     {
         parent::__construct();
         if (empty($this->_objectType)) {
             throw new \Exception('Object type should be initialized in _construct method.');
         }
-        $this->_cache = $cache;
+        if ($cache instanceof Blackbox_Epace_Model_Epace_Cache) {
+            $this->_cache = $cache;
+        }
     }
 
     public function getObjectType()
