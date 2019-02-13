@@ -12,16 +12,7 @@ abstract class Blackbox_Epace_Model_Epace_Estimate_AbstractChild extends Blackbo
      */
     public function getEstimate()
     {
-        if (is_null($this->estimate)) {
-            $estimate = Mage::getModel('efi/estimate')->load($this->getData('estimate'));
-            if ($estimate->getId()) {
-                $this->estimate = $estimate;
-            } else {
-                $this->estimate = false;
-            }
-        }
-
-        return $this->estimate;
+        return $this->_getObject('estimate', 'estimate', 'efi/estimate');
     }
 
     public function setEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)

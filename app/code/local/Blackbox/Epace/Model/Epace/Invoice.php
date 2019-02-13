@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @method int getInvoiceNum()
+ * @method string getJobPart()
+ * @method string getInvoiceNum()
  * @method string getInvoiceDate()
  * @method int getInvoiceType()
  * @method int getSalesCategory()
@@ -74,9 +75,9 @@
  * @method float getMemoAdjustment()
  * @method float getAdjustedInvoiceAmount()
  * @method float getBalanceAmount()
- * @method int getFreightAmount()
- * @method int getTotalExtras()
- * @method int getDepositAmount()
+ * @method float getFreightAmount()
+ * @method float getTotalExtras()
+ * @method float getDepositAmount()
  * @method float getQuantityShipped()
  * @method float getQuantityOrdered()
  * @method bool getUseVAT()
@@ -89,8 +90,15 @@
  */
 class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /** @var Blackbox_Epace_Model_Epace_Invoice_Batch */
+    /**
+     * @var Blackbox_Epace_Model_Epace_Invoice_Batch
+     */
     protected $batch = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Receivable
+     */
+    protected $receivable;
 
     protected function _construct()
     {
@@ -102,22 +110,37 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
      */
     public function getBatch()
     {
-        if (is_null($this->batch)) {
-            $this->batch = false;
-            if ($this->getData('invoiceBatch')) {
-                $batch = Mage::helper('epace/object')->load('efi/invoice_batch', $this->getData('invoiceBatch'));
-                if ($batch->getId()) {
-                    $this->batch = $batch;
-                }
-            }
-        }
-
-        return $this->batch;
+        return $this->_getObject('batch', 'invoiceBatch', 'efi/invoice_batch');
     }
 
+    /**
+     * @param Blackbox_Epace_Model_Epace_Invoice_Batch $batch
+     * @return $this
+     */
     public function setBatch(Blackbox_Epace_Model_Epace_Invoice_Batch $batch)
     {
         $this->batch = $batch;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Receivable
+     */
+    public function getReceivable()
+    {
+        return $this->_getObject('receivable', 'receivable', 'efi/receivable', false, function (Blackbox_Epace_Model_Epace_Receivable $receivable) {
+            $receivable->setInvoice($this);
+        });
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Receivable $receivable
+     * @return $this
+     */
+    public function setReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable)
+    {
+        $this->receivable = $receivable;
 
         return $this;
     }
@@ -128,6 +151,14 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
     public function getCommDists()
     {
         return $this->_getInvoiceChildren('efi/invoice_commDist_collection');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Invoice_Extra[]
+     */
+    public function getExtras()
+    {
+        return $this->_getInvoiceChildren('efi/invoice_extra_collection');
     }
 
     /**
@@ -162,7 +193,7 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
             'invoiceBatch' => 'int',
             'job' => 'string',
             'jobPart' => 'string',
-            'invoiceNum' => '',
+            'invoiceNum' => 'string',
             'invoiceDate' => '',
             'invoiceType' => '',
             'salesCategory' => '',
@@ -199,6 +230,7 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
             'valueAdded' => '',
             'valueAddedForced' => 'bool',
             'valueAddedCost' => '',
+            'receivable' => 'int',
             'altCurrency' => '',
             'altCurrencyRate' => '',
             'altCurrencyRateSource' => '',

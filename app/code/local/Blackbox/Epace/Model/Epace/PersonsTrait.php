@@ -22,17 +22,7 @@ trait Blackbox_Epace_Model_Epace_PersonsTrait
      */
     public function getCustomer()
     {
-        if (is_null($this->customer)) {
-            $this->customer = false;
-            if ($this->getData('customer')) {
-                $customer = Mage::helper('epace/object')->load('efi/customer', $this->getData('customer'));
-                if ($customer->getId()) {
-                    $this->customer = $customer;
-                }
-            }
-        }
-
-        return $this->customer;
+        return $this->_getObject('customer', 'customer', 'efi/customer', true);
     }
 
     /**
@@ -51,17 +41,7 @@ trait Blackbox_Epace_Model_Epace_PersonsTrait
      */
     public function getSalesPerson()
     {
-        if (is_null($this->salesPerson)) {
-            $this->salesPerson = false;
-            if ($this->getData('salesPerson')) {
-                $salesPerson = Mage::helper('epace/object')->load('efi/salesPerson', $this->getData('salesPerson'));
-                if ($salesPerson->getId()) {
-                    $this->salesPerson = $salesPerson;
-                }
-            }
-        }
-
-        return $this->salesPerson;
+        return $this->_getObject('salesPerson', 'salesPerson', 'efi/salesPerson', true);
     }
 
     /**
@@ -80,17 +60,7 @@ trait Blackbox_Epace_Model_Epace_PersonsTrait
      */
     public function getCSR()
     {
-        if (is_null($this->csr)) {
-            $this->csr = false;
-            if ($this->getData('csr')) {
-                $csr = Mage::helper('epace/object')->load('efi/cSR', $this->getData('csr'));
-                if ($csr->getId()) {
-                    $this->csr = $csr;
-                }
-            }
-        }
-
-        return $this->csr;
+        return $this->_getObject('csr', 'csr', 'efi/cSR', true);
     }
 
     /**

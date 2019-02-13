@@ -12,17 +12,7 @@ abstract class Blackbox_Epace_Model_Epace_Shipment_ChildAbstract extends Blackbo
      */
     public function getShipment()
     {
-        if (is_null($this->shipment)) {
-            $this->shipment = false;
-            if ($this->getShipmentKey()) {
-                $shipment = Mage::getModel('efi/job_shipment')->load($this->getShipmentKey());
-                if ($shipment->getId()) {
-                    $this->shipment = $shipment;
-                }
-            }
-        }
-
-        return $this->shipment;
+        return $this->_getObject('shipment', $this->getShipmentKey(), 'efi/job_shipment');
     }
 
     /**

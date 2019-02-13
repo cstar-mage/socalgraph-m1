@@ -73,6 +73,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_History extends Mage_Ad
      */
     public function escapeHtml($data, $allowedTags = null)
     {
-        return Mage::helper('adminhtml/epacei')->escapeHtmlWithLinks($data, $allowedTags);
+        return Mage::helper('adminhtml/sales')->escapeHtmlWithLinks($data, $allowedTags);
     }
 }

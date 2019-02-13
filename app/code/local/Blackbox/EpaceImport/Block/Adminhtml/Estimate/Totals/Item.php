@@ -50,7 +50,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Totals_Item extends Blackbox
      */
     public function displayPrices($baseAmount, $amount)
     {
-        return $this->helper('adminhtml/epacei')->displayPrices($this->getEstimate(), $baseAmount, $amount);
+        return $this->helper('adminhtml/sales')->displayPrices($this->getEstimate(), $baseAmount, $amount);
     }
 
     /**
@@ -63,7 +63,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Totals_Item extends Blackbox
      */
     public function displayPriceAttribute($code, $strong = false, $separator = '<br/>')
     {
-        return $this->helper('adminhtml/epacei')->displayPriceAttribute($this->getSource(), $code, $strong, $separator);
+        return $this->helper('adminhtml/sales')->displayPriceAttribute($this->getSource(), $code, $strong, $separator);
     }
 
     /**

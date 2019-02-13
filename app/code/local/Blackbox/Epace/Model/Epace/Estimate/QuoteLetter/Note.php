@@ -15,17 +15,7 @@ class Blackbox_Epace_Model_Epace_Estimate_QuoteLetter_Note extends Blackbox_Epac
      */
     public function getQuoteLetter()
     {
-        if (is_null($this->quoteLetter)) {
-            $this->quoteLetter = false;
-            if ($this->getData('estimateQuoteLetter')) {
-                $quoteLetter = Mage::getModel('efi/estimate_quoteLetter')->load($this->getData('estimateQuoteLetter'));
-                if ($quoteLetter->getId()) {
-                    $this->quoteLetter = $quoteLetter;
-                }
-            }
-        }
-
-        return $this->quoteLetter;
+        return $this->_getObject('quoteLetter', 'estimateQuoteLetter', 'efi/estimate_quoteLetter');
     }
 
     /**

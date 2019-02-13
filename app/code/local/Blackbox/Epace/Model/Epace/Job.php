@@ -120,16 +120,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
      */
     public function getAdminStatus()
     {
-        if (is_null($this->status)) {
-            $this->status = false;
-            if ($this->getData('adminStatus')) {
-                $status = Mage::helper('epace/object')->load('efi/job_status', $this->getData('adminStatus'));
-                if ($status->getId()) {
-                    $this->status = $status;
-                }
-            }
-        }
-        return $this->status;
+        return $this->_getObject('status', 'adminStatus', 'efi/job_status', true);
     }
 
     /**
@@ -156,17 +147,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
      */
     public function getPrevAdminStatus()
     {
-        if (is_null($this->prevStatus)) {
-            $this->prevStatus = false;
-            if ($this->getData('prevAdminStatus')) {
-                $status = Mage::helper('epace/object')->load('efi/job_status', $this->getData('prevAdminStatus'));
-                if ($status->getId()) {
-                    $this->prevStatus = $status;
-                }
-            }
-        }
-
-        return $this->prevStatus;
+        return $this->_getObject('prevStatus', 'prevAdminStatus', 'efi/job_status', true);
     }
 
     /**
@@ -185,17 +166,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
      */
     public function getQuote()
     {
-        if (is_null($this->quote)) {
-            $this->quote = false;
-            if ($this->getData('quoteNumber')) {
-                $quote = Mage::getModel('efi/estimate_quote')->load($this->getData('quoteNumber'));
-                if ($quote->getId()) {
-                    $this->quote = $quote;
-                }
-            }
-        }
-
-        return $this->quote;
+        return $this->_getObject('quote', 'quoteNumber', 'efi/estimate_quote');
     }
 
     public function setQuote(Blackbox_Epace_Model_Epace_Quote $quote)
@@ -225,7 +196,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
             $this->estimate = false;
 
             if ($this->isSourceEstimate()) {
-                $estimate = Mage::getModel('efi/estimate')->load($this->getData('altCurrencyRateSourceNote'));
+                $estimate = $this->_loadObject('efi/estimate', $this->getData('altCurrencyRateSourceNote'));
                 if ($estimate->getId()) {
                     $this->estimate = $estimate;
                 }

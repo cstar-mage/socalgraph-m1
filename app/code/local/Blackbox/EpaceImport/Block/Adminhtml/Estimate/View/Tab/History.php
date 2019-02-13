@@ -165,9 +165,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Tab_History
         $strItemComment = '';
         if (isset($item['comment'])) {
             $allowedTags = array('b', 'br', 'strong', 'i', 'u', 'a');
-            /** @var Mage_Adminhtml_Helper_Sales $epaceiHelper */
-            $epaceiHelper = Mage::helper('adminhtml/epacei');
-            $strItemComment = $epaceiHelper->escapeHtmlWithLinks($item['comment'], $allowedTags);
+            /** @var Mage_Adminhtml_Helper_Sales $salesHelper */
+            $salesHelper = Mage::helper('adminhtml/sales');
+            $strItemComment = $salesHelper->escapeHtmlWithLinks($item['comment'], $allowedTags);
         }
         return $strItemComment;
     }

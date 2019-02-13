@@ -23,7 +23,7 @@ class Blackbox_Epace_Model_Epace_Job_Contact extends Blackbox_Epace_Model_Epace_
      */
     public function getContact()
     {
-        return $this->_getObject('contact', 'contact', 'efi/contact', true);
+        return $this->_getObject('contact', 'contact', 'efi/contact');
     }
 
     /**
@@ -41,7 +41,7 @@ class Blackbox_Epace_Model_Epace_Job_Contact extends Blackbox_Epace_Model_Epace_
     {
         return [
             'id' => 'int',
-            'job' => 'int',
+            'job' => 'string',
             'contact' => '',
             'billTo' => 'bool',
             'shipTo' => 'bool',

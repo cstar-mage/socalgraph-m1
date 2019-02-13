@@ -37,7 +37,7 @@
                     </block>
                 </block>
                 <action method="addTab"><name>estimate_info</name><block>estimate_tab_info</block></action>
-                <!--<action method="addTab"><name>estimate_history</name><block>epacei/adminhtml_estimate_view_tab_history</block></action>-->
+                <action method="addTab"><name>orders</name><block>epacei/adminhtml_estimate_view_tab_orders</block></action>
             </block>
         </reference>
     </adminhtml_epace_estimate_view>

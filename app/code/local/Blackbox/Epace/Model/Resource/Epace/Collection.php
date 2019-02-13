@@ -38,12 +38,18 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
      */
     protected $_isOrdersRendered = false;
 
-    public function __construct()
+    /**
+     * @var Blackbox_Epace_Model_Epace_Cache
+     */
+    private $_cache = null;
+
+    public function __construct(Blackbox_Epace_Model_Epace_Cache $cache = null)
     {
         $this->_construct();
         if (empty($this->_model)) {
             throw new \Exception('Collection model should be initialized in _construct method.');
         }
+        $this->_cache = $cache;
     }
 
     protected abstract function _construct();
@@ -130,9 +136,13 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
         $itemIds = $this->_loadIds();
 
         foreach ($itemIds as $id) {
-            /** @var Blackbox_Epace_Model_Epace_AbstractObject $item */
-            $item = $this->getNewEmptyItem();
-            $item->load($id);
+            if ($this->_cache) {
+                $item = $this->_cache->load($this->_itemObjectClass, $id);
+            } else {
+                /** @var Blackbox_Epace_Model_Epace_AbstractObject $item */
+                $item = $this->getNewEmptyItem();
+                $item->load($id);
+            }
             $this->addItem($item);
         }
 

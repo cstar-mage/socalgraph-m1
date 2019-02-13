@@ -34,17 +34,7 @@ class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Shipm
      */
     protected function getSkid()
     {
-        if (is_null($this->skid)) {
-            $this->skid = false;
-            if (!empty($this->getData('skid'))) {
-                $skid = Mage::getModel('efi/skid')->load($this->getData('skid'));
-                if ($skid->getId()) {
-                    $this->skid = $skid;
-                }
-            }
-        }
-
-        return $this->skid;
+        return $this->_getObject('skid', 'skid', 'efi/skid');
     }
 
     /**

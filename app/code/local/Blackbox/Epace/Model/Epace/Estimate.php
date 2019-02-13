@@ -92,6 +92,14 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     }
 
     /**
+     * @return Blackbox_Epace_Model_Epace_Estimate_QuoteLetter[]
+     */
+    public function getQuoteLetters()
+    {
+        return $this->_getEstimateItems('efi/estimate_quoteLetter_collection');
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Estimate_Quantity[]
      */
     public function getQuantities()
@@ -135,18 +143,13 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getLastJob()
     {
-        if (is_null($this->job)) {
-            $this->job = false;
-
-            if ($this->isConvertedToJob() && $this->hasData('lastJob')) {
-                $job = Mage::getModel('efi/job')->load($this->getData('lastJob'));
-                if ($job->getId()) {
-                    $this->job = $job;
-                }
-            }
+        if ($this->isConvertedToJob()) {
+            return $this->_getObject('job', 'lastJob', 'efi/job');
+        } else if ($this->job) {
+            return $this->job;
+        } else {
+            return false;
         }
-
-        return $this->job;
     }
 
     public function getDefinition()

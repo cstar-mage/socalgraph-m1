@@ -26,10 +26,35 @@ $installer->getConnection()->addIndex($installer->getTable('sales/order_item'),
     ['epace_job_part'],
     Varien_Db_Adapter_Interface::INDEX_TYPE_INDEX);
 
-$installer->getConnection()->addColumn($installer->getTable('sales/shipment_item'), 'epace_job_', array(
+$installer->getConnection()->addColumn($installer->getTable('sales/order_item'), 'epace_part_original_price', array(
+    'type'      => Varien_Db_Ddl_Table::TYPE_DECIMAL,
+    'scale'     => 4,
+    'precision' => 12,
+    'nullable'  => true,
+    'comment'   => 'Job Part Original Quoted Price'
+));
+
+$installer->getConnection()->addColumn($installer->getTable('sales/order_address'), 'epace_job_contact_id', array(
     'type'      => Varien_Db_Ddl_Table::TYPE_INTEGER,
     'nullable'  => true,
-    'comment'   => 'Job Part Id'
+    'comment'   => 'Job Contact Id'
+));
+$installer->getConnection()->addColumn($installer->getTable('sales/order_address'), 'epace_contact_id', array(
+    'type'      => Varien_Db_Ddl_Table::TYPE_INTEGER,
+    'nullable'  => true,
+    'comment'   => 'Epace Contact Id'
+));
+
+$installer->getConnection()->addColumn($installer->getTable('sales/shipment'), 'epace_shipment_id', array(
+    'type'      => Varien_Db_Ddl_Table::TYPE_INTEGER,
+    'nullable'  => true,
+    'comment'   => 'Epace Shipment Id'
+));
+
+$installer->getConnection()->addColumn($installer->getTable('sales/invoice'), 'epace_invoice_id', array(
+    'type'      => Varien_Db_Ddl_Table::TYPE_INTEGER,
+    'nullable'  => true,
+    'comment'   => 'Epace Invoice Id'
 ));
 
 $installer->endSetup();

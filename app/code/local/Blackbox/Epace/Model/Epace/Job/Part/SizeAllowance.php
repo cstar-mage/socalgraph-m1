@@ -17,17 +17,7 @@ class Blackbox_Epace_Model_Epace_Job_Part_SizeAllowance extends Blackbox_Epace_M
      */
     public function getSizeAllowanceType()
     {
-        if (is_null($this->sizeAllowanceType)) {
-            $this->sizeAllowanceType = false;
-            if ($this->getData('sizeAllowanceType')) {
-                $type = Mage::helper('epace/object')->load('efi/sizeAllowanceType', $this->getData('sizeAllowanceType'));
-                if ($type->getId()) {
-                    $this->sizeAllowanceType = $type;
-                }
-            }
-        }
-
-        return $this->sizeAllowanceType;
+        return $this->_getObject('sizeAllowanceType', 'sizeAllowanceType', 'efi/sizeAllowanceType', true);
     }
 
     /**

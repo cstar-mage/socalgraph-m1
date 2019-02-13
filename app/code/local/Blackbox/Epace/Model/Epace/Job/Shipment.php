@@ -30,6 +30,7 @@
  * @method bool getUseLegacyPrintFlowFormat()
  * @method bool getFromEservice()
  * @method string getCharges()
+ * @method int getAccountNumber()
  * @method int getManufacturingLocation()
  * @method bool getCodCompanyCheckAcceptable()
  * @method bool getFreightLinkIntegrated()
@@ -66,6 +67,11 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
      * @var Blackbox_Epace_Model_Epace_Job_Contact
      */
     protected $jobContact = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Contact
+     */
+    protected $shipBillToContact = null;
 
     /**
      * @var Blackbox_Epace_Model_Epace_Ship_Via
@@ -139,21 +145,13 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
     }
 
     /**
+     * Ship To
+     *
      * @return Blackbox_Epace_Model_Epace_Contact|bool
      */
     public function getContact()
     {
-        if (is_null($this->contact)) {
-            $this->contact = false;
-            if ($this->getData('contactNumber')) {
-                $contact = Mage::helper('epace/object')->load('efi/contact', $this->getData('contactNumber'));
-                if ($contact->getId()) {
-                    $this->contact = $contact;
-                }
-            }
-        }
-
-        return $this->contact;
+        return $this->_getObject('contact', 'contactNumber', 'efi/contact');
     }
 
     /**
@@ -176,21 +174,13 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
     }
 
     /**
+     * Ship From
+     *
      * @return Blackbox_Epace_Model_Epace_Job_Contact|bool
      */
     public function getJobContact()
     {
-        if (is_null($this->jobContact)) {
-            $this->jobContact = false;
-            if ($this->getData('jobContact')) {
-                $jobContact = Mage::getModel('efi/job_contact')->load($this->getData('jobContact'));
-                if ($jobContact->getId()) {
-                    $this->jobContact = $jobContact;
-                }
-            }
-        }
-
-        return $this->jobContact;
+        return $this->_getObject('jobContact', 'jobContact', 'efi/job_contact');
     }
 
     /**
@@ -205,21 +195,54 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
     }
 
     /**
+     * @return int
+     */
+    public function getShipBillToContactId()
+    {
+        return $this->getData('shipBillToContact');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Contact
+     */
+    public function getShipBillToContact()
+    {
+        return $this->_getObject('shipBillToContact', 'shipBillToContact', 'efi/contact');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Contact $contact
+     * @return $this
+     */
+    public function setShipBillToContact(Blackbox_Epace_Model_Epace_Contact $contact)
+    {
+        $this->shipBillToContact = $contact;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Contact|bool
+     */
+    public function getShipTo()
+    {
+        return $this->getContact();
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Contact|bool
+     */
+    public function getShipFrom()
+    {
+        return $this->getJobContact();
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Ship_Via|bool
      */
     public function getShipVia()
     {
-        if (is_null($this->shipVia)) {
-            $this->shipVia = false;
-            if ($this->getData('shipVia')) {
-                $shipVia = Mage::getModel('efi/ship_via')->load($this->getData('shipVia'));
-                if ($shipVia->getId()) {
-                    $this->shipVia = $shipVia;
-                }
-            }
-        }
-
-        return $this->shipVia;
+        return $this->_getObject('shipVia', 'shipVia', 'efi/ship_via');
     }
 
     /**
@@ -282,7 +305,7 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
             'contactFirstName' => '',
             'contactLastName' => '',
             'shipInNameOf' => '',
-            'contactNumber' => '',
+            'contactNumber' => 'int',
             'shipVia' => 'int',
             'saturday' => 'bool',
             'shipToInventory' => 'bool',
@@ -291,7 +314,9 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
             'fromEservice' => 'bool',
             'charges' => '',
             'plannedQuantity' => '',
-            'jobContact' => '',
+            'accountNumber' => 'string',
+            'jobContact' => 'int',
+            'shipBillToContact' => 'int',
             'dsfShippingDetailID' => '',
             'manufacturingLocation' => '',
             'codCompanyCheckAcceptable' => 'bool',

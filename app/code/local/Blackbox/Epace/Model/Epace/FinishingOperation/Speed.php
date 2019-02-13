@@ -17,17 +17,7 @@ class Blackbox_Epace_Model_Epace_FinishingOperation_Speed extends Blackbox_Epace
      */
     public function getFinisingOperation()
     {
-        if (is_null($this->finishingOperation)) {
-            $this->finishingOperation = false;
-            if ($this->getData('finishingOperation')) {
-                $operation = Mage::getModel('efi/finishingOperation')->load($this->getData('finishingOperation'));
-                if ($operation->getId()) {
-                    $this->finishingOperation = $operation;
-                }
-            }
-        }
-
-        return $this->finishingOperation;
+        return $this->_getObject('finishingOperation', 'finishingOperation', 'efi/finishingOperation');
     }
 
     /**

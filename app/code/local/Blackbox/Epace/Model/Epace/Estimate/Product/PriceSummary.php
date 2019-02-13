@@ -17,16 +17,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Product_PriceSummary extends Blackbox_
      */
     public function getProduct()
     {
-        if (is_null($this->product)) {
-            $product = Mage::getModel('efi/estimate_product')->load($this->getData('estimateProduct'));
-            if ($product->getId()) {
-                $this->product = $product;
-            } else {
-                $this->product = false;
-            }
-        }
-
-        return $this->product;
+        return $this->_getObject('product', 'estimateProduct', 'efi/estimate_product');
     }
 
     public function setProduct(Blackbox_Epace_Model_Epace_Estimate_Product $product)

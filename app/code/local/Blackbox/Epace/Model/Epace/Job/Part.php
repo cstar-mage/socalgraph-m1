@@ -53,7 +53,7 @@
  * @method string getInvoiceDate()
  * @method int getInvoiceSequence()
  * @method float getJobCost01()
- * @method int getJobPart()
+ * @method string getJobPart()
  * @method int getJobType()
  * @method int getLastActCode()
  * @method string getLastActDate()
@@ -193,16 +193,7 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
      */
     public function getProduct()
     {
-        if (is_null($this->product)) {
-            $product = Mage::getModel('efi/job_product')->load($this->getData('jobProduct'));
-            if ($product->getId()) {
-                $this->product = $product;
-            } else {
-                $this->product = false;
-            }
-        }
-
-        return $this->product;
+        return $this->_getObject('product', 'jobProduct', 'efi/job_product');
     }
 
     public function setProduct(Blackbox_Epace_Model_Epace_Job_Product $product)
@@ -220,7 +211,7 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
         if (is_null($this->estimate)) {
             $this->estimate = false;
             /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
-            $collection = Mage::getResourceModel('efi/estimate_collection');
+            $collection = $this->_getCollection('efi/estimate_collection');
             $collection->addFilter('estimateNumber', $this->getData('estimate'));
             $collection->setPageSize(1)->setCurPage(1);
             $estimate = $collection->getFirstItem();
@@ -294,6 +285,14 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     public function getChangeOrders()
     {
         return $this->_getPartItems('efi/change_order_collection');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Proof[]
+     */
+    public function getProofs()
+    {
+        return $this->_getPartItems('efi/proof_collection');
     }
 
     /**

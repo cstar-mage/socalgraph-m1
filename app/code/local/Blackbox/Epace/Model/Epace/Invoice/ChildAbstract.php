@@ -10,17 +10,7 @@ abstract class Blackbox_Epace_Model_Epace_Invoice_ChildAbstract extends Blackbox
      */
     public function getInvoice()
     {
-        if (is_null($this->invoice)) {
-            $this->invoice = false;
-            if ($this->getData('invoice')) {
-                $invoice = Mage::getModel('efi/invoice')->load($this->getData('invoice'));
-                if ($invoice->getId()) {
-                    $this->invoice = $invoice;
-                }
-            }
-        }
-
-        return $this->invoice;
+        return $this->_getObject('invoice', 'invoice', 'efi/invoice');
     }
 
     /**

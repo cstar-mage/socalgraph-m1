@@ -39,12 +39,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Abstract extends Mage_Adminh
 
     public function displayPriceAttribute($code, $strong = false, $separator = '<br/>')
     {
-        return $this->helper('adminhtml/epacei')->displayPriceAttribute($this->getPriceDataObject(), $code, $strong, $separator);
+        return $this->helper('adminhtml/sales')->displayPriceAttribute($this->getPriceDataObject(), $code, $strong, $separator);
     }
 
     public function displayPrices($basePrice, $price, $strong = false, $separator = '<br/>')
     {
-        return $this->helper('adminhtml/epacei')->displayPrices($this->getPriceDataObject(), $basePrice, $price, $strong, $separator);
+        return $this->helper('adminhtml/sales')->displayPrices($this->getPriceDataObject(), $basePrice, $price, $strong, $separator);
     }
 
     /**

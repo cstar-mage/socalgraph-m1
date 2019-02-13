@@ -16,12 +16,18 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
 
     private $_childItems = [];
 
-    public function __construct()
+    /**
+     * @var Blackbox_Epace_Model_Epace_Cache
+     */
+    private $_cache = null;
+
+    public function __construct(Blackbox_Epace_Model_Epace_Cache $cache = null)
     {
         parent::__construct();
         if (empty($this->_objectType)) {
             throw new \Exception('Object type should be initialized in _construct method.');
         }
+        $this->_cache = $cache;
     }
 
     public function getObjectType()
@@ -36,6 +42,8 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
                 $this->getIdFieldName() => $id
             ]);
             $this->setData($this->_prepareLoadedData($data));
+
+            $this->_getCache()->add(get_class($this), $id, $this);
         } catch (Epace_Exception $e) {
             $this->unsetData();
         }
@@ -79,12 +87,12 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
                     } else if ($value == 'false') {
                         $data[$key] = false;
                     } else {
-                        throw new Exception('Data type does not match with definition. Expected boolean.');
+                        throw new Exception('Data type does not match with definition. Expected boolean. Object: ' . $this->_objectType . '. Field: ' . $key . '. Value: ' . $value);
                     }
                     break;
                 case 'int':
                     if (!is_int($data[$key]) && !is_numeric($data[$key])) {
-                        throw new Exception('Data type does not match with definition. Expected integer.');
+                        throw new Exception('Data type does not match with definition. Expected integer. Object: ' . $this->_objectType . '. Field: ' . $key . '. Value: ' . $value);
                     }
                     $data[$key] = (int)$data[$key];
                     break;
@@ -99,18 +107,16 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
         return lcfirst($name); // use keys from epace as is
     }
 
-    protected function _getObject($objectField, $dataField, $modelClassName, $useCache = false)
+    protected function _getObject($objectField, $dataField, $modelClass, $globalCache = false, callable $initCallback = null)
     {
         if (is_null($this->$objectField)) {
             $this->$objectField = false;
             if (!empty($this->getData($dataField))) {
-                /** @var Blackbox_Epace_Model_Epace_AbstractObject $object */
-                if ($useCache) {
-                    $object = Mage::helper('epace/object')->load($modelClassName, $this->getData($dataField));
-                } else {
-                    $object = Mage::getModel($modelClassName)->load($this->getData($dataField));
-                }
+                $object = $this->_loadObject($modelClass, $this->getData($dataField), $globalCache);
                 if ($object->getId()) {
+                    if ($initCallback) {
+                        $initCallback($object);
+                    }
                     $this->$objectField = $object;
                 } else if (self::$debug) {
                     throw new \Exception("Unable to load object {$object->getObjectType()} with id {$this->getData($dataField)} linked by {$this->getObjectType()} in field $objectField");
@@ -121,11 +127,26 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
         return $this->$objectField;
     }
 
+    /**
+     * @param $modelClass
+     * @param $id
+     * @param bool $globalCache
+     * @return Blackbox_Epace_Model_Epace_AbstractObject
+     */
+    protected function _loadObject($modelClass, $id, $globalCache = false)
+    {
+        if ($globalCache) {
+            return Mage::helper('epace/object')->load($modelClass, $id);
+        } else {
+            return $this->_getCache()->load($modelClass, $id);
+        }
+    }
+
     protected function _getChildItems($collectionName, $filters, callable $initCallback = null)
     {
         if (!isset($this->_childItems[$collectionName])) {
             /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
-            $collection = Mage::getResourceModel($collectionName);
+            $collection = $this->_getCollection($collectionName);
             foreach ($filters as $field => $value) {
                 $collection->addFilter($field, $value);
             }
@@ -136,5 +157,25 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
         }
 
         return $this->_childItems[$collectionName];
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Cache
+     */
+    private function _getCache()
+    {
+        if (!$this->_cache) {
+            $this->_cache = Mage::getModel('efi/cache');
+        }
+        return $this->_cache;
+    }
+
+    /**
+     * @param $collectionName
+     * @return Blackbox_Epace_Model_Resource_Epace_Collection
+     */
+    protected function _getCollection($collectionName)
+    {
+        return Mage::getResourceModel($collectionName, $this->_getCache());
     }
 }

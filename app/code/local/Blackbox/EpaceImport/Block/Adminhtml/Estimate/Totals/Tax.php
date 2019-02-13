@@ -43,7 +43,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Totals_Tax extends Mage_Tax_
      */
     public function displayAmount($amount, $baseAmount)
     {
-        return Mage::helper('adminhtml/epacei')->displayPrices(
+        return Mage::helper('adminhtml/sales')->displayPrices(
             $this->getSource(), $baseAmount, $amount, false, '<br />'
         );
     }

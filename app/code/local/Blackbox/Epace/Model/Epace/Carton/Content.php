@@ -1,8 +1,25 @@
 <?php
 
+/**
+ * @method string getNote()
+ * @method int getQuantity()
+ * @method string getContent()
+ *
+ * Class Blackbox_Epace_Model_Epace_Carton_Content
+ */
 class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epace_AbstractObject
 {
     use Blackbox_Epace_Model_Epace_Job_Part_ChildTrait;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Job
+     */
+    protected $job = null;
+
+    /**
+     * @var Blackbox_Epace_Model_Epace_Job_Product
+     */
+    protected $jobProduct = null;
 
     /**
      * @var Blackbox_Epace_Model_Epace_Carton
@@ -39,11 +56,6 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
      */
     protected $jobPartItem;
 
-    /**
-     * @var bool
-     */
-    protected $linksInitialized = false;
-
     protected function _construct()
     {
         $this->_init('CartonContent', 'id');
@@ -65,9 +77,43 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
     {
         $this->carton = $carton;
 
-        if (!$this->linksInitialized) {
-            $this->_initLinks();
-        }
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job|bool
+     */
+    public function getJob()
+    {
+        return $this->_getObject('job', 'job', 'efi/job');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job $job
+     * @return $this
+     */
+    public function setJob(Blackbox_Epace_Model_Epace_Job $job)
+    {
+        $this->job = $job;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Product
+     */
+    public function getJobProduct()
+    {
+        return $this->_getObject('jobProduct', 'jobProduct', 'efi/job_product');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job_Product $product
+     * @return $this
+     */
+    public function setJobProduct(Blackbox_Epace_Model_Epace_Job_Product $product)
+    {
+        $this->jobProduct = $product;
 
         return $this;
     }
@@ -87,6 +133,21 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
     public function setJobPartJob(Blackbox_Epace_Model_Epace_Job $job)
     {
         $this->jobPartJob = $job;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Part|bool
+     */
+    public function getJobPart()
+    {
+        return $this->_getObject('jobPart', 'jobPart', 'efi/job_part');
+    }
+
+    public function setJobPart(Blackbox_Epace_Model_Epace_Job_Part $part)
+    {
+        $this->jobPart = $part;
 
         return $this;
     }
@@ -133,9 +194,51 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
         return $this->_getObject('jobComponent', 'jobComponent', 'efi/job_component');
     }
 
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job_Component $jobComponent
+     * @return $this
+     */
     public function setJobComponent(Blackbox_Epace_Model_Epace_Job_Component $jobComponent)
     {
         $this->jobComponent = $jobComponent;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Proof|bool
+     */
+    public function getProof()
+    {
+        return $this->_getObject('proof', 'proof', 'efi/proof');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Proof $proof
+     * @return $this
+     */
+    public function setProof(Blackbox_Epace_Model_Epace_Proof $proof)
+    {
+        $this->proof = $proof;
+
+        return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Part_Item|bool
+     */
+    public function getJobPartItem()
+    {
+        return $this->_getObject('jobPartItem', 'jobPartItem', 'efi/job_part_item');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job_Part_Item $item
+     * @return $this
+     */
+    public function setJobPartItem(Blackbox_Epace_Model_Epace_Job_Part_Item $item)
+    {
+        $this->jobPartItem = $item;
 
         return $this;
     }
@@ -151,6 +254,7 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
             'jobProduct' => '',
             'jobPartJob' => 'string',
             'jobPart' => 'string',
+            'jobMaterial' => 'int',
             'jobPartPressForm' => 'int',
             'jobComponent' => 'int',
             'proof' => 'int',
@@ -159,22 +263,8 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
         ];
     }
 
-    public function getJobPartKey()
+    public function getJobPartKeyField()
     {
-        return $this->getData('JobPartKey');
-    }
-
-    protected function _initLinks()
-    {
-        if ($this->carton && $this->carton->getShipment() && ($job = $this->carton->getShipment()->getJob())) {
-            if (!$this->job && !empty($this->getData('job')) && $this->getData('job') == $job->getId()) {
-                $this->job = $job;
-            }
-            if (!$this->jobPartJob && !empty($this->getData('jobPartJob')) && $this->getData('jobPartJob') == $job->getId()) {
-                $this->jobPartJob = $job;
-            }
-        }
-
-        $this->linksInitialized = true;
+        return 'JobPartKey';
     }
 }

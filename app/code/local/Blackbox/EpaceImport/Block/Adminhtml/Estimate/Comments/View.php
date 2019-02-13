@@ -72,6 +72,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Comments_View extends Mage_A
      */
     public function escapeHtml($data, $allowedTags = null)
     {
-        return Mage::helper('adminhtml/epacei')->escapeHtmlWithLinks($data, $allowedTags);
+        return Mage::helper('adminhtml/sales')->escapeHtmlWithLinks($data, $allowedTags);
     }
 }

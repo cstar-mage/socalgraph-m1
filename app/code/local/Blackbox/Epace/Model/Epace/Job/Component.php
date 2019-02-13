@@ -27,17 +27,7 @@ class Blackbox_Epace_Model_Epace_Job_Component extends Blackbox_Epace_Model_Epac
      */
     public function getShipVia()
     {
-        if (is_null($this->shipVia)) {
-            $this->shipVia = false;
-            if ($this->getData('shipVia')) {
-                $shipVia = Mage::getModel('efi/ship_via')->load($this->getData('shipVia'));
-                if ($shipVia->getId()) {
-                    $this->shipVia = $shipVia;
-                }
-            }
-        }
-
-        return $this->shipVia;
+        return $this->_getObject('shipVia', 'shipVia', 'efi/ship_via', true);
     }
 
     /**
@@ -56,17 +46,7 @@ class Blackbox_Epace_Model_Epace_Job_Component extends Blackbox_Epace_Model_Epac
      */
     public function getShipToContact()
     {
-        if (is_null($this->contact)) {
-            $this->contact = false;
-            if ($this->getData('shipToContact')) {
-                $contact = Mage::helper('epace/object')->load('efi/contact', $this->getData('shipToContact'));
-                if ($contact->getId()) {
-                    $this->contact = $contact;
-                }
-            }
-        }
-
-        return $this->contact;
+        return $this->_getObject('contact', 'shipToContact', 'efi/contact');
     }
 
     /**
@@ -105,8 +85,8 @@ class Blackbox_Epace_Model_Epace_Job_Component extends Blackbox_Epace_Model_Epac
         ];
     }
 
-    public function getJobPartKey()
+    public function getJobPartKeyField()
     {
-        return $this->getData('jobPartKey');
+        return 'jobPartKey';
     }
 }

@@ -64,7 +64,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Create extends Mage_Adminhtm
     public function getHeaderHtml()
     {
         $out = '<div id="estimate-header">'
-            . $this->getLayout()->createBlock('adminhtml/epacei_estimate_create_header')->toHtml()
+            . $this->getLayout()->createBlock('adminhtml/sales_order_create_header')->toHtml()
             . '</div>';
         return $out;
     }

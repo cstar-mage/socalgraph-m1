@@ -67,17 +67,7 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
      */
     public function getCustomer()
     {
-        if (is_null($this->customer)) {
-            $this->customer = false;
-            if ($this->getData('customer')) {
-                $customer = Mage::helper('epace/object')->load('efi/customer', $this->getData('customer'));
-                if ($customer->getId()) {
-                    $this->customer = $customer;
-                }
-            }
-        }
-
-        return $this->customer;
+        return $this->_getObject('customer', 'customer', 'efi/customer', true);
     }
 
     public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
@@ -92,17 +82,7 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
      */
     public function getSalesPerson()
     {
-        if (is_null($this->salesPerson)) {
-            $this->salesPerson = false;
-            if ($this->getData('salesPerson')) {
-                $salesPerson = Mage::helper('epace/object')->load('efi/salesPerson', $this->getData('salesPerson'));
-                if ($salesPerson->getId()) {
-                    $this->salesPerson = $salesPerson;
-                }
-            }
-        }
-
-        return $this->salesPerson;
+        return $this->_getObject('salesPerson', 'salesPerson', 'efi/salesPerson', true);
     }
 
     /**
@@ -121,17 +101,7 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
      */
     public function getCountry()
     {
-        if (is_null($this->country)) {
-            $this->country = false;
-            if ($this->getData('country')) {
-                $country = Mage::helper('epace/object')->load('efi/country', $this->getData('country'));
-                if ($country->getId()) {
-                    $this->country = $country;
-                }
-            }
-        }
-
-        return $this->country;
+        return $this->_getObject('country', 'country', 'efi/country', true);
     }
 
     public function setCountry(Blackbox_Epace_Model_Epace_Country $country)

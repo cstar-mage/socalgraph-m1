@@ -12,16 +12,7 @@ trait Blackbox_Epace_Model_Epace_Estimate_Part_ChildTrait
      */
     public function getPart()
     {
-        if (is_null($this->estimatePart)) {
-            $estimatePart = Mage::getModel('efi/estimate_part')->load($this->getData('estimatePart'));
-            if ($estimatePart->getId()) {
-                $this->estimatePart = $estimatePart;
-            } else {
-                $this->estimatePart = false;
-            }
-        }
-
-        return $this->estimatePart;
+        return $this->_getObject('estimatePart', 'estimatePart', 'efi/estimate_part');
     }
 
     public function setPart(Blackbox_Epace_Model_Epace_Estimate_Part $part)

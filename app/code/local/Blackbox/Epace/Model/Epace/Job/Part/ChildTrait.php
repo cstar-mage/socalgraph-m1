@@ -12,16 +12,7 @@ trait Blackbox_Epace_Model_Epace_Job_Part_ChildTrait
      */
     public function getPart()
     {
-        if (is_null($this->jobPart)) {
-            $jobPart = Mage::getModel('efi/job_part')->load($this->getJobPartKey());
-            if ($jobPart->getId()) {
-                $this->jobPart = $jobPart;
-            } else {
-                $this->jobPart = false;
-            }
-        }
-
-        return $this->jobPart;
+        return $this->_getObject('jobPart', $this->getJobPartKeyField(), 'efi/job_part');
     }
 
     /**
@@ -38,5 +29,13 @@ trait Blackbox_Epace_Model_Epace_Job_Part_ChildTrait
     /**
      * @return string
      */
-    public abstract function getJobPartKey();
+    public function getJobPartKey()
+    {
+        return $this->getData($this->getJobPartKeyField());
+    }
+
+    /**
+     * @return string
+     */
+    public abstract function getJobPartKeyField();
 }

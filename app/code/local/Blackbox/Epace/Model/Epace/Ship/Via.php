@@ -22,17 +22,7 @@ class Blackbox_Epace_Model_Epace_Ship_Via extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getShipProvider()
     {
-        if (is_null($this->provider)) {
-            $this->provider = false;
-            if ($this->getData('provider')) {
-                $provider = Mage::getModel('efi/ship_provider')->load($this->getData('provider'));
-                if ($provider->getId()) {
-                    $this->provider = $provider;
-                }
-            }
-        }
-
-        return $this->provider;
+        return $this->_getObject('provider', 'provider', 'efi/ship_provider', true);
     }
 
     /**

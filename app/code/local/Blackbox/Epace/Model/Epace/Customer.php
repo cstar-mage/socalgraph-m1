@@ -103,17 +103,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getSalesPerson()
     {
-        if (is_null($this->salesPerson)) {
-            $this->salesPerson = false;
-            if ($this->getData('salesPerson')) {
-                $salesPerson = Mage::helper('epace/object')->load('efi/salesPerson', $this->getData('salesPerson'));
-                if ($salesPerson->getId()) {
-                    $this->salesPerson = $salesPerson;
-                }
-            }
-        }
-
-        return $this->salesPerson;
+        return $this->_getObject('salesPerson', 'salesPerson', 'efi/salesPerson', true);
     }
 
     /**
@@ -132,17 +122,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getCSR()
     {
-        if (is_null($this->csr)) {
-            $this->csr = false;
-            if ($this->getData('csr')) {
-                $csr = Mage::helper('epace/object')->load('efi/cSR', $this->getData('csr'));
-                if ($csr->getId()) {
-                    $this->csr = $csr;
-                }
-            }
-        }
-
-        return $this->csr;
+        return $this->_getObject('csr', 'csr', 'efi/cSR', true);
     }
 
     /**
@@ -161,17 +141,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getCountry()
     {
-        if (is_null($this->country)) {
-            $this->country = false;
-            if ($this->getData('country')) {
-                $country = Mage::helper('epace/object')->load('efi/country', $this->getData('country'));
-                if ($country->getId()) {
-                    $this->country = $country;
-                }
-            }
-        }
-
-        return $this->country;
+        return $this->_getObject('country', 'country', 'efi/country', true);
     }
 
     public function setCountry(Blackbox_Epace_Model_Epace_Country $country)
