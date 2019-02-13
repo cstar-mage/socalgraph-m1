@@ -727,11 +727,19 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         }
 
         foreach ($job->getInvoices() as $invoice) {
-            $invoice = $this->importInvoice($order, $invoice);
+            try {
+                $invoice = $this->importInvoice($order, $invoice);
+            } catch (\Exception $e) {
+                $this->writeln('Error: ' . $e->getMessage());
+            }
         }
 
         foreach ($job->getShipments() as $shipment) {
-            $shipment = $this->importShipment($order, $shipment);
+            try {
+                $shipment = $this->importShipment($order, $shipment);
+            } catch (\Exception $e) {
+                $this->writeln('Error: ' . $e->getMessage());
+            }
         }
     }
 
@@ -907,7 +915,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             'increment_id' => 'EPACESHIPMENT_' . $jobShipment->getId(),
             'created_at' => strtotime($jobShipment->getDate()) + strtotime($jobShipment->getTime()),
             'packages' => null,
-            'shipping_label' => null
+            'shipping_label' => null,
+            'epace_shipment_id' => $jobShipment->getId()
         ]);
 
         $orderShipment->save();
