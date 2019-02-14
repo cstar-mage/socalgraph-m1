@@ -19,7 +19,7 @@ class Blackbox_EpaceImport_Model_Shipping_Carrier extends Mage_Shipping_Model_Ca
             try {
                 $cache = Mage::getStoreConfig(self::STORE_CONFIG_EPACE_SHIPPING_CACHE_KEY);
                 if ($cache) {
-                    $cache = json_decode($cache);
+                    $cache = json_decode($cache, true);
                 }
 
                 /** @var Blackbox_EpaceImport_Helper_Data $helper */
