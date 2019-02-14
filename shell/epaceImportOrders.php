@@ -340,19 +340,13 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
     protected function importEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
     {
-        $store = Mage::app()->getStore();
-        /** @var Mage_Sales_Model_Quote $quote */
-        $quote = Mage::getModel('sales/quote')->setStoreId($store->getId());
-
-        $customer = $this->loadOrCreateMagentoCustomer($estimate->getSalesPerson());
-        $quote->assignCustomer($customer);
-
         /** @var Blackbox_EpaceImport_Model_Estimate $magentoEstimate */
         $magentoEstimate = Mage::getModel('epacei/estimate');
         $magentoEstimate->loadByAttribute('epace_estimate_id', $estimate->getId());
         if ($magentoEstimate->getId()) {
             $this->writeln('Estimate ' . $estimate->getId() . ' already imported.');
         } else {
+            $store = Mage::app()->getStore();
             $magentoProduct = $this->getProduct();
 
             foreach ($estimate->getProducts() as $estimateProduct) {
@@ -404,6 +398,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                     $aggregatedFields[$field] += $item->getData($sourceField);
                 }
             }
+
+            $customer = $this->loadOrCreateMagentoCustomer($estimate->getSalesPerson());
 
             $magentoEstimate->addData([
                 'epace_estimate_id' => $estimate->getId(),
@@ -769,89 +765,89 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
         $shippingMethod = null;
 
-        if (!empty($jobShipment->getCartons())) {
-            foreach ($jobShipment->getCartons() as $carton) {
-                foreach ($carton->getContents() as $content) {
-                    $partId = false;
-                    if ($item = $content->getJobPartItem()) {
-                        $partId = $item->getJobPart();
-                    } else if ($material = $content->getJobMaterial()) {
-                        $partId = $material->getJobPart();
-                    } else if ($component = $content->getJobComponent()) {
-                        $partId = $component->getJobPart();
-                    } else if ($pressForm = $content->getJobPartPressForm()) {
-                        $partId = $pressForm->getJobPart();
-                    } else if ($material = $content->getJobMaterial()) {
-                        $partId = $material->getJobPart();
-                    } else if ($part = $content->getJobPart()) {
-                        $partId = $part->getJobPart();
-                    }
-
-                    if ($partId) {
-                        foreach ($order->getAllItems() as $item) {
-                            if ($item->getEpaceJobPart() == $partId) {
-                                $addShipOrderItem($item, $content);
-                            }
-                        }
-                    } else if ($product = $content->getJobProduct()) {
-                        $partIds = [];
-                        foreach ($product->getParts() as $part) {
-                            $partIds[] = $part->getJobPart();
-                        }
-                        foreach ($order->getAllItems() as $item) {
-                            if (in_array($item->getEpaceJobPart(), $partIds)) {
-                                $addShipOrderItem($item, $content);
-                            }
-                        }
-                    } else {
-                        if ($content->getJobPartJob()) {
-                            $contentJob = $content->getJobPartJob();
-                        } else if ($content->getJob()) {
-                            $contentJob = $content->getJob();
-                        }
-                        if ($contentJob->getId() != $jobShipment->getJob()->getId()) {
-                            throw new \Exception("Shipment ({$jobShipment->getId()}) job ({$jobShipment->getJob()->getId()}) do not match with content ({$content->getId()}) job ({$contentJob->getId()}).");
-                        }
-                        $job = $jobShipment->getJob();
-                        foreach ($job->getProducts() as $product) {
-                            foreach ($product->getParts() as $part) {
-                                $found = false;
-                                foreach ($order->getAllItems() as $item) {
-                                    if ($item->getEpaceJobPart() == $part->getJobPart()) {
-                                        $addShipOrderItem($item, $content);
-                                        $found = true;
-                                        break;
-                                    }
-                                }
-                                if (!$found) {
-                                    throw new \Exception('Not found matching order items for shipment content ' . $content->getId());
-                                }
-                            }
-                        }
-                    }
+        foreach ($jobShipment->getCartons() as $carton) {
+            foreach ($carton->getContents() as $content) {
+                $partId = false;
+                if ($item = $content->getJobPartItem()) {
+                    $partId = $item->getJobPart();
+                } else if ($material = $content->getJobMaterial()) {
+                    $partId = $material->getJobPart();
+                } else if ($component = $content->getJobComponent()) {
+                    $partId = $component->getJobPart();
+                } else if ($pressForm = $content->getJobPartPressForm()) {
+                    $partId = $pressForm->getJobPart();
+                } else if ($material = $content->getJobMaterial()) {
+                    $partId = $material->getJobPart();
+                } else if ($part = $content->getJobPart()) {
+                    $partId = $part->getJobPart();
                 }
 
-                if ($carton->getTrackingNumber()) {
-                    if (!$shippingMethod) {
-                        $shippingMethod = $this->getShippingMethod($jobShipment->getShipVia());
+                if ($partId) {
+                    foreach ($order->getAllItems() as $item) {
+                        if ($item->getEpaceJobPart() == $partId) {
+                            $addShipOrderItem($item, $content);
+                        }
                     }
-
-                    /** @var Mage_Sales_Model_Order_Shipment_Track $track */
-                    $track = Mage::getModel('sales/order_shipment_track');
-                    $track->setData([
-                        'weight' => $carton->getWeight(),
-                        'qty' => $carton->getTotalSkidQuantity(),
-                        'order_id' => $order->getId(),
-                        'track_number' => $carton->getTrackingNumber(),
-                        'description' => $carton->getTrackingLink(),
-                        'title' => $shippingMethod->getCarrierTitle() . ($shippingMethod->getCarrier() == 'epace_shipping' ? ': ' . $jobShipment->getShipVia()->getShipProvider()->getName() . ' - ' . $jobShipment->getShipVia()->getDescription() : ''),
-                        'carrier_code' => $shippingMethod->getCarrier(),
-                        'created_at' => strtotime($carton->getActualDate()) + strtotime($carton->getActualTime())
-                    ]);
-                    $orderShipment->addTrack($track);
+                } else if ($product = $content->getJobProduct()) {
+                    $partIds = [];
+                    foreach ($product->getParts() as $part) {
+                        $partIds[] = $part->getJobPart();
+                    }
+                    foreach ($order->getAllItems() as $item) {
+                        if (in_array($item->getEpaceJobPart(), $partIds)) {
+                            $addShipOrderItem($item, $content);
+                        }
+                    }
+                } else {
+                    if ($content->getJobPartJob()) {
+                        $contentJob = $content->getJobPartJob();
+                    } else if ($content->getJob()) {
+                        $contentJob = $content->getJob();
+                    }
+                    if ($contentJob->getId() != $jobShipment->getJob()->getId()) {
+                        throw new \Exception("Shipment ({$jobShipment->getId()}) job ({$jobShipment->getJob()->getId()}) do not match with content ({$content->getId()}) job ({$contentJob->getId()}).");
+                    }
+                    $job = $jobShipment->getJob();
+                    foreach ($job->getProducts() as $product) {
+                        foreach ($product->getParts() as $part) {
+                            $found = false;
+                            foreach ($order->getAllItems() as $item) {
+                                if ($item->getEpaceJobPart() == $part->getJobPart()) {
+                                    $addShipOrderItem($item, $content);
+                                    $found = true;
+                                    break;
+                                }
+                            }
+                            if (!$found) {
+                                throw new \Exception('Not found matching order items for shipment content ' . $content->getId());
+                            }
+                        }
+                    }
                 }
             }
-        } else {
+
+            if ($carton->getTrackingNumber()) {
+                if (!$shippingMethod) {
+                    $shippingMethod = $this->getShippingMethod($jobShipment->getShipVia());
+                }
+
+                /** @var Mage_Sales_Model_Order_Shipment_Track $track */
+                $track = Mage::getModel('sales/order_shipment_track');
+                $track->setData([
+                    'weight' => $carton->getWeight(),
+                    'qty' => $carton->getTotalSkidQuantity(),
+                    'order_id' => $order->getId(),
+                    'track_number' => $carton->getTrackingNumber(),
+                    'description' => $carton->getTrackingLink(),
+                    'title' => $shippingMethod->getCarrierTitle() . ($shippingMethod->getCarrier() == 'epace_shipping' ? ': ' . $jobShipment->getShipVia()->getShipProvider()->getName() . ' - ' . $jobShipment->getShipVia()->getDescription() : ''),
+                    'carrier_code' => $shippingMethod->getCarrier(),
+                    'created_at' => strtotime($carton->getActualDate()) + strtotime($carton->getActualTime())
+                ]);
+                $orderShipment->addTrack($track);
+            }
+        }
+
+        if (empty($orderShipment->getAllItems())) {
             foreach ($order->getAllItems() as $item) {
                 $shippedOrderItems[$item->getId()] = [
                     'orderItem' => $item,
