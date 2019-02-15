@@ -302,58 +302,72 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $from = $this->getArg('from');
         $to = $this->getArg('to');
 
-        /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
-        $collection = Mage::getResourceModel('efi/estimate_collection');
-        if ($from) {
-            $collection->addFilter('entryDate', ['gteq' => new DateTime($from)]);
-        }
-        if ($to) {
-            $collection->addFilter('entryDate', ['lteq' => new DateTime($to)]);
-        }
+        if ($this->getArg('estimates')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
+            $collection = Mage::getResourceModel('efi/estimate_collection');
+            if ($from) {
+                $collection->addFilter('entryDate', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('entryDate', ['lteq' => new DateTime($to)]);
+            }
 
-        $ids = $collection->loadIds();
-        $count = count($ids);
-        $i = 0;
-        $this->writeln('Found ' . $count . ' estimates.');
-        foreach ($ids as $estimateId) {
-            $this->writeln('Estimate ' . ++$i . '/' . $count . ': ' . $estimateId);
-            /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
-            $estimate = Mage::getModel('efi/estimate')->load($estimateId);
-            $this->importEstimate($estimate);
-        }
-
-        /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
-        $collection = Mage::getResourceModel('efi/job_collection');
-        if ($from) {
-            $collection->addFilter('dateSetup', ['gteq' => new DateTime($from)]);
-        }
-        if ($to) {
-            $collection->addFilter('dateSetup', ['lteq' => new DateTime($to)]);
+            $ids = $collection->loadIds();
+            $count = count($ids);
+            $i = 0;
+            $this->writeln('Found ' . $count . ' estimates.');
+            foreach ($ids as $estimateId) {
+                $this->writeln('Estimate ' . ++$i . '/' . $count . ': ' . $estimateId);
+                /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
+                $estimate = Mage::getModel('efi/estimate')->load($estimateId);
+                $this->importEstimate($estimate);
+            }
         }
 
-        /** @var Mage_Core_Model_Resource $resource */
-        $resource = Mage::getSingleton('core/resource');
-        $connection = $resource->getConnection('core_read');
-        $orderTable = $resource->getTableName('sales/order');
+        if ($this->getArg('jobs')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
+            $collection = Mage::getResourceModel('efi/job_collection');
+            if ($from) {
+                $collection->addFilter('dateSetup', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('dateSetup', ['lteq' => new DateTime($to)]);
+            }
 
-        $ids = $collection->loadIds();
-        $count = count($ids);
-        $i = 0;
-        $this->writeln('Found ' . $count . ' jobs.');
-        foreach ($ids as $jobId) {
-            $this->writeln('Job ' . ++$i . '/' . $count . ': ' . $jobId);
-            $select = $connection->select()->from($orderTable, 'count(*)')
-                ->where('epace_job_id = ?', $jobId);
-            if ($connection->fetchOne($select) > 0) {
-                $this->writeln("\tJob $jobId already imported.");
-            } else {
-                /** @var Blackbox_Epace_Model_Epace_Job $job */
-                $job = Mage::getModel('efi/job')->load($jobId);
+            if ($this->getArg('jf')) {
+                $filters = json_decode($this->getArg('jf'));
+                if (!is_array($filters)) {
+                    $filters = [$filters];
+                }
+                foreach ($filters as $filter) {
+                    $collection->addFilter($filter->field, $filter->value);
+                }
+            }
 
-                if ($job->getEstimate()) {
-                    $this->importEstimate($job->getEstimate());
+            /** @var Mage_Core_Model_Resource $resource */
+            $resource = Mage::getSingleton('core/resource');
+            $connection = $resource->getConnection('core_read');
+            $orderTable = $resource->getTableName('sales/order');
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+            $i = 0;
+            $this->writeln('Found ' . $count . ' jobs.');
+            foreach ($ids as $jobId) {
+                $this->writeln('Job ' . ++$i . '/' . $count . ': ' . $jobId);
+                $select = $connection->select()->from($orderTable, 'count(*)')
+                    ->where('epace_job_id = ?', $jobId);
+                if ($connection->fetchOne($select) > 0) {
+                    $this->writeln("\tJob $jobId already imported.");
                 } else {
-                    $this->importJob($job, null, false);
+                    /** @var Blackbox_Epace_Model_Epace_Job $job */
+                    $job = Mage::getModel('efi/job')->load($jobId);
+
+                    if ($job->getEstimate()) {
+                        $this->importEstimate($job->getEstimate());
+                    } else {
+                        $this->importJob($job, null, false);
+                    }
                 }
             }
         }
@@ -682,7 +696,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'total_item_count' => count($job->getParts()),
                 'shipping_incl_tax' => 0,
                 'base_shipping_incl_tax' => 0,
-                'job_value' => $job->getJobValue()
+                'job_value' => $job->getJobValue(),
+                'job_type' => $job->getTypeId()
             ]);
 
             $this->setOrderStatus($order, $job->getAdminStatusCode());
@@ -1076,7 +1091,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             'order_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'base_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
-            'increment_id' => 'EPACEINVOICE_' . $invoice->getInvoiceNum(),
+            'increment_id' => 'EPACEINVOICE_' . $invoice->getId(),
             'created_at' => strtotime($invoice->getDateSetup()) + strtotime($invoice->getTimeSetup()),
             'hidden_tax_amount' => 0,
             'base_hidden_tax_amount' => 0,
