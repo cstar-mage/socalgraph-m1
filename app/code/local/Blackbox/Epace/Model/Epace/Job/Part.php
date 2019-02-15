@@ -210,13 +210,15 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     {
         if (is_null($this->estimate)) {
             $this->estimate = false;
-            /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
-            $collection = $this->_getCollection('efi/estimate_collection');
-            $collection->addFilter('estimateNumber', $this->getData('estimate'));
-            $collection->setPageSize(1)->setCurPage(1);
-            $estimate = $collection->getFirstItem();
-            if ($estimate && $estimate->getId()) {
-                $this->estimate = $estimate;
+            if ($this->getData('estimate')) {
+                /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
+                $collection = $this->_getCollection('efi/estimate_collection');
+                $collection->addFilter('estimateNumber', $this->getData('estimate'));
+                $collection->setPageSize(1)->setCurPage(1);
+                $estimate = $collection->getFirstItem();
+                if ($estimate && $estimate->getId()) {
+                    $this->estimate = $estimate;
+                }
             }
         }
         return $this->estimate;
@@ -241,8 +243,16 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
         if (is_null($this->estimatePart)) {
             $this->estimatePart = false;
 
-            if (!empty($this->getData('estimatePart')) && $this->getEstimate()) {
-                $part = $this->getEstimate()->getParts()[(int)$this->getData('estimatePart')];
+            if (!empty($this->getData('estimatePart')) && $this->getJob()->getEstimate()) {
+                $targetNum = (int)$this->getData('estimatePart');
+                $i = 0;
+                $part = null;
+                foreach ($this->getJob()->getEstimate()->getParts() as $_part) {
+                    if (++$i == $targetNum) {
+                        $part = $_part;
+                        break;
+                    }
+                }
                 if ($part) {
                     $this->estimatePart = $part;
                 }

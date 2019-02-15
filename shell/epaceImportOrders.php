@@ -312,6 +312,16 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 $collection->addFilter('entryDate', ['lteq' => new DateTime($to)]);
             }
 
+            if ($this->getArg('ef')) {
+                $filters = json_decode($this->getArg('ef'));
+                if (!is_array($filters)) {
+                    $filters = [$filters];
+                }
+                foreach ($filters as $filter) {
+                    $collection->addFilter($filter->field, $filter->value);
+                }
+            }
+
             $ids = $collection->loadIds();
             $count = count($ids);
             $i = 0;
