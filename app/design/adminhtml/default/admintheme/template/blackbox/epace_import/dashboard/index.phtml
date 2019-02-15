@@ -1,0 +1,256 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     default_default
+ * @copyright   Copyright (c) 2013 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+
+<?php if (is_array($this->getChild('diagrams')->getTabsIds())) : ?>
+    <script type="text/javascript">
+        //<![CDATA[
+        function changeDiagramsPeriod(periodObj, tabId, totalId) {
+            periodParam = periodObj.value ? 'period/' + periodObj.value + '/' : '';
+            <?php //foreach ($this->getChild('diagrams')->getTabsIds() as $tabId): ?>
+            ajaxBlockParam = 'block/tab_'+ tabId +'/';
+            ajaxBlockUrl = '<?php echo $this->getUrl('*/*/ajaxBlock', array('_current' => true, 'block' => '', 'period' => '')) ?>' + ajaxBlockParam + periodParam;
+            new Ajax.Request(ajaxBlockUrl, {
+                parameters: {isAjax: 'true', form_key: FORM_KEY},
+                onSuccess: function(transport) {
+                    tabContentElementId = '<?php echo $this->getChild('diagrams')->getId() ?>_'+ tabId +'_content';
+                    try {
+                        if (transport.responseText.isJSON()) {
+                            var response = transport.responseText.evalJSON()
+                            if (response.error) {
+                                alert(response.message);
+                            }
+                            if(response.ajaxExpired && response.ajaxRedirect) {
+                                setLocation(response.ajaxRedirect);
+                            }
+                        } else {
+                            $(tabContentElementId).update(transport.responseText);
+                        }
+                    }
+                    catch (e) {
+                        $(tabContentElementId).update(transport.responseText);
+                    }
+                }
+            });
+            <?php //endforeach; ?>
+            ajaxBlockUrl = '<?php echo $this->getUrl('*/*/ajaxBlock', array('_current' => true, 'block' => 'totals', 'period' => '')) ?>' + periodParam;
+            new Ajax.Request(ajaxBlockUrl, {
+                parameters: {isAjax: 'true', form_key: FORM_KEY},
+                onSuccess: function(transport) {
+                    tabContentElementId = totalId;
+                    try {
+                        if (transport.responseText.isJSON()) {
+                            var response = transport.responseText.evalJSON()
+                            if (response.error) {
+                                alert(response.message);
+                            }
+                            if(response.ajaxExpired && response.ajaxRedirect) {
+                                setLocation(response.ajaxRedirect);
+                            }
+                        } else {
+                            $(tabContentElementId).update(transport.responseText);
+                        }
+                    }
+                    catch (e) {
+                        $(tabContentElementId).update(transport.responseText);
+                    }
+                }
+            });
+        }
+
+        function toggleCal(id) {
+            $('dashboard_'+id+'_cal_div').toggle();
+            $('dashboard_'+id+'_range_div').toggle();
+        }
+        //]]>
+    </script>
+<?php endif; ?>
+<div class="dashboard-w">
+    <div class="content-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6 col-xs-12 admin-page-title">
+                    <h3 class="header-title head-dashboard"><?php echo $this->__('Dashboard') ?></h3>
+                    <span class="header-subtitle"><?php echo $this->__('overview & stats'); ?></span>
+                </div>
+                <div class="admin-change-store col-sm-6 hidden-xs">
+                    <?php echo $this->getChildHtml('store_switcher') ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="row">
+                <?php echo $this->getChildHtml('sales') ?>
+            </div>
+        </div>
+        <div class="container chart-order-w" id="diagram_tab_content">
+            <div class="row">
+                <div class="col-md-6 col-xs-12">
+                    <div class="dashboard-header">
+                        <span class="db-header-icon ti-bar-chart-alt"></span>
+                        <span class="db-header-title"><?php echo $this->__('Orders');?></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <div class="chart-height">
+                            <span class="chart-title">
+                                <?php echo $this->__('Orders');?>
+                            </span>
+                            <div id="diagram_tab_orders_content">
+                                <?php //echo $this->getChildHtml('diagrams')
+                                echo $this->getLayout()->createBlock('adminhtml/dashboard_tab_orders')->toHtml()
+                                ?>
+                            </div>
+                            <div class="chart-totals">
+                                <div id="dashboard_diagram_totals_order" class="dashboard_diagram_totals">
+                                    <?php echo $this->getChildHtml('totals') ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-12">
+                    <div class="dashboard-header">
+                        <span class="db-header-icon ti-bar-chart-alt"></span>
+                        <span class="db-header-title"><?php echo $this->__('Amounts');?></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <div class="chart-height">
+                            <span class="chart-title">
+                                <?php echo $this->__('Amounts');?>
+                            </span>
+                            <div id="diagram_tab_amounts_content">
+                                <?php
+                                echo $this->getLayout()->createBlock('adminhtml/dashboard_tab_amounts')->toHtml()
+                                ?>
+                            </div>
+                            <div class="chart-totals">
+                                <div id="dashboard_diagram_totals_amount" class="dashboard_diagram_totals">
+                                    <?php echo $this->getChildHtml('totals') ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container recent-last-order">
+            <div class="row">
+                <div class="col-sm-4 col-xs-12 recent-activity">
+                    <div class="dashboard-header">
+                        <span class="db-header-icon ti-calendar"></span>
+                        <span class="db-header-title"><?php echo $this->__('Converted Jobs');?></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <?php
+                        // Gets the current store's details
+                        $storeId = Mage::app()->getRequest()->getParam('store');
+
+                        $ordersCollection = Mage::getResourceModel('sales/order_collection')
+                            ->addFieldToFilter('estimate_id', ['notnull' => true])
+                            ->setOrder('created_at', 'DESC')
+                            ->setPageSize(5);
+                        ?>
+                        <div class="grid np">
+                            <table cellspacing="0" style="border:0;" id="recent_activity">
+                                <tbody>
+                                <?php foreach ($ordersCollection->load() as $order): ?>
+                                    <tr>
+                                        <td class="empty-text a-left">
+                                            <span class="name d-block"><a href="<?php echo $this->getUrl('*/sales_order/view', ['order_id' => $order->getId()]) ?>"><?php echo htmlentities($order->getIncrementId()) ?></a></span>
+                                        </td>
+                                        <td class="empty-text">
+                                            <span class="time_login d-block"><a href="<?php echo $this->getUrl('*/epace_estimate/view', ['estimate_id' => $order->getEstimateId()]) ?>"><?php echo $this->__('Go to Estimate') ?></a></span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-8 col-xs-12">
+                    <div class="dashboard-header">
+                        <span class="db-header-icon ti-bar-chart-alt"></span>
+                        <span class="db-header-title"><?php echo $this->__('Sales Reps Sales (monhtly)');?></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <?php echo $this->getChildHtml('salesRepsSales'); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container top-views-overviews">
+            <div class="row">
+                <div class="col-lg-6 col-xs-12 db-product-view-w">
+                    <div class="dashboard-header">
+                        <span class="db-header-icon ti-eye"></span>
+                        <span class="db-header-title"><?php echo $this->__('Category Breakdown');?></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <?php echo $this->getChildHtml('categoryBreakdown'); ?>
+                        <div id="grid_tab_content2"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xs-12">
+                    <div class="db-overviews-w">
+                        <div class="dashboard-header">
+                            <span class="db-header-icon ti-view-list-alt"></span>
+                            <span class="db-header-title"><?php echo $this->__('Customer');?></span>
+                        </div>
+                        <div class="dashboard-content">
+                            <?php echo $this->getChildHtml('customer') ?>
+                            <div id="grid_tab_content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container top-search">
+            <div class="row">
+                <div class="col-lg-6 col-xs-12 top-search-w">
+                    <div class="dashboard-header">
+                        <span class="db-header-icon ti-search"></span>
+                        <span class="db-header-title"><?php echo $this->__('Receivables 90 Days Outstanding');?></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <?php echo $this->getChildHtml('receivableOutstanding'); ?>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xs-12">
+                    <div class="dashboard-header">
+                        <span class="db-header-icon ti-search"></span>
+                        <span class="db-header-title"><?php echo $this->__('Last 5 Search Terms');?></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <?php echo $this->getChildHtml('lastSearches'); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

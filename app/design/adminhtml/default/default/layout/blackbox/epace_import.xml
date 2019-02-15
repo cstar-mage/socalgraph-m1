@@ -41,4 +41,14 @@
             </block>
         </reference>
     </adminhtml_epace_estimate_view>
+
+    <adminhtml_dashboard_index>
+        <reference name="dashboard">
+            <action method="setTemplate"><template>blackbox/epace_import/dashboard/index.phtml</template></action>
+            <block type="epacei/adminhtml_dashboard_salesRepsSales_grid" name="salesRepsSales"></block>
+            <block type="epacei/adminhtml_dashboard_customer_grid" name="customer"></block>
+            <block type="epacei/adminhtml_dashboard_categoryBreakdown_grid" name="categoryBreakdown"></block>
+            <block type="epacei/adminhtml_dashboard_receivableOutstanding_grid" name="receivableOutstanding"></block>
+        </reference>
+    </adminhtml_dashboard_index>
 </layout>

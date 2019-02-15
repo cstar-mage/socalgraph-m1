@@ -10,6 +10,11 @@
             <epacei>
                 <class>Blackbox_EpaceImport_Block</class>
             </epacei>
+            <adminhtml>
+                <rewrite>
+                    <dashboard_sales>Blackbox_EpaceImport_Block_Adminhtml_Dashboard_Sales</dashboard_sales>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <helpers>
             <epacei>
