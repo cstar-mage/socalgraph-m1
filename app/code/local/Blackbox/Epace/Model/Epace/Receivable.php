@@ -26,6 +26,8 @@
  * @method string getDiscountDate()
  * @method float getDiscountAvailable()
  * @method int getSalesCategory()
+ * @method string getDateComissionPaid()
+ * @method string getDatePaidOff()
  * @method int getOrginalBatchId()
  * @method string getAltCurrency()
  * @method float getAltCurrencyRate()
@@ -53,6 +55,11 @@
 class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
     /**
+     * @var Blackbox_Epace_Model_Epace_Customer
+     */
+    protected $customer;
+
+    /**
      * @var Blackbox_Epace_Model_Epace_Invoice
      */
     protected $invoice;
@@ -63,24 +70,36 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
     }
 
     /**
+     * @return Blackbox_Epace_Model_Epace_Customer
+     */
+    public function getCustomer()
+    {
+        return $this->_getObject('customer', 'customer', 'efi/customer');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Customer $customer
+     * @return $this
+     */
+    public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Invoice|bool
      */
     public function getInvoice()
     {
-        if (is_null($this->invoice)) {
-            $this->invoice = false;
-
-            if (!empty($this->getInvoiceNumber())) {
-                /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $collection */
-                $collection = $this->_getCollection('efi/invoice');
-                $collection->addFilter('invoiceNum', $this->getInvoiceNumber());
-                $invoice = $collection->getFirstItem();
-                if ($invoice->getId()) {
-                    $this->invoice = $invoice;
-                }
-            }
+        if ($this->getAltCurrencyRateSource() == 'Invoice') {
+            return $this->_getObject('invoice', 'altCurrencyRateSourceNote', 'efi/invoice');
+        } else if ($this->invoice) {
+            return $this->invoice;
+        } else {
+            return false;
         }
-        return $this->invoice;
     }
 
     /**
@@ -92,6 +111,18 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
         $this->invoice = $invoice;
 
         return $this;
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Receivable_Line[]
+     */
+    public function getLines()
+    {
+        return $this->_getChildItems('efi/receivable_line_collection', [
+            'receivable' => $this->getId()
+        ], function (Blackbox_Epace_Model_Epace_Receivable_Line $line) {
+            $line->setReceivable($this);
+        });
     }
 
     public function getDefinition()
@@ -123,6 +154,7 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
             'discountAvailable' => '',
             'salesCategory' => '',
             'dateCommissionPaid' => '',
+            'datePaidOff' => '',
             'orginalBatchId' => '',
             'altCurrency' => '',
             'altCurrencyRate' => '',

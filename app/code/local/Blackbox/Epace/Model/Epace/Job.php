@@ -81,6 +81,11 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
     use Blackbox_Epace_Model_Epace_PersonsTrait;
 
     /**
+     * @var Blackbox_Epace_Model_Epace_Job_Type
+     */
+    protected $type;
+
+    /**
      * @var Blackbox_Epace_Model_Epace_Job_Status
      */
     protected $status;
@@ -108,6 +113,33 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
     protected function _construct()
     {
         $this->_init('Job', 'job');
+    }
+
+    /**
+     * @return int
+     */
+    public function getTypeId()
+    {
+        return $this->getData('jobType');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Type|false
+     */
+    public function getType()
+    {
+        return $this->_getObject('type', 'jobType', 'efi/job_type');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Job_Type $type
+     * @return $this
+     */
+    public function setType(Blackbox_Epace_Model_Epace_Job_Type $type)
+    {
+        $this->type = $type;
+
+        return $this;
     }
 
     public function getAdminStatusCode()
@@ -287,7 +319,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
             'description2' => '',
             'enteredBy' => '',
             'job' => 'string',
-            'jobType' => '',
+            'jobType' => 'int',
             'totalParts' => '',
             'salesPerson' => '',
             'csr' => '',

@@ -5,6 +5,8 @@
  * @method float getAccountBalance()
  * @method string getCustomerStatus()
  * @method string getAddress1()
+ * @method string getAddress2()
+ * @method string getAddress3()
  * @method float getAging1()
  * @method float getAging2()
  * @method float getAging3()
@@ -18,12 +20,16 @@
  * @method float getAvgPaymentDays()
  * @method string getCity()
  * @method int getCustomerType()
+ * @method string getContactFirstName()
+ * @method string getContactLastName()
+ * @method string getContactTitle()
  * @method float getCreditLimit()
  * @method string getDateHighBalance()
  * @method string getDateLastInvoice()
  * @method string getDateSetup()
  * @method int getDefaultDaysUntilJobDue()
  * @method float getHighestBalance()
+ * @method string getEmail()
  * @method bool getOrderAlert()
  * @method int getPhoneNumber()
  * @method int getSalesCategory()
@@ -155,11 +161,12 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
     {
         return [
             'id' => 'string',
-            'custName' => '',
-            'accountBalance' => '',
-            'customerStatus' => '',
-            'address1' => '',
-            'address2' => '',
+            'custName' => 'string',
+            'accountBalance' => 'float',
+            'customerStatus' => 'string',
+            'address1' => 'string',
+            'address2' => 'string',
+            'address3' => 'string',
             'aging1' => '',
             'aging2' => '',
             'aging3' => '',
@@ -183,6 +190,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'dateSetup' => '',
             'defaultDaysUntilJobDue' => '',
             'highestBalance' => '',
+            'email' => '',
             'orderAlert' => 'bool',
             'phoneNumber' => '',
             'salesCategory' => '',

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Blackbox_EpaceImport>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </Blackbox_EpaceImport>
     </modules>
     <global>
@@ -36,6 +36,9 @@
                     <estimate_status_history>
                         <table>epacei_flat_estimate_status_history</table>
                     </estimate_status_history>
+                    <receivable>
+                        <table>epacei_flat_receivable</table>
+                    </receivable>
                 </entities>
             </epacei_resource>
         </models>

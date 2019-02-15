@@ -277,10 +277,6 @@
  * @method Blackbox_EpaceImport_Model_Estimate setShippingInclTax(float $value)
  * @method float getBaseShippingInclTax()
  * @method Blackbox_EpaceImport_Model_Estimate setBaseShippingInclTax(float $value)
- *
- * @category    Mage
- * @package     Blackbox_EpaceImport
- * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Blackbox_EpaceImport_Model_Estimate extends Mage_Sales_Model_Abstract
 {
