@@ -11,9 +11,9 @@ class Blackbox_EpaceImport_Model_resource_Reports_Estimate_Collection extends Ma
 
         $expr = $this->_getSalesAmountExpression();
 
-        if ($isFilter == 0) {
-            $expr = '(' . $expr . ') * main_table.base_to_global_rate';
-        }
+//        if ($isFilter == 0) {
+//            $expr = '(' . $expr . ') * main_table.base_to_global_rate';
+//        }
 
         $this->getSelect()
             ->columns(array(
