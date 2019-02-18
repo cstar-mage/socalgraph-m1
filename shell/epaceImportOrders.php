@@ -328,10 +328,16 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
             if ($this->getArg('ef')) {
                 $filters = json_decode($this->getArg('ef'));
+                if (is_null($filters)) {
+                    throw new \Exception("Invalid job filter");
+                }
                 if (!is_array($filters)) {
                     $filters = [$filters];
                 }
                 foreach ($filters as $filter) {
+                    if (is_object($filter->value)) {
+                        $filter->value = (array)$filter->value;
+                    }
                     $collection->addFilter($filter->field, $filter->value);
                 }
             }
@@ -360,10 +366,16 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
             if ($this->getArg('jf')) {
                 $filters = json_decode($this->getArg('jf'));
+                if (is_null($filters)) {
+                    throw new \Exception("Invalid job filter");
+                }
                 if (!is_array($filters)) {
                     $filters = [$filters];
                 }
                 foreach ($filters as $filter) {
+                    if (is_object($filter->value)) {
+                        $filter->value = (array)$filter->value;
+                    }
                     $collection->addFilter($filter->field, $filter->value);
                 }
             }
