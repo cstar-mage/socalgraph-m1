@@ -63,6 +63,12 @@ $receivableStoreDate = $this->formatDate($_receivable->getCreatedAtStoreDate(), 
                 <td class="value"><strong><?php echo $_receivable->getBaseToReceivableRate() ?></strong></td>
             </tr>
             <?php endif; ?>
+            <?php if ($_receivable->getInvoiceId() && ($invoice = Mage::getModel('sales/order_invoice')->load($_receivable->getInvoiceId())) && $invoice->getId()): ?>
+                <tr>
+                    <td class="label"><label><?php echo $this->__('Invoice') ?></label></td>
+                    <td class="value"><strong><a href="<?php echo $this->getUrl('*/sales_invoice/view', ['invoice_id' => $invoice->getId()]) ?>"><?=$invoice->getIncrementId()?></a></strong></td>
+                </tr>
+            <?php endif; ?>
             </table>
         </div>
     </div>

@@ -99,7 +99,7 @@ $orderStoreDate = $this->formatDate($_order->getCreatedAtStoreDate(), 'medium', 
                         <td class="value"><strong><?php echo $_order->getBaseToOrderRate() ?></strong></td>
                     </tr>
                 <?php endif; ?>
-                <?php if ($_order->getEstimateId() && ($estimate = Mage::getModel('epacei/estimate')->load($_order->getEstimateId()))->getId()): ?>
+                <?php if ($_order->getEstimateId() && ($estimate = Mage::getModel('epacei/estimate')->load($_order->getEstimateId())) && $estimate->getId()): ?>
                     <tr>
                         <td class="label"><label><?php echo $this->__('Estimate') ?></label></td>
                         <td class="value"><strong><a href="<?php echo $this->getUrl('*/epace_estimate/view', ['estimate_id' => $estimate->getId()]) ?>"><?=$estimate->getIncrementId()?></a></strong></td>
