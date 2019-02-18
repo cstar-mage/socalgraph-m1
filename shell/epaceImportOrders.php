@@ -780,12 +780,20 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             }
 
             if (!$shippingAddressAdded) {
-                foreach ($contacts as $contactId => $contactData) {
-                    /** @var Blackbox_Epace_Model_Epace_Contact $contact */
-                    $contact = $contactData['contact'];
-                    $this->addAddressToOrder($order, $contact, 'shipping', $contactData['jobContact']);
-                    $addedContacts[] = $contact->getId();
-                    break;
+                if (!empty($contacts)) {
+                    foreach ($contacts as $contactId => $contactData) {
+                        /** @var Blackbox_Epace_Model_Epace_Contact $contact */
+                        $contact = $contactData['contact'];
+                        $this->addAddressToOrder($order, $contact, 'shipping', $contactData['jobContact']);
+                        $addedContacts[] = $contact->getId();
+                        break;
+                    }
+                } else {
+                    $order->addAddress(Mage::getModel('sales/order_address')->addData([
+                        'customer_id' => $customer->getId(),
+                        'address_type' => 'shipping'
+                    ]));
+                    $this->writeln('--------------------------EMPTY SHIPPING ADDRESS ADDED-----------------------');
                 }
             }
 
@@ -807,6 +815,12 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 if ($contact) {
                     $this->addAddressToOrder($order, $contact, 'billing', $contactData['jobContact']);
                     $addedContacts[] = $contact->getId();
+                } else {
+                    $order->addAddress(Mage::getModel('sales/order_address')->addData([
+                        'customer_id' => $customer->getId(),
+                        'address_type' => 'billing'
+                    ]));
+                    $this->writeln('--------------------------EMPTY BILLING ADDRESS ADDED-----------------------');
                 }
             }
 
