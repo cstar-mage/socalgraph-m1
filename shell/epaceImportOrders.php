@@ -1252,6 +1252,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'base_shipping_hidden_tax_amnt' => null,
                 'shipping_incl_tax' => $receivable->getFreightAmount(),
                 'base_shipping_incl_tax' => $receivable->getFreightAmount(),
+                'unpaid_amount' => $receivable->getUnpaidAmount(),
                 'invoice_date' => strtotime($receivable->getInvoiceDate()),
                 'due_date' => strtotime($receivable->getDueDate()),
                 'expected_payment_date' => strtotime($receivable->getExpectedPaymentDate()),
