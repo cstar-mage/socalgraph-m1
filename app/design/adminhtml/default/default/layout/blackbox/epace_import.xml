@@ -42,6 +42,40 @@
         </reference>
     </adminhtml_epace_estimate_view>
 
+
+    <adminhtml_epace_receivable_grid>
+        <update handle="formkey"/>
+        <block type="epacei/adminhtml_receivable_grid" name="epace_receivable.grid" output="toHtml"></block>
+    </adminhtml_epace_receivable_grid>
+
+    <adminhtml_epace_receivable_index>
+        <reference name="content">
+            <block type="epacei/adminhtml_receivable" name="epace_receivable.grid.container"></block>
+        </reference>
+    </adminhtml_epace_receivable_index>
+
+    <adminhtml_epace_receivable_view>
+        <reference name="head">
+            <action method="addJs"><file>mage/adminhtml/giftmessage.js</file></action>
+            <action method="addJs"><file>mage/adminhtml/giftoptions/tooltip.js</file></action>
+        </reference>
+        <reference name="content">
+            <block type="epacei/adminhtml_receivable_view" name="epacei_receivable_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="epacei/adminhtml_receivable_view_tabs" name="epacei_receivable_tabs">
+                <block type="epacei/adminhtml_receivable_view_tab_info" name="receivable_tab_info" template="blackbox/epacei/receivable/view/tab/info.phtml">
+                    <block type="epacei/adminhtml_receivable_view_messages" name="receivable_messages"></block>
+                    <block type="epacei/adminhtml_receivable_view_info" name="receivable_info" template="blackbox/epacei/receivable/view/info.phtml"></block>
+                    <block type="epacei/adminhtml_receivable_totals" name="receivable_totals" template="blackbox/epacei/receivable/totals.phtml">
+                        <block type="epacei/adminhtml_receivable_totals_tax" name="tax" template="blackbox/epacei/receivable/totals/tax.phtml" />
+                    </block>
+                </block>
+                <action method="addTab"><name>receivable_info</name><block>receivable_tab_info</block></action>
+            </block>
+        </reference>
+    </adminhtml_epace_receivable_view>
+
     <adminhtml_dashboard_index>
         <reference name="dashboard">
             <action method="setTemplate"><template>blackbox/epace_import/dashboard/index.phtml</template></action>
@@ -49,6 +83,7 @@
             <block type="epacei/adminhtml_dashboard_customer_grid" name="customer"></block>
             <block type="epacei/adminhtml_dashboard_categoryBreakdown_grid" name="categoryBreakdown"></block>
             <block type="epacei/adminhtml_dashboard_receivableOutstanding_grid" name="receivableOutstanding"></block>
+            <block type="epacei/adminhtml_dashboard_shipping_grid" name="shipping"></block>
         </reference>
     </adminhtml_dashboard_index>
 </layout>

@@ -24,6 +24,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
      */
     protected $product = null;
 
+    protected $tabs = 0;
+
     /**
      * Quote convert object
      *
@@ -44,6 +46,18 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
     protected function dump()
     {
+//        $json = [];
+//        /** @var Blackbox_Epace_Model_Resource_Epace_Ship_Provider_Collection $collection */
+//        $collection = Mage::getResourceModel('efi/ship_provider_collection');
+//        foreach ($collection->getItems() as $provider) {
+//            $providerData = $provider->getData();
+//            foreach ($provider->getShipVias() as $shipVia) {
+//                $providerData['ship_vias'][] = $shipVia->getData();
+//            }
+//            $json[] = $providerData;
+//        }
+//        echo json_encode($json, JSON_PRETTY_PRINT);die;
+
 //        $json = [];
 //        $collection = Mage::getResourceModel('efi/job_type_collection');
 //        foreach ($collection->getItems() as $item) {
@@ -363,22 +377,27 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             $count = count($ids);
             $i = 0;
             $this->writeln('Found ' . $count . ' jobs.');
-            foreach ($ids as $jobId) {
-                $this->writeln('Job ' . ++$i . '/' . $count . ': ' . $jobId);
-                $select = $connection->select()->from($orderTable, 'count(*)')
-                    ->where('epace_job_id = ?', $jobId);
-                if ($connection->fetchOne($select) > 0) {
-                    $this->writeln("\tJob $jobId already imported.");
-                } else {
-                    /** @var Blackbox_Epace_Model_Epace_Job $job */
-                    $job = Mage::getModel('efi/job')->load($jobId);
-
-                    if ($job->getEstimate()) {
-                        $this->importEstimate($job->getEstimate());
+            $this->tabs++;
+            try {
+                foreach ($ids as $jobId) {
+                    $this->writeln('Job ' . ++$i . '/' . $count . ': ' . $jobId);
+                    $select = $connection->select()->from($orderTable, 'count(*)')
+                        ->where('epace_job_id = ?', $jobId);
+                    if ($connection->fetchOne($select) > 0) {
+                        $this->writeln("\tJob $jobId already imported.");
                     } else {
-                        $this->importJob($job, null, false);
+                        /** @var Blackbox_Epace_Model_Epace_Job $job */
+                        $job = Mage::getModel('efi/job')->load($jobId);
+
+                        if ($job->getEstimate()) {
+                            $this->importEstimate($job->getEstimate());
+                        } else {
+                            $this->importJob($job, null, false);
+                        }
                     }
                 }
+            } finally {
+                $this->tabs--;
             }
         }
     }
@@ -493,13 +512,18 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 $count = count($jobs);
                 $this->writeln('Found ' . $count . ' jobs');
                 $i = 0;
-                foreach ($estimate->getJobs() as $job) {
-                    $this->writeln("\t" . 'Job ' . ++$i . '/' . $count);
-                    if ($job->getEstimateId() != $estimate->getId()) {
-                        $this->writeln('Job source does match with estimate.');
-                        continue;
+                $this->tabs++;
+                try {
+                    foreach ($estimate->getJobs() as $job) {
+                        $this->writeln('Job ' . ++$i . '/' . $count . ': ' . $job->getId());
+                        if ($job->getEstimateId() != $estimate->getId()) {
+                            $this->writeln('Job source does match with estimate.');
+                            continue;
+                        }
+                        $order = $this->importJob($job, $magentoEstimate, true);
                     }
-                    $order = $this->importJob($job, $magentoEstimate, true);
+                } finally {
+                    $this->tabs--;
                 }
             }
         }
@@ -515,7 +539,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         }
 
         if ($order->getId()) {
-            $this->writeln("\t" . 'Job ' . $job->getId() . ' already imported');
+            $this->writeln('Job ' . $job->getId() . ' already imported');
         } else {
             $product = $this->getProduct();
 
@@ -798,20 +822,39 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             $order->save();
         }
 
-        foreach ($job->getInvoices() as $invoice) {
-            try {
-                $invoice = $this->importInvoice($order, $invoice);
-            } catch (\Exception $e) {
-                $this->writeln('Error: ' . $e->getMessage());
+        $this->tabs++;
+        try {
+            $i = 0;
+            $count = count($job->getInvoices());
+            foreach ($job->getInvoices() as $invoice) {
+                $i++;
+                $this->writeln("Invoice $i/$count: {$invoice->getId()}");
+                try {
+                    $this->tabs++;
+                    $invoice = $this->importInvoice($order, $invoice);
+                } catch (\Exception $e) {
+                    $this->writeln('Error: ' . $e->getMessage());
+                } finally {
+                    $this->tabs--;
+                }
             }
-        }
 
-        foreach ($job->getShipments() as $shipment) {
-            try {
-                $shipment = $this->importShipment($order, $shipment);
-            } catch (\Exception $e) {
-                $this->writeln('Error: ' . $e->getMessage());
+            $i = 0;
+            $count = count($job->getShipments());
+            foreach ($job->getShipments() as $shipment) {
+                $i++;
+                $this->writeln("Shipment $i/$count: {$shipment->getId()}");
+                try {
+                    $this->tabs++;
+                    $shipment = $this->importShipment($order, $shipment);
+                } catch (\Exception $e) {
+                    $this->writeln('Error: ' . $e->getMessage());
+                } finally {
+                    $this->tabs--;
+                }
             }
+        } finally {
+            $this->tabs--;
         }
     }
 
@@ -822,7 +865,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
         $orderShipment->load($jobShipment->getId(), 'epace_shipment_id');
         if ($orderShipment->getId()) {
-            $this->writeln("\t\tShipment {$jobShipment->getId()} already imported.");
+            $this->writeln("Shipment {$jobShipment->getId()} already imported.");
             return;
         }
 
@@ -909,13 +952,18 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
                 /** @var Mage_Sales_Model_Order_Shipment_Track $track */
                 $track = Mage::getModel('sales/order_shipment_track');
+                if ($shippingMethod->getCarrier() == 'epace_shipping') {
+                    $title = $shippingMethod->getCarrierTitle() . ': ' . $jobShipment->getShipVia()->getShipProvider()->getName() . ' - ' . $jobShipment->getShipVia()->getDescription();
+                } else {
+                    $title = $shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle();
+                }
                 $track->setData([
                     'weight' => $carton->getWeight(),
                     'qty' => $carton->getTotalSkidQuantity(),
                     'order_id' => $order->getId(),
                     'track_number' => $carton->getTrackingNumber(),
                     'description' => $carton->getTrackingLink(),
-                    'title' => $shippingMethod->getCarrierTitle() . ($shippingMethod->getCarrier() == 'epace_shipping' ? ': ' . $jobShipment->getShipVia()->getShipProvider()->getName() . ' - ' . $jobShipment->getShipVia()->getDescription() : ''),
+                    'title' => $title,
                     'carrier_code' => $shippingMethod->getCarrier(),
                     'created_at' => strtotime($carton->getActualDate()) + strtotime($carton->getActualTime())
                 ]);
@@ -1019,7 +1067,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $magentoInvoice = Mage::getModel('sales/order_invoice');
         $magentoInvoice->load($invoice->getId(), 'epace_invoice_id');
         if ($magentoInvoice->getId()) {
-            $this->writeln("\t\tInvoice {$invoice->getId()} already imported.");
+            $this->writeln("Invoice {$invoice->getId()} already imported.");
             return;
         }
 
@@ -1193,6 +1241,10 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'base_currency_code' => $this->getStore()->getBaseCurrencyCode(),
                 'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
                 'increment_id' => 'EPACERECEIVABLE_' . $receivable->getId(),
+                'customer_firstname' => $receivable->getContactFirstName(),
+                'customer_latname' => $receivable->getContactLastName(),
+                'customer_email' => $customer->getEmail(),
+                'customer_group_id' => $customer->getGroupId(),
                 'created_at' => strtotime($receivable->getDateSetup()) + strtotime($receivable->getTimeSetup()),
                 'hidden_tax_amount' => 0,
                 'base_hidden_tax_amount' => 0,
@@ -1428,7 +1480,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
     }
 
     /**
-     * @var Mage_Shipping_Model_Carrier_Interface
+     * @var Mage_Shipping_Model_Carrier_Interface[]
      */
     protected $carriers = null;
 
@@ -1440,6 +1492,30 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
     {
         if (is_null($this->carriers)) {
             $this->carriers = Mage::getSingleton('shipping/config')->getActiveCarriers();
+
+            $fedexFound = false;
+            $upsFound = false;
+            $found = 0;
+            foreach ($this->carriers as $carrier) {
+                if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
+                    $fedexFound = true;
+                    if (++$found == 2) {
+                        break;
+                    }
+                } else if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups) {
+                    $upsFound = true;
+                    if (++$found == 2) {
+                        break;
+                    }
+                }
+            }
+
+            if (!$fedexFound) {
+                $this->carriers[] = Mage::getModel('usa/shipping_carrier_fedex');
+            }
+            if (!$upsFound) {
+                $this->carriers[] = Mage::getModel('usa/shipping_carrier_ups');
+            }
         }
 
         /** @var Blackbox_EpaceImport_Helper_Data $helper */
@@ -1454,8 +1530,13 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 $epaceCarrier = $carrier;
                 continue;
             }
-            foreach ($carrier->getAllowedMethods() as $method => $title) {
-                if ($carrier->getCarrierCode() . '_' . $method == $code) {
+            if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
+                $methods = $carrier->getCode('method');
+            } else {
+                $methods = $carrier->getAllowedMethods();
+            }
+            foreach ($methods as $method => $title) {
+                if (strtolower($carrier->getCarrierCode() . '_' . $method) == $code) {
                     return Mage::getModel('shipping/rate_result_method')->setData([
                         'carrier' => $carrier->getCarrierCode(),
                         'method' => $method,
@@ -1498,7 +1579,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
     protected function writeln($message)
     {
-        echo $message . PHP_EOL;
+        echo str_repeat("\t", $this->tabs) . $message . PHP_EOL;
     }
 }
 

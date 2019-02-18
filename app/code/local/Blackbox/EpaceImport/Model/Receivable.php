@@ -255,6 +255,130 @@ class Blackbox_EpaceImport_Model_Receivable extends Mage_Core_Model_Abstract
         return Mage::helper('sales')->__('Unknown State');
     }
 
+
+    /**
+     * Enter description here...
+     *
+     * @return string
+     */
+    public function getRealReceivableId()
+    {
+        $id = $this->getData('real_receivable_id');
+        if (is_null($id)) {
+            $id = $this->getIncrementId();
+        }
+        return $id;
+    }
+
+    /**
+     * Get currency model instance. Will be used currency with which receivable placed
+     *
+     * @return Mage_Directory_Model_Currency
+     */
+    public function getReceivableCurrency()
+    {
+        if (is_null($this->_receivableCurrency)) {
+            $this->_receivableCurrency = Mage::getModel('directory/currency')->load($this->getReceivableCurrencyCode());
+        }
+        return $this->_receivableCurrency;
+    }
+
+    /**
+     * Get formated price value including receivable currency rate to receivable website currency
+     *
+     * @param   float $price
+     * @param   bool  $addBrackets
+     * @return  string
+     */
+    public function formatPrice($price, $addBrackets = false)
+    {
+        return $this->formatPricePrecision($price, 2, $addBrackets);
+    }
+
+    public function formatPricePrecision($price, $precision, $addBrackets = false)
+    {
+        return $this->getReceivableCurrency()->formatPrecision($price, $precision, array(), true, $addBrackets);
+    }
+
+    /**
+     * Retrieve text formated price value includeing receivable rate
+     *
+     * @param   float $price
+     * @return  string
+     */
+    public function formatPriceTxt($price)
+    {
+        return $this->getReceivableCurrency()->formatTxt($price);
+    }
+
+    /**
+     * Retrieve receivable website currency for working with base prices
+     *
+     * @return Mage_Directory_Model_Currency
+     */
+    public function getBaseCurrency()
+    {
+        if (is_null($this->_baseCurrency)) {
+            $this->_baseCurrency = Mage::getModel('directory/currency')->load($this->getBaseCurrencyCode());
+        }
+        return $this->_baseCurrency;
+    }
+
+    /**
+     * Retrieve receivable website currency for working with base prices
+     * @deprecated  please use getBaseCurrency instead.
+     *
+     * @return Mage_Directory_Model_Currency
+     */
+    public function getStoreCurrency()
+    {
+        return $this->getData('store_currency');
+    }
+
+    public function formatBasePrice($price)
+    {
+        return $this->formatBasePricePrecision($price, 2);
+    }
+
+    public function formatBasePricePrecision($price, $precision)
+    {
+        return $this->getBaseCurrency()->formatPrecision($price, $precision);
+    }
+
+    public function isCurrencyDifferent()
+    {
+        return $this->getReceivableCurrencyCode() != $this->getBaseCurrencyCode();
+    }
+
+    /**
+     * Retrieve customer name
+     *
+     * @return string
+     */
+    public function getCustomerName()
+    {
+        if ($this->getCustomerFirstname()) {
+            $customerName = Mage::helper('customer')->getFullCustomerName($this);
+        } else {
+            $customerName = Mage::helper('sales')->__('Guest');
+        }
+        return $customerName;
+    }
+
+    public function getStatusLabel()
+    {
+        return $this->getStatuses()[$this->getState()];
+    }
+
+    public function getStatuses()
+    {
+        return [
+            self::STATE_OPEN => 'Open',
+            self::STATE_CLOSED => 'Closed',
+            self::STATE_DISPUTED => 'Disputed'
+        ];
+    }
+
     /**
      * Reset invoice object
      *

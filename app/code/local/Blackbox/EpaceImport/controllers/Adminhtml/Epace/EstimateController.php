@@ -140,39 +140,6 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Generate invoices grid for ajax request
-     */
-    public function invoicesAction()
-    {
-        $this->_initEstimate();
-        $this->getResponse()->setBody(
-            $this->getLayout()->createBlock('epacei/adminhtml_estimate_view_tab_invoices')->toHtml()
-        );
-    }
-
-    /**
-     * Generate shipments grid for ajax request
-     */
-    public function shipmentsAction()
-    {
-        $this->_initEstimate();
-        $this->getResponse()->setBody(
-            $this->getLayout()->createBlock('epacei/adminhtml_estimate_view_tab_shipments')->toHtml()
-        );
-    }
-
-    /**
-     * Generate creditmemos grid for ajax request
-     */
-    public function creditmemosAction()
-    {
-        $this->_initEstimate();
-        $this->getResponse()->setBody(
-            $this->getLayout()->createBlock('epacei/adminhtml_estimate_view_tab_creditmemos')->toHtml()
-        );
-    }
-
-    /**
      * Generate estimate history for ajax request
      */
     public function commentsHistoryAction()
@@ -185,221 +152,6 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
             $translate->processResponseBody($html);
         }
         $this->getResponse()->setBody($html);
-    }
-
-    /**
-     * Cancel selected estimates
-     */
-    public function massCancelAction()
-    {
-        $estimateIds = $this->getRequest()->getPost('estimate_ids', array());
-        $countCancelEstimate = 0;
-        $countNonCancelEstimate = 0;
-        foreach ($estimateIds as $estimateId) {
-            $estimate = Mage::getModel('epacei/estimate')->load($estimateId);
-            if ($estimate->canCancel()) {
-                $estimate->cancel()
-                    ->save();
-                $countCancelEstimate++;
-            } else {
-                $countNonCancelEstimate++;
-            }
-        }
-        if ($countNonCancelEstimate) {
-            if ($countCancelEstimate) {
-                $this->_getSession()->addError($this->__('%s estimate(s) cannot be canceled', $countNonCancelEstimate));
-            } else {
-                $this->_getSession()->addError($this->__('The estimate(s) cannot be canceled'));
-            }
-        }
-        if ($countCancelEstimate) {
-            $this->_getSession()->addSuccess($this->__('%s estimate(s) have been canceled.', $countCancelEstimate));
-        }
-        $this->_redirect('*/*/');
-    }
-
-    /**
-     * Hold selected estimates
-     */
-    public function massHoldAction()
-    {
-        $estimateIds = $this->getRequest()->getPost('estimate_ids', array());
-        $countHoldEstimate = 0;
-
-        foreach ($estimateIds as $estimateId) {
-            $estimate = Mage::getModel('epacei/estimate')->load($estimateId);
-            if ($estimate->canHold()) {
-                $estimate->hold()
-                    ->save();
-                $countHoldEstimate++;
-            }
-        }
-
-        $countNonHoldEstimate = count($estimateIds) - $countHoldEstimate;
-
-        if ($countNonHoldEstimate) {
-            if ($countHoldEstimate) {
-                $this->_getSession()->addError($this->__('%s estimate(s) were not put on hold.', $countNonHoldEstimate));
-            } else {
-                $this->_getSession()->addError($this->__('No estimate(s) were put on hold.'));
-            }
-        }
-        if ($countHoldEstimate) {
-            $this->_getSession()->addSuccess($this->__('%s estimate(s) have been put on hold.', $countHoldEstimate));
-        }
-
-        $this->_redirect('*/*/');
-    }
-
-    /**
-     * Unhold selected estimates
-     */
-    public function massUnholdAction()
-    {
-        $estimateIds = $this->getRequest()->getPost('estimate_ids', array());
-        $countUnholdEstimate = 0;
-        $countNonUnholdEstimate = 0;
-
-        foreach ($estimateIds as $estimateId) {
-            $estimate = Mage::getModel('epacei/estimate')->load($estimateId);
-            if ($estimate->canUnhold()) {
-                $estimate->unhold()
-                    ->save();
-                $countUnholdEstimate++;
-            } else {
-                $countNonUnholdEstimate++;
-            }
-        }
-        if ($countNonUnholdEstimate) {
-            if ($countUnholdEstimate) {
-                $this->_getSession()->addError($this->__('%s estimate(s) were not released from holding status.', $countNonUnholdEstimate));
-            } else {
-                $this->_getSession()->addError($this->__('No estimate(s) were released from holding status.'));
-            }
-        }
-        if ($countUnholdEstimate) {
-            $this->_getSession()->addSuccess($this->__('%s estimate(s) have been released from holding status.', $countUnholdEstimate));
-        }
-        $this->_redirect('*/*/');
-    }
-
-    /**
-     * Change status for selected estimates
-     */
-    public function massStatusAction()
-    {
-
-    }
-
-    /**
-     * Print documents for selected estimates
-     */
-    public function massPrintAction()
-    {
-        $estimateIds = $this->getRequest()->getPost('estimate_ids');
-        $document = $this->getRequest()->getPost('document');
-    }
-
-    /**
-     * Print invoices for selected estimates
-     */
-    public function pdfinvoicesAction(){
-        $estimateIds = $this->getRequest()->getPost('estimate_ids');
-        $flag = false;
-        if (!empty($estimateIds)) {
-            foreach ($estimateIds as $estimateId) {
-                $invoices = Mage::getResourceModel('epacei/estimate_invoice_collection')
-                    ->setEstimateFilter($estimateId)
-                    ->load();
-                if ($invoices->getSize() > 0) {
-                    $flag = true;
-                    if (!isset($pdf)){
-                        $pdf = Mage::getModel('epacei/estimate_pdf_invoice')->getPdf($invoices);
-                    } else {
-                        $pages = Mage::getModel('epacei/estimate_pdf_invoice')->getPdf($invoices);
-                        $pdf->pages = array_merge ($pdf->pages, $pages->pages);
-                    }
-                }
-            }
-            if ($flag) {
-                return $this->_prepareDownloadResponse(
-                    'invoice'.Mage::getSingleton('core/date')->date('Y-m-d_H-i-s').'.pdf', $pdf->render(),
-                    'application/pdf'
-                );
-            } else {
-                $this->_getSession()->addError($this->__('There are no printable documents related to selected estimates.'));
-                $this->_redirect('*/*/');
-            }
-        }
-        $this->_redirect('*/*/');
-    }
-
-    /**
-     * Print shipments for selected estimates
-     */
-    public function pdfshipmentsAction(){
-        $estimateIds = $this->getRequest()->getPost('estimate_ids');
-        $flag = false;
-        if (!empty($estimateIds)) {
-            foreach ($estimateIds as $estimateId) {
-                $shipments = Mage::getResourceModel('epacei/estimate_shipment_collection')
-                    ->setEstimateFilter($estimateId)
-                    ->load();
-                if ($shipments->getSize()) {
-                    $flag = true;
-                    if (!isset($pdf)){
-                        $pdf = Mage::getModel('epacei/estimate_pdf_shipment')->getPdf($shipments);
-                    } else {
-                        $pages = Mage::getModel('epacei/estimate_pdf_shipment')->getPdf($shipments);
-                        $pdf->pages = array_merge ($pdf->pages, $pages->pages);
-                    }
-                }
-            }
-            if ($flag) {
-                return $this->_prepareDownloadResponse(
-                    'packingslip'.Mage::getSingleton('core/date')->date('Y-m-d_H-i-s').'.pdf', $pdf->render(),
-                    'application/pdf'
-                );
-            } else {
-                $this->_getSession()->addError($this->__('There are no printable documents related to selected estimates.'));
-                $this->_redirect('*/*/');
-            }
-        }
-        $this->_redirect('*/*/');
-    }
-
-    /**
-     * Print creditmemos for selected estimates
-     */
-    public function pdfcreditmemosAction(){
-        $estimateIds = $this->getRequest()->getPost('estimate_ids');
-        $flag = false;
-        if (!empty($estimateIds)) {
-            foreach ($estimateIds as $estimateId) {
-                $creditmemos = Mage::getResourceModel('epacei/estimate_creditmemo_collection')
-                    ->setEstimateFilter($estimateId)
-                    ->load();
-                if ($creditmemos->getSize()) {
-                    $flag = true;
-                    if (!isset($pdf)){
-                        $pdf = Mage::getModel('epacei/estimate_pdf_creditmemo')->getPdf($creditmemos);
-                    } else {
-                        $pages = Mage::getModel('epacei/estimate_pdf_creditmemo')->getPdf($creditmemos);
-                        $pdf->pages = array_merge ($pdf->pages, $pages->pages);
-                    }
-                }
-            }
-            if ($flag) {
-                return $this->_prepareDownloadResponse(
-                    'creditmemo'.Mage::getSingleton('core/date')->date('Y-m-d_H-i-s').'.pdf', $pdf->render(),
-                    'application/pdf'
-                );
-            } else {
-                $this->_getSession()->addError($this->__('There are no printable documents related to selected estimates.'));
-                $this->_redirect('*/*/');
-            }
-        }
-        $this->_redirect('*/*/');
     }
 
     /**
@@ -463,29 +215,6 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     }
 
     /**
-     * Atempt to void the estimate payment
-     */
-    public function voidPaymentAction()
-    {
-        if (!$estimate = $this->_initEstimate()) {
-            return;
-        }
-        try {
-            $estimate->getPayment()->void(
-                new Varien_Object() // workaround for backwards compatibility
-            );
-            $estimate->save();
-            $this->_getSession()->addSuccess($this->__('The payment has been voided.'));
-        } catch (Mage_Core_Exception $e) {
-            $this->_getSession()->addError($e->getMessage());
-        } catch (Exception $e) {
-            $this->_getSession()->addError($this->__('Failed to void the payment.'));
-            Mage::logException($e);
-        }
-        $this->_redirect('*/*/view', array('estimate_id' => $estimate->getId()));
-    }
-
-    /**
      * Acl check for admin
      *
      * @return bool
@@ -494,15 +223,6 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
     {
         $action = strtolower($this->getRequest()->getActionName());
         switch ($action) {
-            case 'hold':
-                $aclResource = 'epacei/estimate/actions/hold';
-                break;
-            case 'unhold':
-                $aclResource = 'epacei/estimate/actions/unhold';
-                break;
-            case 'email':
-                $aclResource = 'epacei/estimate/actions/email';
-                break;
             case 'cancel':
                 $aclResource = 'epacei/estimate/actions/cancel';
                 break;
@@ -511,12 +231,6 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
                 break;
             case 'addcomment':
                 $aclResource = 'epacei/estimate/actions/comment';
-                break;
-            case 'creditmemos':
-                $aclResource = 'epacei/estimate/actions/creditmemo';
-                break;
-            case 'reviewpayment':
-                $aclResource = 'epacei/estimate/actions/review_payment';
                 break;
             default:
                 $aclResource = 'epacei/estimate';

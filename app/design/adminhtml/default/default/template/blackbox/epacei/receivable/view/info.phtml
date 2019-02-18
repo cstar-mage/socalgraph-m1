@@ -1,0 +1,111 @@
+<?php $_receivable = $this->getReceivable() ?>
+<?php
+$receivableAdminDate = $this->formatDate($_receivable->getCreatedAtDate(), 'medium', true);
+$receivableStoreDate = $this->formatDate($_receivable->getCreatedAtStoreDate(), 'medium', true);
+?>
+<div class="box-left">
+    <!--Receivable Information-->
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <a href="<?php echo $this->getViewUrl($_receivable->getId()) ?>"><?php echo Mage::helper('sales')->__('Receivable # %s', $_receivable->getRealReceivableId()) ?></a>
+        </div>
+        <div class="fieldset">
+            <table cellspacing="0" class="form-list">
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Receivable Date') ?></label></td>
+                <td class="value"><strong><?php echo $receivableAdminDate ?></strong></td>
+            </tr>
+            <?php if ($receivableAdminDate != $receivableStoreDate):?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Receivable Date (%s)', $_receivable->getCreatedAtStoreDate()->getTimezone()) ?></label></td>
+                <td class="value"><strong><?php echo $receivableStoreDate ?></strong></td>
+            </tr>
+            <?php endif;?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Receivable Status') ?></label></td>
+                <td class="value"><strong><span id="order_status"><?php echo $_receivable->getStatusLabel() ?></span></strong></td>
+            </tr>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Purchased From') ?></label></td>
+                <td class="value"><strong><?php echo $this->getReceivableStoreName(); ?></strong></td>
+            </tr>
+            <?php if($_receivable->getRelationChildId()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Link to the New Receivable') ?></label></td>
+                <td class="value"><a href="<?php echo $this->getViewUrl($_receivable->getRelationChildId()) ?>">
+                    <?php echo $_receivable->getRelationChildRealId() ?>
+                </a></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_receivable->getRelationParentId()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Link to the Previous Receivable') ?></label></td>
+                <td class="value"><a href="<?php echo $this->getViewUrl($_receivable->getRelationParentId()) ?>">
+                    <?php echo $_receivable->getRelationParentRealId() ?>
+                </a></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_receivable->getRemoteIp() && $this->shouldDisplayCustomerIp()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('Placed from IP') ?></label></td>
+                <td class="value"><strong><?php echo $this->escapeHtml($_receivable->getRemoteIp()); echo ($_receivable->getXForwardedFor())?' (' . $this->escapeHtml($_receivable->getXForwardedFor()) . ')':''; ?></strong></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_receivable->getGlobalCurrencyCode() != $_receivable->getBaseCurrencyCode()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('%s / %s rate:', $_receivable->getGlobalCurrencyCode(), $_receivable->getBaseCurrencyCode()) ?></label></td>
+                <td class="value"><strong><?php echo $_receivable->getBaseToGlobalRate() ?></strong></td>
+            </tr>
+            <?php endif; ?>
+            <?php if($_receivable->getBaseCurrencyCode() != $_receivable->getOrderCurrencyCode()): ?>
+            <tr>
+                <td class="label"><label><?php echo Mage::helper('sales')->__('%s / %s rate:', $_receivable->getReceivableCurrencyCode(), $_receivable->getBaseCurrencyCode()) ?></label></td>
+                <td class="value"><strong><?php echo $_receivable->getBaseToReceivableRate() ?></strong></td>
+            </tr>
+            <?php endif; ?>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="box-right">
+    <!--Account Information-->
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-account"><?php echo Mage::helper('sales')->__('Account Information') ?></h4>
+            <div class="tools"><?php echo $this->getAccountEditLink()?></div>
+        </div>
+        <div class="fieldset">
+            <div class="hor-scroll">
+                <table cellspacing="0" class="form-list">
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Customer Name') ?></label></td>
+                    <td class="value">
+                    <?php if ($_customerUrl=$this->getCustomerViewUrl()) : ?>
+                        <a href="<?php echo $_customerUrl ?>" target="_blank"><strong><?php echo $this->escapeHtml($_receivable->getCustomerName()) ?></strong></a>
+                    <?php else: ?>
+                        <strong><?php echo $this->escapeHtml($_receivable->getCustomerName()) ?></strong>
+                    <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Email') ?></label></td>
+                    <td class="value"><a href="mailto:<?php echo $this->escapeHtml($_receivable->getCustomerEmail()) ?>"><strong><?php echo $this->escapeHtml($_receivable->getCustomerEmail()) ?></strong></a></td>
+                </tr>
+                <?php if ($_groupName = $this->getCustomerGroupName()) : ?>
+                <tr>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Customer Group') ?></label></td>
+                    <td class="value"><strong><?php echo $this->escapeHtml($_groupName) ?></strong></td>
+                </tr>
+                <?php endif; ?>
+                <?php foreach ($this->getCustomerAccountData() as $data):?>
+                <tr>
+                    <td class="label"><label><?php echo $data['label'] ?></label></td>
+                    <td class="value"><strong><?php echo $data['value'] ?></strong></td>
+                </tr>
+                <?php endforeach;?>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clear"></div>

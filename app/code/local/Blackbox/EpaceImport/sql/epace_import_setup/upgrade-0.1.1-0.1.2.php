@@ -118,6 +118,18 @@ $table = $installer->getConnection()
     ), 'Global Currency Code')
     ->addColumn('increment_id', Varien_Db_Ddl_Table::TYPE_TEXT, 50, array(
     ), 'Increment Id')
+    ->addColumn('customer_email', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ), 'Customer Email')
+    ->addColumn('customer_firstname', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ), 'Customer Firstname')
+    ->addColumn('customer_lastname', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ), 'Customer Lastname')
+    ->addColumn('customer_middlename', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ), 'Customer Middlename')
+    ->addColumn('customer_prefix', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ), 'Customer Prefix')
+    ->addColumn('customer_suffix', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+    ), 'Customer Suffix')
     ->addColumn('created_at', Varien_Db_Ddl_Table::TYPE_TIMESTAMP, null, array(
     ), 'Created At')
     ->addColumn('updated_at', Varien_Db_Ddl_Table::TYPE_TIMESTAMP, null, array(

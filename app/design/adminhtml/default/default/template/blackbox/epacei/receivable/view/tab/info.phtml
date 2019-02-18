@@ -1,0 +1,17 @@
+<?php /** @var $this Mage_Adminhtml_Block_Sales_Receivable_View_Tab_Info */ ?>
+<?php $_receivable = $this->getReceivable() ?>
+<div>
+    <div id="order-messages">
+        <?php echo $this->getChildHtml('receivable_messages') ?>
+    </div>
+    <?php echo $this->getChildHtml('receivable_info') ?>
+    <input type="hidden" name="receivable_id" value="<?php echo $_receivable->getId() ?>"/>
+    <div class="clear"></div>
+    <div class="box-right entry-edit">
+        <div class="entry-edit-head"><h4><?php echo Mage::helper('sales')->__('Receivable Totals') ?></h4></div>
+        <div class="order-totals"><?php echo $this->getChildHtml('receivable_totals') ?></div>
+    </div>
+    <div class="clear"></div>
+</div>
+
+<?php echo $this->getChildHtml('popup_window');?>

@@ -1,6 +1,6 @@
 <?php
 
-class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_ReceivableOutstanding_Grid extends Mage_Adminhtml_Block_Dashboard_Grid
+class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_Shipping_Grid extends Mage_Adminhtml_Block_Dashboard_Grid
 {
     public function _construct()
     {
@@ -10,10 +10,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_ReceivableOutstanding_Grid 
 
     protected function _prepareCollection()
     {
-        $isFilter = $this->getRequest()->getParam('store') || $this->getRequest()->getParam('website') || $this->getRequest()->getParam('group');
         /** @var Blackbox_EpaceImport_Model_Resource_Reports_Receivable_Collection $collection */
-        $collection = Mage::getResourceModel('epacei/reports_receivable_collection');
-        $collection->calculate90DaysOutstanding($isFilter);
+        $collection = Mage::getResourceModel('sales/order_shipment_collection');
+        $collection->addOrder('created_at', Varien_Data_Collection::SORT_ORDER_DESC);
 
         if ($this->getRequest()->getParam('store')) {
             $collection->addFieldToFilter('store_id', $this->getRequest()->getParam('store'));
@@ -43,6 +42,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_ReceivableOutstanding_Grid 
 
     protected function _prepareColumns()
     {
+        $this->addColumn('shipment', array(
+            'header'    => $this->__('Shipment'),
+            'sortable'  => false,
+            'index'     => 'increment_id',
+        ));
+
         $this->addColumn('customer', array(
             'header'    => $this->__('Customer'),
             'sortable'  => false,
@@ -50,23 +55,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_ReceivableOutstanding_Grid 
             'frame_callback' => array($this, 'customerColumnFrameCallback')
         ));
 
-        $this->addColumn('days_outstanding', array(
-            'header'    => $this->__('Days Outstanding'),
+        $this->addColumn('total_qty', array(
+            'header'    => $this->__('Quantity'),
             'align'     => 'right',
             'type'      => 'number',
             'sortable'  => false,
-            'index'     => 'days_outstanding'
-        ));
-
-        $baseCurrencyCode = Mage::app()->getStore((int)$this->getParam('store'))->getBaseCurrencyCode();
-
-        $this->addColumn('total', array(
-            'header'    => $this->__('Amount'),
-            'align'     => 'right',
-            'sortable'  => false,
-            'type'      => 'currency',
-            'currency_code'  => $baseCurrencyCode,
-            'index'     => 'grand_total'
+            'index'     => 'total_qty'
         ));
 
         $this->setFilterVisibility(false);
@@ -77,7 +71,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_ReceivableOutstanding_Grid 
 
     public function getRowUrl($row)
     {
-        return $this->getUrl('*/epace_receivable/view', array('receivable_id'=>$row->getId()));
+        return $this->getUrl('*/sales_shipment/view', array('shipment_id'=>$row->getId()));
     }
 
     public function customerColumnFrameCallback($value, $row, $column, $isExport) {

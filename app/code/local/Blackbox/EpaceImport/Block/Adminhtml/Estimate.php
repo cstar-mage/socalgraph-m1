@@ -1,10 +1,6 @@
 <?php
 /**
  * Adminhtml epacei estimates block
- *
- * @category   Mage
- * @package    Mage_Adminhtml
- * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Blackbox_EpaceImport_Block_Adminhtml_Estimate extends Mage_Adminhtml_Block_Widget_Grid_Container
 {
