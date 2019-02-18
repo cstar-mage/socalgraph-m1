@@ -63,11 +63,9 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Receivable_Collection extends 
         if (is_null($this->_salesAmountExpression)) {
             $adapter = $this->getConnection();
             $expressionTransferObject = new Varien_Object(array(
-                'expression' => '%s - %s - %s',
+                'expression' => '%s',
                 'arguments' => array(
                     $adapter->getIfNullSql('main_table.base_grand_total', 0),
-                    $adapter->getIfNullSql('main_table.unpaid_amount', 0),
-                    $adapter->getIfNullSql('main_table.base_total_refunded', 0),
                 )
             ));
 
