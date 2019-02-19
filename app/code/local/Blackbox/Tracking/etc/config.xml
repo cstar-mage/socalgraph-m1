@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Tracking>
+            <version>0.1</version>
+        </Blackbox_Tracking>
+    </modules>
+    <global>
+        <helpers>
+            <bb_tracking>
+                <class>Blackbox_Tracking_Helper</class>
+            </bb_tracking>
+        </helpers>
+        <blocks>
+            <bb_tracking>
+                <class>Blackbox_Tracking_Block</class>
+            </bb_tracking>
+        </blocks>
+        <models>
+            <bb_tracking>
+                <class>Blackbox_Tracking_Model</class>
+            </bb_tracking>
+        </models>
+        <resources>
+            <bb_tracking_setup>
+                <setup>
+                    <module>Blackbox_Tracking</module>
+                </setup>
+            </bb_tracking_setup>
+        </resources>
+    </global>
+    <crontab>
+        <jobs>
+            <bb_tracking_update>
+                <schedule>
+                    <cron_expr>0 */6 * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>bb_tracking/cron::updateTrackingInfo</model>
+                </run>
+            </bb_tracking_update>
+        </jobs>
+    </crontab>
+</config>
