@@ -19,12 +19,14 @@ class Blackbox_Tracking_Model_Cron
         $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection');
         $tracksSelect = $shipmentCollection->getResource()->getReadConnection()->select()->from($shipmentCollection->getResource()->getTable('sales/shipment_track'), 'parent_id')
             ->where('tracking_status != ' . self::TRACKING_STATUS_COMPLETE . ' OR tracking_status IS NULL')
+            ->where('carrier_code IN (\'fedex\', \'ups\')')
             ->group('parent_id');
         $shipmentCollection->getSelect()->where('entity_id IN ?', $tracksSelect);
-
         /** @var Mage_Sales_Model_Order_Shipment $shipment */
         foreach ($shipmentCollection as $shipment) {
-            $tracks = $shipment->getTracksCollection()->addFieldToFilter('tracking_status', ['neq' => self::TRACKING_STATUS_COMPLETE])
+            $tracks = Mage::getResourceModel('sales/order_shipment_track_collection')
+                ->setShipmentFilter($shipment->getId())
+                ->addFieldToFilter(['tracking_status', 'tracking_status'], [['neq' => self::TRACKING_STATUS_COMPLETE], ['null' => true]])
                 ->addFieldToFilter('carrier_code', ['in' => ['fedex', 'ups']]);
             foreach ($tracks as $track) {
                 $this->processTrack($shipment, $track);
@@ -37,7 +39,7 @@ class Blackbox_Tracking_Model_Cron
     {
         $data = $this->getTrackData($track);
 
-        if ($data['status'] != 'notfound' && $data['status'] != 'pending') {
+        if ($data['status'] != 'notfound' && !empty($data['origin_info']) && !empty($data['origin_info']['trackinfo'])) {
             if ($track->getLastEvent() != $data['lastEvent']) {
                 $events = $data['origin_info']['trackinfo'];
                 $new = false;
@@ -91,7 +93,7 @@ class Blackbox_Tracking_Model_Cron
         $response = $this->api->createTracking($track->getCarrierCode(), $track->getNumber());
         if ($response['meta']['code'] != 200 && $response['meta']['code'] != 4016) {
             Mage::log(json_encode($response), null, 'trackingmore.log', true);
-            throw new \Exception('Unable to create tracking.');
+            throw new \Exception('Unable to create tracking: ' . $response['meta']['message']);
         }
 
         $i = 0;
@@ -99,9 +101,9 @@ class Blackbox_Tracking_Model_Cron
             $response = $this->api->getSingleTrackingResult($track->getCarrierCode(), $track->getNumber());
             if (empty($response['data'])) {
                 Mage::log(json_encode($response), null, 'trackingmore.log', true);
-                throw new \Exception('Unable to get tracking info.');
+                throw new \Exception('Unable to get tracking info: ' . $response['meta']['message']);
             }
-            if ($response['data']['status'] == 'pending' && $i < 10) {
+            if ($response['data']['status'] == 'pending' && empty($response['data']['origin_info']) && $i < 10) {
                 $i++;
                 sleep(1);
                 continue;
