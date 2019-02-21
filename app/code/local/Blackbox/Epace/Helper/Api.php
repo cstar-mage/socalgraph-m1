@@ -252,6 +252,41 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
         return (array)$out->string;
     }
 
+    /**
+     * @param string $type
+     * @param string[] $keys
+     * @param string[] $fields
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @param string $userName
+     * @param int $limit
+     * @param int $offset
+     * @return array
+     */
+    public function getAuditData($type, $keys, $fields, \DateTime $startDate, \DateTime $endDate, $userName, $limit = 1000, $offset = 0)
+    {
+        $params = [
+            'getAuditData' => [
+                'xmlns' => 'urn://pace2020.com/epace/sdk/FindObjects',
+                'in0' => (string)$type,
+                'in1' => [
+                    'string' => (array)$keys
+                ],
+                'in2' => [
+                    'string' => (array)$fields
+                ],
+                'in3' => $startDate->format('Y-m-d\TH:i:s.0000\Z'),
+                'in4' => $endDate->format('Y-m-d\TH:i:s.0000\Z'),
+                'in5' => (string)$userName,
+                'in6' => (int)$limit,
+                'in7' => (int)$offset
+            ]
+        ];
+
+        $body = $this->sendParamsToServer(null, $params, '', $this->getMethodUrl('FindObjects'), [$this->getAuthHeader()]);
+        return $this->parseResponseBody($body, 'FindObjects');
+    }
+
     public function createEmployeeTime($employee, $startDate, $startTime, $stopDate = null, $stopTime = null, array $otherSettings = array())
     {
         $settings = array_merge(array(

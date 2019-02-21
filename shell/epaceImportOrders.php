@@ -19,33 +19,76 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
      */
     protected $wholesaleGroupId = null;
 
-    /**
-     * @var Mage_Catalog_Model_Product
-     */
-    protected $product = null;
-
     protected $tabs = 0;
 
     /**
-     * Quote convert object
-     *
-     * @var Mage_Sales_Model_Convert_Quote
+     * @var Blackbox_EpaceImport_Helper_Data
      */
-    protected $_convertor;
+    protected $helper;
 
     public function run()
     {
-        //$this->dump();
+        if ($this->getArg('ati')) {
+            $this->checkAmountToInvoice();
+            return;
+        }
+
+        if ($this->getArg('dump')) {
+            $this->dump();
+            return;
+        }
+
         $this->import();
     }
 
     protected function _construct()
     {
-        $this->_convertor = Mage::getModel('sales/convert_quote');
+        $this->helper = Mage::helper('epacei');
+        $this->helper->setOutput(function($message) {
+            $this->writeln($message);
+        });
+    }
+
+    protected function checkAmountToInvoice()
+    {
+        $from = $this->getArg('from');
+        $to = $this->getArg('to');
+        $job = $this->getArg('job');
+
+        /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
+        $collection = Mage::getResourceModel('efi/job_collection');
+        if ($from) {
+            $collection->addFilter('dateSetup', ['gteq' => new DateTime($from)]);
+        }
+        if ($to) {
+            $collection->addFilter('dateSetup', ['lteq' => new DateTime($to)]);
+        }
+
+        if ($job) {
+            $collection->addFilter('job', $job);
+        }
+
+        $ids = $collection->loadIds();
+        foreach ($ids as $id) {
+            /** @var Blackbox_Epace_Model_Epace_Job $job */
+            $job = Mage::getModel('efi/job')->load($id);
+            echo $id . ' ';
+            try {
+                $amountToInvoice = $this->helper->calculatePartsPriceFromEstimate($job);
+                if ($job->getJobValue() == $amountToInvoice) {
+                    $this->writeln('Equal. ' . $amountToInvoice . ' ' . $job->getJobValue());
+                } else {
+                    $this->writeln('Different. ' . $amountToInvoice . ' ' . $job->getJobValue());
+                }
+            } catch (\Exception $e) {
+                $this->writeln($e->getMessage());
+            }
+        }
     }
 
     protected function dump()
     {
+
 //        $json = [];
 //        /** @var Blackbox_Epace_Model_Resource_Epace_Ship_Provider_Collection $collection */
 //        $collection = Mage::getResourceModel('efi/ship_provider_collection');
@@ -143,7 +186,9 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         //$collection->addFilter('id', 52434);
         //$collection->addFilter('id', 11547);
         //$collection->addFilter('id', 10883);
-        $collection->addFilter('id', 16699);
+        if ($estimate = $this->getArg('estimate')) {
+            $collection->addFilter('id', $estimate);
+        }
 
         foreach ($collection->getItems() as $estimate) {
             $estimateData = $estimate->getData();
@@ -423,7 +468,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             $this->writeln('Estimate ' . $estimate->getId() . ' already imported.');
         } else {
             $store = Mage::app()->getStore();
-            $magentoProduct = $this->getProduct();
+            $magentoProduct = $this->helper->getProduct();
 
             foreach ($estimate->getProducts() as $estimateProduct) {
                 foreach ($estimateProduct->getParts() as $part) {
@@ -475,8 +520,12 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 }
             }
 
-            $customer = $this->getCustomerFromCustomer($estimate->getCustomer());
-            $salesPersonCustomer = $this->getCustomerFromSalesPerson($estimate->getSalesPerson());
+            if ($estimate->getCustomer()) {
+                $customer = $this->helper->getCustomerFromCustomer($estimate->getCustomer());
+            } else {
+                $customer = Mage::getModel('customer/customer');
+            }
+            $salesPersonCustomer = $this->helper->getCustomerFromSalesPerson($estimate->getSalesPerson());
 
             $magentoEstimate->addData([
                 'epace_estimate_id' => $estimate->getId(),
@@ -553,298 +602,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         if ($order->getId()) {
             $this->writeln('Job ' . $job->getId() . ' already imported');
         } else {
-            $product = $this->getProduct();
-
-            $totalWeight = 0;
-            $totalTaxAmount = 0;
-            $totalTaxInvoiced = 0;
-
-            foreach ($job->getParts() as $part) {
-                $estimatePart = $part->getEstimatePart();
-                /** @var Blackbox_Epace_Model_Epace_Estimate_Quantity $quantity */
-                $quantity = null;
-                if ($estimatePart) {
-                    foreach ($estimatePart->getQuantities() as $_quantity) {
-                        if ($_quantity->getData('quantityOrdered') == $part->getData('qtyOrdered')) {
-                            $quantity = $_quantity;
-                            break;
-                        }
-                    }
-                }
-
-                $weight = 0;
-                $taxPercent = 0;
-                $taxAmount = 0;
-                if ($quantity) {
-                    $weight = $quantity->getData('weightPerPiece');
-                    $taxAmount = $quantity->getTaxAmount();
-                    $taxPercent = $quantity->getTaxEffectivePercent();
-                }
-
-                $totalWeight += $weight;
-                $totalTaxAmount += $taxAmount;
-
-                $qtyInvoiced = 0;
-                $qtyShipped = 0;
-                $rowInvoiced = 0;
-                $rowTaxInvoiced = 0;
-                foreach ($part->getInvoices() as $invoice) {
-                    $rowInvoiced += $invoice->getInvoiceAmount();
-                    $rowTaxInvoiced += $invoice->getTaxAmount();
-                    foreach ($invoice->getLines() as $line) {
-                        $qtyInvoiced += (float)$line->getQtyInvoiced();
-                        $qtyShipped += (float)$line->getQtyShipped();
-                    }
-                }
-                $totalTaxInvoiced += $rowTaxInvoiced;
-
-                $price = $part->getValue() / $part->getQtyOrdered();
-                $estimatedPrice = $part->getEstimatedCost() / $part->getQtyOrdered();
-
-                $priceInclTax = $price + $taxAmount / $part->getQtyOrdered();
-
-                if ($part->getProduct()) {
-                    $name = $part->getProduct()->getDescription() . ' ' . $part->getDescription();
-                } else {
-                    $name = $part->getDescription();
-                }
-
-                $item = Mage::getModel('sales/order_item');
-                $item->setData([
-                    'store_id' => $this->getStore()->getId(),
-                    'product_id' => $product->getId(),
-                    'product_type' => $product->getTypeId(),
-                    'weight' => $weight,
-                    'sku' => $product->getSku(),
-                    'name' => $name,
-                    'qty_canceled' => 0,
-                    'qty_invoiced' => $qtyInvoiced,
-                    'qty_ordered' => $part->getQtyOrdered(),
-                    'qty_refunded' => 0,
-                    'qty_shipped' => $qtyShipped,
-                    'price' => $price,
-                    'base_price' => $price,
-                    'original_price' => $estimatedPrice,
-                    'base_original_price' => $estimatedPrice,
-                    'tax_percent' => $taxPercent,
-                    'tax_amount' => $taxAmount,
-                    'base_tax_amount' => $taxAmount,
-                    'tax_invoiced' => 0,
-                    'base_tax_invoiced' => 0,
-                    'discount_percent' => 0,
-                    'discount_amount' => 0,
-                    'base_discount_amount' => 0,
-                    'discount_invoiced' => 0,
-                    'base_discount_invoiced' => 0,
-                    'amount_refunded' => 0,
-                    'base_amount_refunded' => 0,
-                    'row_total' => $part->getValue(),
-                    'base_row_total' => $part->getValue(),
-                    'row_invoiced' => $rowInvoiced,
-                    'base_row_invoiced' => $rowInvoiced,
-                    'row_weight' => $weight * $part->getQtyOrdered(),
-                    'price_incl_tax' => $priceInclTax,
-                    'base_price_incl_tax' => $priceInclTax,
-                    'row_total_incl_tax' => $part->getValue() + $taxAmount,
-                    'base_row_total_incl_tax' => $part->getValue() + $taxAmount,
-                    'epace_job_part' => $part->getJobPart(),
-                    'epace_part_original_price' => $part->getOriginalQuotedPrice()
-                ]);
-                $order->addItem($item);
-            }
-
-            $shippingMethod = $this->getShippingMethod($job->getShipVia());
-
-            $customer = $this->getCustomerFromCustomer($job->getCustomer());
-            $salesPersonCustomer = $this->getCustomerFromSalesPerson($job->getSalesPerson());
-
-            if ($job->hasOriginalQuotedPrice() && !empty($job->getOriginalQuotedPrice())) {
-                $subTotal = $job->getOriginalQuotedPrice();
-            } else {
-                $subTotal = $job->getJobValue();
-            }
-
-            $grandTotal = $job->getAmountToInvoice() + $job->getChangeOrderTotal();
-            // some orders have empty amount to invoice
-//            if ($job->getAmountInvoiced() > $grandTotal) {
-//                $grandTotal = $job->getAmountInvoiced();
-//            }
-            // some orders have empty amountInvoiced
-            $amountInvoiced = 0;
-            foreach ($job->getInvoices() as $invoice) {
-                $amountInvoiced += (float)$invoice->getLineItemTotal();
-            }
-            if ($amountInvoiced > $grandTotal) {
-                $grandTotal = $amountInvoiced;
-            }
-
-            $invoicedCost = 0;
-            foreach ($job->getInvoices() as $invoice) {
-                $invoicedCost += (float)$invoice->getTotalCost();
-            }
-
-            $order->addData([
-                'estimate_id' => $magentoEstimate ? $magentoEstimate->getId() : null,
-                'epace_job_id' => $job->getId(),
-                'shipping_description' => $shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle(),
-                'is_virtual' => 0,
-                'store_id' => $this->getStore()->getId(),
-                'customer_id' => $customer->getId(),
-                'sales_person_id' => $salesPersonCustomer->getId(),
-                'base_discount_amount' => 0,
-                'base_grand_total' => $grandTotal,
-                'base_shipping_amount' => 0,
-                'base_shipping_tax_amount' => 0,
-                'base_subtotal' => $subTotal,
-                'base_subtotal_invoiced' => min($amountInvoiced, $subTotal),
-                'base_tax_amount' => $totalTaxAmount,
-                'base_tax_invoiced' => $totalTaxInvoiced,
-                'base_to_global_rate' => 1,
-                'base_to_order_rate' => 1,
-                'base_total_invoiced' => $amountInvoiced,
-                'base_total_invoiced_cost' => $invoicedCost,
-                'base_total_paid' => $amountInvoiced,
-                'grand_total' => $grandTotal,
-                'shipping_amount' => 0,
-                'shipping_invoiced' => 0,
-                'shipping_tax_amount' => 0,
-                'store_to_base_rate' => 1,
-                'store_to_order_rate' => 1,
-                'subtotal' => $subTotal,
-                'subtotal_invoiced' => min($amountInvoiced, $subTotal),
-                'tax_amount' => $totalTaxAmount,
-                'tax_invoiced' => $totalTaxInvoiced,
-                'total_invoiced' => $amountInvoiced,
-                'total_paid' => $amountInvoiced,
-                'total_qty_ordered' => $job->getQtyOrdered(),
-                'customer_is_guest' => 0,
-                'customer_note_notify' => 0,
-                'billing_address_id' => null,
-                'customer_group_id' => $customer->getGroupId(),
-                'email_sent' => 1,
-                'base_subtotal_incl_tax' => $subTotal + $taxAmount,
-                'subtotal_incl_tax' => $subTotal + $taxAmount,
-                'weight' => $totalWeight,
-                'increment_id' => 'EPACEJOB_' . $job->getJob(),
-                'base_currency_code' => $this->getStore()->getBaseCurrencyCode(),
-                'customer_email' => $customer->getEmail(),
-                'customer_firstname' => $customer->getFirstname(),
-                'customer_lastname' => $customer->getLastname(),
-                'customer_middlename' => $customer->getMiddlename(),
-                'customer_prefix' => $customer->getPrefix(),
-                'customer_suffix' => $customer->getSuffix(),
-                'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
-                'order_currency_code' => $this->getStore()->getBaseCurrencyCode(),
-                'shipping_method' => $shippingMethod->getCarrier() . '_' . $shippingMethod->getMethod(),
-                'store_currency_code' => $this->getStore()->getBaseCurrencyCode(),
-                'store_name' => $this->getStore()->getName(),
-                'created_at' => strtotime($job->getDateSetup()) + strtotime($job->getTimeSetUp()),
-                'total_item_count' => count($job->getParts()),
-                'shipping_incl_tax' => 0,
-                'base_shipping_incl_tax' => 0,
-                'job_value' => $job->getJobValue(),
-                'job_type' => $job->getTypeId()
-            ]);
-
-            $this->setOrderStatus($order, $job->getAdminStatusCode());
-
-            $contacts = [];
-            $contactIdToShipmentMap = [];
-
-            foreach ($job->getShipments() as $shipment) {
-                $contactIdToShipmentMap[$shipment->getContactId()][] = $shipment;
-            }
-
-            $addedContacts = [];
-            $shippingAddressAdded = false;
-            $billingAddressAdded = false;
-            foreach ($job->getJobContacts() as $jobContact) {
-                $contactId = $jobContact->getContactId();
-                if (!isset($contacts[$contactId])) {
-                    $contacts[$contactId] = [
-                        'jobContact' => $jobContact,
-                        'contact' => $jobContact->getContact(),
-                        'billing' => $jobContact->getBillTo(),
-                        'shipping' => $jobContact->getShipTo()
-                    ];
-                } else {
-                    $contacts[$contactId]['billing'] |= $jobContact->getBillTo();
-                    $contacts[$contactId]['shipping'] |= $jobContact->getShipTo();
-                }
-            }
-
-            foreach ($contacts as $contactId => $contactData) {
-                if ($contactData['shipping']) {
-                    $type = 'shipping';
-                    $shippingAddressAdded = true;
-                } else if ($contactData['billing']) {
-                    $type = 'billing';
-                    $billingAddressAdded = true;
-                } else {
-                    continue;
-                }
-                /** @var Blackbox_Epace_Model_Epace_Contact $contact */
-                $contact = $contactData['contact'];
-
-                $this->addAddressToOrder($order, $contact, $type, $contactData['jobContact']);
-
-                $addedContacts[] = $contact->getId();
-            }
-
-            if (!$shippingAddressAdded) {
-                if (!empty($contacts)) {
-                    foreach ($contacts as $contactId => $contactData) {
-                        /** @var Blackbox_Epace_Model_Epace_Contact $contact */
-                        $contact = $contactData['contact'];
-                        $this->addAddressToOrder($order, $contact, 'shipping', $contactData['jobContact']);
-                        $addedContacts[] = $contact->getId();
-                        break;
-                    }
-                } else {
-                    $order->addAddress(Mage::getModel('sales/order_address')->addData([
-                        'customer_id' => $customer->getId(),
-                        'address_type' => 'shipping'
-                    ]));
-                    $this->writeln('--------------------------EMPTY SHIPPING ADDRESS ADDED-----------------------');
-                }
-            }
-
-            if (!$billingAddressAdded) {
-                $shipping = false;
-                $contact = null;
-                foreach ($contacts as $contactId => $contactData) {
-                    if (is_null($contact)) {
-                        $contact = $contactData['contact'];
-                    } else if ($contactData['billing']) {
-                        $contact = $contactData['contact'];
-                        break;
-                    } else if ($contactData['shipping'] && !$shipping) {
-                        $contact = $contactData['contact'];
-                        $shipping = true;
-                    }
-                }
-
-                if ($contact) {
-                    $this->addAddressToOrder($order, $contact, 'billing', $contactData['jobContact']);
-                    $addedContacts[] = $contact->getId();
-                } else {
-                    $order->addAddress(Mage::getModel('sales/order_address')->addData([
-                        'customer_id' => $customer->getId(),
-                        'address_type' => 'billing'
-                    ]));
-                    $this->writeln('--------------------------EMPTY BILLING ADDRESS ADDED-----------------------');
-                }
-            }
-
-            /** @var Mage_Sales_Model_Order_Payment $payment */
-            $payment = Mage::getModel('sales/order_payment');
-            $payment->setMethod('epace_payment');
-            $order->setPayment($payment);
-
-            foreach ($job->getNotes() as $note) {
-                $order->addStatusHistoryComment($note->getNote());
-            }
-
+            $this->helper->importJob($job, $order, $magentoEstimate);
             $order->save();
         }
 
@@ -973,7 +731,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
             if ($carton->getTrackingNumber()) {
                 if (!$shippingMethod) {
-                    $shippingMethod = $this->getShippingMethod($jobShipment->getShipVia());
+                    $shippingMethod = $this->helper->getShippingMethod($jobShipment->getShipVia());
                 }
 
                 /** @var Mage_Sales_Model_Order_Shipment_Track $track */
@@ -1023,14 +781,14 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         }
 
         if ($jobShipment->getContact()->getCustomer()) {
-            $customer = $this->getCustomerFromCustomer($jobShipment->getContact()->getCustomer());
+            $customer = $this->helper->getCustomerFromCustomer($jobShipment->getContact()->getCustomer());
             $customerId = $customer->getId();
         } else {
             $customerId = $order->getCustomerId();
         }
 
         if ($jobShipment->getContact()->getSalesPerson()) {
-            $salesPersonCustomer = $this->getCustomerFromSalesPerson($jobShipment->getContact()->getSalesPerson());
+            $salesPersonCustomer = $this->helper->getCustomerFromSalesPerson($jobShipment->getContact()->getSalesPerson());
             $salesPersonCustomerId = $salesPersonCustomer->getId();
         } else {
             $salesPersonCustomerId = $order->getSalesPersonId();
@@ -1235,7 +993,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
         if ($invoice->getReceivable()) {
             $receivable = $invoice->getReceivable();
-            $customer = $this->getCustomerFromCustomer($receivable->getCustomer());
+            $customer = $this->helper->getCustomerFromCustomer($receivable->getCustomer());
 
             $magentoReceivable = Mage::getModel('epacei/receivable');
             $magentoReceivable->setData([
@@ -1292,306 +1050,6 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         }
 
         return $magentoInvoice;
-    }
-
-    /**
-     * @param string $jobStatus
-     * @return string
-     */
-    protected function setOrderStatus(Mage_Sales_Model_Order $order, $jobStatus)
-    {
-        $statuses = [
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_AUTO_BILLING_OK => 'processing',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_CLOSED => 'closed',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_COST_TRANSFER => 'processing',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_CREDIT_HOLD => 'holded',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_JOB_CANCELLED => 'canceled',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_OPEN => ['state' => 'new', 'status' => 'pending'],
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_PARTL_BILL => 'pending',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_SEND_TO_PRINERGY => 'processing',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_SHIPPED => 'complete',
-            Blackbox_Epace_Model_Epace_Job_Status::STATUS_TO_PLANTMANAGER => 'processing'
-        ];
-        $status = $statuses[$jobStatus];
-        if (!$status) {
-            $status = [
-                'state' => 'new',
-                'status' => 'pending'
-            ];
-        }
-        if (is_array($status)) {
-            $order->setData('state', $status['state'])->setData('status', $status['status']);
-        } else {
-            $order->setData('state', $status)->setData('status', $status);
-        }
-    }
-
-    protected function addAddressToOrder(Mage_Sales_Model_Order $order, Blackbox_Epace_Model_Epace_Contact $contact, $type, Blackbox_Epace_Model_Epace_Job_Contact $jobContact)
-    {
-        /** @var Mage_Directory_Model_Resource_Region_Collection $regionCollection */
-        $regionCollection = Mage::getResourceModel('directory/region_collection');
-        $regionCollection->addFieldToFilter('country_id', $contact->getCountry()->getIsoCountry())
-            ->addFieldToFilter('code', $contact->getState());
-        if ($region = $regionCollection->getFirstItem()) {
-            $regionName = $region->getDefaultName();
-        } else {
-            $regionName = $contact->getState();
-        }
-
-        if ($contact->getCustomer()) {
-            $customerId = $this->getCustomerFromCustomer($contact->getCustomer())->getId();
-        } else {
-            $customerId = $order->getCustomerId();
-        }
-
-        if ($contact->getSalesPerson()) {
-            $salesPersonCustomerId = $this->getCustomerFromSalesPerson($contact->getSalesPerson())->getId();
-        } else {
-            $salesPersonCustomerId = $order->getSalesPersonId();
-        }
-
-        $address = Mage::getModel('sales/order_address');
-        $address->addData([
-            'customer_id' => $customerId,
-            'sales_person_id' => $salesPersonCustomerId,
-            'address_type' => $type,
-            'fax' => '',
-            'region' => $regionName,
-            'postcode' => $contact->getZip(),
-            'lastname' => $contact->getLastName(),
-            'street' => $contact->getAddress1(),
-            'city' => $contact->getCity(),
-            'email' => $contact->getEmail(),
-            'telephone' => $contact->getMobilePhoneNumber() ?: $contact->getBusinessPhoneExtension() . ' ' . $contact->getBusinessPhoneNumber(),
-            'country_id' => $contact->getCountry()->getIsoCountry(),
-            'firstname' => $contact->getFirstName(),
-            'company' => $contact->getCompanyName(),
-            'epace_job_contact_id' => $jobContact->getId(),
-            'epace_contact_id' => $contact->getId()
-        ]);
-        $order->addAddress($address);
-
-        return $address;
-    }
-
-    protected function getCustomerFromCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
-    {
-        if (isset($this->customerCustomerMap[$customer->getId()])) {
-            return $this->customerCustomerMap[$customer->getId()];
-        }
-
-        $email = $customer->getEmail();
-        if (!$email) {
-            $email = 'customer' . $customer->getId() . 'epace@socalgraph.com';
-        }
-
-        /** @var Mage_Customer_Model_Customer $magentoCustomer */
-        $magentoCustomer = Mage::getModel('customer/customer')->setWebsiteId($this->getWebsiteId())->loadByEmail($email);
-        if (!$magentoCustomer->getId()) {
-            $magentoCustomer
-                ->setWebsiteId($this->getWebsiteId())
-                ->setStore($this->getStore())
-                ->setFirstname($customer->getCustName())
-                ->setLastname('')
-                ->setEmail($email)
-                ->setPassword('password');
-
-            /** @var Mage_Directory_Model_Resource_Region_Collection $regionCollection */
-            $regionCollection = Mage::getResourceModel('directory/region_collection');
-            $regionCollection->addFieldToFilter('country_id', $customer->getCountry()->getIsoCountry())
-                ->addFieldToFilter('code', $customer->getState());
-            if ($region = $regionCollection->getFirstItem()) {
-                $regionName = $region->getDefaultName();
-            } else {
-                $regionName = $customer->getState();
-            }
-
-            $magentoCustomer->save();
-
-            $address = Mage::getModel('customer/address')->setData([
-                'parent_id' => $magentoCustomer->getId(),
-                'is_active' => 1,
-                'firstname' => $customer->getContactFirstName(),
-                'lastname' => $customer->getContactLastName(),
-                'company' => $customer->getCustName(),
-                'street' => implode(PHP_EOL, array_filter([
-                    $customer->getAddress1(),
-                    $customer->getAddress2(),
-                    $customer->getAddress3()
-                ])),
-                'city' => $customer->getCity(),
-                'country_id' =>  $customer->getCountry()->getIsoCountry(),
-                'region' => $regionName,
-                'region_id' => $region ? $region->getId() : null,
-                'postcode' => $customer->getZip(),
-                'telephone' => $customer->getPhoneNumber(),
-                'fax' => ''
-            ])->save();
-            $magentoCustomer->addAddress($address);
-
-            $this->writeln('Created customer ' . $magentoCustomer->getId() . ' from epace Customer ' . $customer->getId());
-        }
-
-        return $this->customerCustomerMap[$customer->getId()] = $magentoCustomer;
-    }
-
-    protected function getCustomerFromSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
-    {
-        if (isset($this->salesPersonCustomerMap[$salesPerson->getId()])) {
-            return $this->salesPersonCustomerMap[$salesPerson->getId()];
-        }
-
-        $email = $salesPerson->getEmail();
-        if (!$email) {
-            $email = 'salesPerson' . $salesPerson->getId() .'epace@socalgraph.com';
-        }
-
-        $customer = Mage::getModel('customer/customer')->setWebsiteId($this->getWebsiteId())->loadByEmail($email);
-        if (!$customer->getId()) {
-            $name = explode(' ', $salesPerson->getName(), 2);
-            $customer
-                ->setWebsiteId($this->getWebsiteId())
-                ->setStore($this->getStore())
-                ->setFirstname($name[0])
-                ->setLastname($name[1])
-                ->setEmail($email)
-                ->setPassword('password')
-                ->setGroupId($this->getWholesaleCustomerGroupId());
-            $customer->save();
-            $this->writeln('Created customer ' . $customer->getId() . ' from SalesPerson ' . $salesPerson->getId());
-        }
-
-        return $this->salesPersonCustomerMap[$salesPerson->getId()] = $customer;
-    }
-
-    protected function getWholesaleCustomerGroupId()
-    {
-        if (is_null($this->wholesaleGroupId)) {
-            $groupCollection = Mage::getResourceModel('customer/group_collection')
-                ->addFieldToFilter('customer_group_code', ['like' => 'wholesale']);
-            /** @var Mage_Customer_Model_Group $group */
-            $group = $groupCollection->getFirstItem();
-            if (!$group->getId()) {
-                $group->setCode('Wholesale')->setTaxClassId(3)->save();
-            }
-            $this->wholesaleGroupId = $group->getId();
-        }
-        return $this->wholesaleGroupId;
-    }
-
-    /**
-     * @return Mage_Catalog_Model_Product
-     */
-    protected function getProduct()
-    {
-        if (!$this->product) {
-            $this->product = Mage::getModel('catalog/product');
-            $id = $this->product->getIdBySku('epace_blank');
-            if ($id) {
-                $this->product->load($id);
-            } else {
-                $this->product->setData([
-                    'website_ids' => [1],
-                    'sku' => 'epace_blank',
-                    'name' => 'Epace Blank',
-                    'attribute_set_id' => 4,
-                    'created_at' => time(),
-                    'status' => 0,
-                    'tax_class_id' => 4,
-                    'visibility' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE
-                ])->save();
-            }
-        }
-
-        return $this->product;
-    }
-
-    /**
-     * @var Mage_Shipping_Model_Carrier_Interface[]
-     */
-    protected $carriers = null;
-
-    /**
-     * @param Blackbox_Epace_Model_Epace_Ship_Via $shipVia
-     * @return Mage_Shipping_Model_Rate_Result_Method
-     */
-    protected function getShippingMethod(Blackbox_Epace_Model_Epace_Ship_Via $shipVia)
-    {
-        if (is_null($this->carriers)) {
-            $this->carriers = Mage::getSingleton('shipping/config')->getActiveCarriers();
-
-            $fedexFound = false;
-            $upsFound = false;
-            $found = 0;
-            foreach ($this->carriers as $carrier) {
-                if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
-                    $fedexFound = true;
-                    if (++$found == 2) {
-                        break;
-                    }
-                } else if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups) {
-                    $upsFound = true;
-                    if (++$found == 2) {
-                        break;
-                    }
-                }
-            }
-
-            if (!$fedexFound) {
-                $this->carriers[] = Mage::getModel('usa/shipping_carrier_fedex');
-            }
-            if (!$upsFound) {
-                $this->carriers[] = Mage::getModel('usa/shipping_carrier_ups');
-            }
-        }
-
-        /** @var Blackbox_EpaceImport_Helper_Data $helper */
-        $helper = Mage::helper('epacei');
-
-        $code = $helper->getShipViaMethodCode($shipVia);
-        /** @var Blackbox_EpaceImport_Model_Shipping_Carrier $epaceCarrier */
-        $epaceCarrier = null;
-
-        foreach ($this->carriers as $carrier) {
-            if ($carrier instanceof Blackbox_EpaceImport_Model_Shipping_Carrier) {
-                $epaceCarrier = $carrier;
-                continue;
-            }
-            if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
-                $methods = $carrier->getCode('method');
-            } else {
-                $methods = $carrier->getAllowedMethods();
-            }
-            foreach ($methods as $method => $title) {
-                if (strtolower($carrier->getCarrierCode() . '_' . $method) == $code) {
-                    return Mage::getModel('shipping/rate_result_method')->setData([
-                        'carrier' => $carrier->getCarrierCode(),
-                        'method' => $method,
-                        'carrier_title' => $carrier->getConfigData('title'),
-                        'method_title' => $title
-                    ]);
-                }
-            }
-        }
-
-        if ($epaceCarrier) {
-            $carrier = $epaceCarrier;
-        } else {
-            $carrier = Mage::getModel('epacei/shipping_carrier');
-        }
-
-        foreach ($carrier->getAllowedMethods() as $method => $title) {
-            if ($method == $code) {
-                return Mage::getModel('shipping/rate_result_method')->setData([
-                    'carrier' => $carrier->getCarrierCode(),
-                    'method' => $method,
-                    'carrier_title' => $carrier->getConfigData('title'),
-                    'method_title' => $title
-                ]);
-            }
-        }
-
-        return $carrier->getEmptyRate();
     }
 
     protected function getWebsiteId()

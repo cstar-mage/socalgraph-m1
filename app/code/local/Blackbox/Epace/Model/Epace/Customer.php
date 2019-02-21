@@ -33,7 +33,6 @@
  * @method bool getOrderAlert()
  * @method int getPhoneNumber()
  * @method int getSalesCategory()
- * @method string getSalesTax()
  * @method float getSalesYTD()
  * @method int getShipToContact()
  * @method int getShipVia()
@@ -99,6 +98,11 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     protected $country = null;
 
+    /**
+     * @var Blackbox_Epace_Model_Epace_SalesTax
+     */
+    protected $salesTax = null;
+
     protected function _construct()
     {
         $this->_init('Customer', 'id');
@@ -153,6 +157,29 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
     public function setCountry(Blackbox_Epace_Model_Epace_Country $country)
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalesTaxCode()
+    {
+        return $this->getData('salesTax');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesTax
+     */
+    public function getSalesTax()
+    {
+        return $this->_getObject('salesTax', 'salesTax', 'efi/salesTax', true);
+    }
+
+    public function setSalesTax(Blackbox_Epace_Model_Epace_SalesTax $salesTax)
+    {
+        $this->salesTax = $salesTax;
 
         return $this;
     }
