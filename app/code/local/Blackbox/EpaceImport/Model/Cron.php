@@ -121,7 +121,7 @@ class Blackbox_EpaceImport_Model_Cron
     {
         /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $collection */
         $collection = Mage::getResourceModel('efi/invoice_collection');
-        $collection->addFilter('invoiceDate'. ['gteq' => $from]);
+        $collection->addFilter('invoiceDate', ['gteq' => $from]);
 
         foreach ($collection->loadIds() as $id) {
             /** @var Blackbox_Epace_Model_Epace_Invoice $invoice */
