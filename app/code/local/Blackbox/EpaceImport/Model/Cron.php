@@ -9,6 +9,7 @@ class Blackbox_EpaceImport_Model_Cron
     const XML_PATH_LAST_UPDATE_TIME = 'epace/import/last_update_time';
     const XML_PATH_UPDATE_ESTIMATES = 'epace/import/update_estimates';
     const XML_PATH_UPDATE_JOBS = 'epace/import/update_jobs';
+    const XML_PATH_UPDATE_CLOSED_JOBS = 'epace/import/update_closed_jobs';
     const XML_PATH_UPDATE_INVOICES = 'epace/import/update_invoices';
     const XML_PATH_UPDATE_SHIPMENTS = 'epace/import/update_shipments';
     const XML_PATH_IMPORT_NEW_OBJECTS = 'epace/import/import_new';
@@ -16,6 +17,9 @@ class Blackbox_EpaceImport_Model_Cron
     public function __construct()
     {
         $this->helper = Mage::helper('epacei');
+        $this->helper->setOutput(function($message) {
+            $this->log($message);
+        });
     }
 
     public function updateEpaceEntities(Mage_Cron_Model_Schedule $schedule)
@@ -24,47 +28,54 @@ class Blackbox_EpaceImport_Model_Cron
             return;
         }
 
-        if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
-            $this->updateEstimates();
-        }
-        if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
-            $this->updateJobs();
-        }
-        if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
-            $this->updateInvoices();
-        }
-        if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
-            $this->updateShipments();
-        }
+        $this->log('Start import');
+        try {
 
-        if (!Mage::getStoreConfigFlag(self::XML_PATH_IMPORT_NEW_OBJECTS)) {
-            return;
-        }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
+                $this->updateEstimates();
+            }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
+                $this->updateJobs();
+            }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
+                $this->updateInvoices();
+            }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
+                $this->updateShipments();
+            }
 
-        $lastUpdateTime = Mage::getStoreConfig('epace/import/last_update_time');
-        if (!empty($lastUpdateTime)) {
-            if (is_numeric($lastUpdateTime)) {
-                $dateTime = new \DateTime();
-                $dateTime->setTimestamp($lastUpdateTime);
-            } else {
-                try {
-                    $dateTime = new \DateTime($lastUpdateTime);
-                } catch (\Exception $e) {
+            if (!Mage::getStoreConfigFlag(self::XML_PATH_IMPORT_NEW_OBJECTS)) {
+                return;
+            }
+
+            $lastUpdateTime = Mage::getStoreConfig('epace/import/last_update_time');
+            if (!empty($lastUpdateTime)) {
+                if (is_numeric($lastUpdateTime)) {
+                    $dateTime = new \DateTime();
+                    $dateTime->setTimestamp($lastUpdateTime);
+                } else {
+                    try {
+                        $dateTime = new \DateTime($lastUpdateTime);
+                    } catch (\Exception $e) {
+                        $this->log($e->getMessage());
+                    }
                 }
             }
+            if (!isset($dateTime)) {
+                $dateTime = new \DateTime('-14 hours');
+            }
+
+            $currentTime = time();
+
+            $this->importNewEstimates($dateTime);
+            $this->importNewJobs($dateTime);
+            $this->importNewInvoices($dateTime);
+            $this->importNewShipments($dateTime);
+
+            Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
+        } finally {
+            $this->log('End import');
         }
-        if (!isset($dateTime)) {
-            $dateTime = new \DateTime('-1 month');
-        }
-
-        $currentTime = time();
-
-        $this->importNewEstimates($dateTime);
-        $this->importNewJobs($dateTime);
-        $this->importNewInvoices($dateTime);
-        $this->importNewShipments($dateTime);
-
-        Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
     }
 
     protected function importNewEstimates(\DateTime $from)
@@ -77,7 +88,11 @@ class Blackbox_EpaceImport_Model_Cron
         foreach ($ids as $estimateId) {
             /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
             $estimate = Mage::getModel('efi/estimate')->load($estimateId);
-            $this->importEstimate($estimate);
+            try {
+                $this->importEstimate($estimate);
+            } catch (\Exception $e) {
+                $this->log($e->getMessage());
+            }
         }
     }
 
@@ -99,7 +114,11 @@ class Blackbox_EpaceImport_Model_Cron
             if ($connection->fetchOne($select) == 0) {
                 /** @var Blackbox_Epace_Model_Epace_Job $job */
                 $job = Mage::getModel('efi/job')->load($jobId);
-                $this->importJob($job, null, false);
+                try {
+                    $this->importJob($job, null, false);
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
             }
         }
     }
@@ -113,7 +132,11 @@ class Blackbox_EpaceImport_Model_Cron
         foreach ($collection->loadIds() as $id) {
             /** @var Blackbox_Epace_Model_Epace_Job_Shipment $shipment */
             $shipment = Mage::getModel('efi/job_shipment')->load($id);
-            $this->importShipment($shipment);
+            try {
+                $this->importShipment($shipment);
+            } catch (\Exception $e) {
+                $this->log($e->getMessage());
+            }
         }
     }
 
@@ -126,7 +149,11 @@ class Blackbox_EpaceImport_Model_Cron
         foreach ($collection->loadIds() as $id) {
             /** @var Blackbox_Epace_Model_Epace_Invoice $invoice */
             $invoice = Mage::getModel('efi/invoice')->load($id);
-            $this->importInvoice($invoice);
+            try {
+                $this->importInvoice($invoice);
+            } catch (\Exception $e) {
+                $this->log($e->getMessage());
+            }
         }
     }
 
@@ -175,6 +202,7 @@ class Blackbox_EpaceImport_Model_Cron
             try {
                 $this->importInvoice($invoice, $order);
             } catch (\Exception $e) {
+                $this->log($e->getMessage());
             }
         }
 
@@ -182,6 +210,7 @@ class Blackbox_EpaceImport_Model_Cron
             try {
                 $this->importShipment($shipment, $order);
             } catch (\Exception $e) {
+                $this->log($e->getMessage());
             }
         }
     }
@@ -233,7 +262,11 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Blackbox_EpaceImport_Model_Estimate $estimate */
             foreach ($collection->getItems() as $estimate) {
                 $estimate->setDataChanges(false);
-                $this->updateEstimate($estimate);
+                try {
+                    $this->updateEstimate($estimate);
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
             }
         } while ($page < $lastPage);
     }
@@ -243,6 +276,9 @@ class Blackbox_EpaceImport_Model_Cron
         /** @var Mage_Sales_Model_Resource_Order_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_collection');
         $collection->addFieldToFilter('epace_job_id', ['notnull' => true]);
+        if (!Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_CLOSED_JOBS)) {
+            $collection->addFieldToFilter('state', ['neq' => Mage_Sales_Model_Order::STATE_CLOSED]);
+        }
 
         $page = 0;
         $collection->setPageSize(100);
@@ -255,7 +291,11 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Mage_Sales_Model_Order $order */
             foreach ($collection->getItems() as $order) {
                 $order->setDataChanges(false);
-                $this->updateOrder($order);
+                try {
+                    $this->updateOrder($order);
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
             }
 
         } while ($page < $lastPage);
@@ -278,7 +318,11 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Mage_Sales_Model_Order_Invoice $invoice */
             foreach ($collection->getItems() as $invoice) {
                 $invoice->setDataChanges(false);
-                $this->updateInvoice($invoice);
+                try {
+                    $this->updateInvoice($invoice);
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
             }
 
         } while ($page < $lastPage);
@@ -301,7 +345,11 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Mage_Sales_Model_Order_Shipment $shipment */
             foreach ($collection->getItems() as $shipment) {
                 $shipment->setDataChanges(false);
-                $this->updateShipment($shipment);
+                try {
+                    $this->updateShipment($shipment);
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
             }
 
         } while ($page < $lastPage);
@@ -556,5 +604,10 @@ class Blackbox_EpaceImport_Model_Cron
                 $old->setData($key, $value);
             }
         }
+    }
+
+    protected function log($message)
+    {
+        Mage::log($message, null, 'epace_import_cron.log', true);
     }
 }
