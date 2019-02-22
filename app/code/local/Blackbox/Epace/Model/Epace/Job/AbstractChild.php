@@ -8,6 +8,14 @@ abstract class Blackbox_Epace_Model_Epace_Job_AbstractChild extends Blackbox_Epa
     protected $job = null;
 
     /**
+     * @return string
+     */
+    public function getJobId()
+    {
+        return $this->getData('job');
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Job|false
      */
     public function getJob()
