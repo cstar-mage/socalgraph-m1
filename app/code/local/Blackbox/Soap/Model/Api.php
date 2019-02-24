@@ -178,7 +178,7 @@ class Blackbox_Soap_Model_Api
                     $attributes = null;
                 }
 
-                if (count($v) == 1 && isset($v[0])) {
+                if (count($v) == 1 && isset($v[0]) && !is_array($v[0])) {
                     $this->addChild($xml, $k, $v[0], $xmlns, $attributes);
                     continue;
                 }

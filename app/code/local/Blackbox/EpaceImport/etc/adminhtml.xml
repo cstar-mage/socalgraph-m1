@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <sales>
+            <children>
+                <estimate translate="title" module="epacei">
+                    <title>Estimates</title>
+                    <action>adminhtml/epace_estimate</action>
+                    <sort_order>15</sort_order>
+                    <depends><module>Mage_Sales</module></depends>
+                </estimate>
+                <receivable translate="title" module="epacei">
+                    <title>Receivables</title>
+                    <action>adminhtml/epace_receivable</action>
+                    <sort_order>16</sort_order>
+                    <depends><module>Mage_Sales</module></depends>
+                </receivable>
+            </children>
+        </sales>
+     </menu>
+     <acl>
+        <resources>
+            <admin>
+                <children>
+                    <epace translate="title" module="epacei">
+                        <title>Epace</title>
+                        <sort_order>666</sort_order>
+                        <children>
+                            <estimate translate="title">
+                                <title>Estimates</title>
+                            </estimate>
+                            <receivable translate="title">
+                                <title>Receivables</title>
+                            </receivable>
+                        </children>
+                    </epace>
+                    <sales>
+                        <children>
+                            <estimate translate="title">
+                                <title>Estimates</title>
+                                <sort_order>229</sort_order>
+                            </estimate>
+                            <receivable translate="title">
+                                <title>Receivables</title>
+                                <sort_order>230</sort_order>
+                            </receivable>
+                        </children>
+                    </sales>
+                </children>
+            </admin>
+        </resources>
+     </acl>
+</config>

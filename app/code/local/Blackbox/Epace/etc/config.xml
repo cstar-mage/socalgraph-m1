@@ -37,6 +37,13 @@
                     </event_file>
                 </entities>
             </epace_mysql4>
+            <efi>
+                <class>Blackbox_Epace_Model_Epace</class>
+                <resourceModel>efi_resource</resourceModel>
+            </efi>
+            <efi_resource>
+                <class>Blackbox_Epace_Model_Resource_Epace</class>
+            </efi_resource>
         </models>
         <resources>
             <epace_setup>

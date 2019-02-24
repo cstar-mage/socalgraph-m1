@@ -16,6 +16,9 @@ class Blackbox_Epace_Model_Observer
         }
 
         $invoice = $observer->getEvent()->getInvoice(); /* @var Mage_Sales_Model_Order_Invoice $invoice */
+        if (!empty($invoice->getEpaceInvoiceId())) {
+            return;
+        }
 
         $canExportInvoice = false;
         foreach ($invoice->getAllItems() as $item) {
@@ -146,7 +149,7 @@ class Blackbox_Epace_Model_Observer
 
         $order = $observer->getEvent()->getOrder(); /* @var Mage_Sales_Model_Order $order */
 
-        if ($order->getState() != Mage_Sales_Model_Order::STATE_COMPLETE)
+        if ($order->getState() != Mage_Sales_Model_Order::STATE_COMPLETE || !empty($order->getEpaceJobId()))
         {
             return;
         }

@@ -99,6 +99,12 @@ $orderStoreDate = $this->formatDate($_order->getCreatedAtStoreDate(), 'medium', 
                         <td class="value"><strong><?php echo $_order->getBaseToOrderRate() ?></strong></td>
                     </tr>
                 <?php endif; ?>
+                <?php if ($_order->getEstimateId() && ($estimate = Mage::getModel('epacei/estimate')->load($_order->getEstimateId())) && $estimate->getId()): ?>
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('Estimate') ?></label></td>
+                        <td class="value"><strong><a href="<?php echo $this->getUrl('*/epace_estimate/view', ['estimate_id' => $estimate->getId()]) ?>"><?=$estimate->getIncrementId()?></a></strong></td>
+                    </tr>
+                <?php endif; ?>
             </table>
         </div>
     </div>
@@ -164,7 +170,7 @@ $orderStoreDate = $this->formatDate($_order->getCreatedAtStoreDate(), 'medium', 
         <?php $addresses = $_order->getShippingAddresses() ?>
         <div class="entry-edit">
             <div class="entry-edit-head">
-                <?php if (count($addresses) > 0): ?>
+                <?php if (count($addresses) > 1): ?>
                     <h4 class="icon-head head-shipping-address"><?php echo Mage::helper('sales')->__('Shipping Addresses') ?></h4>
                 <?php else: ?>
                     <h4 class="icon-head head-shipping-address"><?php echo Mage::helper('sales')->__('Shipping Address') ?></h4>
