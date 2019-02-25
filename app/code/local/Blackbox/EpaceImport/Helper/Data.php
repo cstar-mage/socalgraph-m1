@@ -97,6 +97,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                         'weight' => (float)$quantity->getWeightPerPiece(),
                         'row_weight' => $quantity->getWeightPerPiece() * $quantity->getQuantityOrdered(),
                         'qty' => $quantity->getData('quantityOrdered'),
+                        'base_cost' => $quantity->getCost(),
                         'price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getPart()->getData('numSigs'),
                         'base_price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getPart()->getData('numSigs'),
                         'tax_percent' => $quantity->getTaxEffectivePercent(),
@@ -123,7 +124,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'tax_amount' => 'tax_amount',
             'total_qty' => 'qty',
             'base_subtotal_incl_tax' => 'row_total_incl_tax',
-            'subtotal_incl_tax' => 'row_total_incl_tax'
+            'subtotal_incl_tax' => 'row_total_incl_tax',
+            'base_total_cost' => 'base_cost'
         ];
         $aggregatedFields = [];
         foreach ($aggregateFields as $field => $sourceField) {
