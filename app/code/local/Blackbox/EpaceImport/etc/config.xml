@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Blackbox_EpaceImport>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
         </Blackbox_EpaceImport>
     </modules>
     <global>
@@ -14,6 +14,7 @@
                 <rewrite>
                     <dashboard_sales>Blackbox_EpaceImport_Block_Adminhtml_Dashboard_Sales</dashboard_sales>
                     <sales_order_totals>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Totals</sales_order_totals>
+                    <sales_order_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid</sales_order_grid>
                 </rewrite>
             </adminhtml>
         </blocks>
