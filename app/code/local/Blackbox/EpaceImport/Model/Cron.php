@@ -13,6 +13,12 @@ class Blackbox_EpaceImport_Model_Cron
     const XML_PATH_UPDATE_INVOICES = 'epace/import/update_invoices';
     const XML_PATH_UPDATE_SHIPMENTS = 'epace/import/update_shipments';
     const XML_PATH_IMPORT_NEW_OBJECTS = 'epace/import/import_new';
+    const XML_PATH_LOG = 'epace/import/log';
+
+    /**
+     * @var bool
+     */
+    protected $logEnabled;
 
     public function __construct()
     {
@@ -20,6 +26,7 @@ class Blackbox_EpaceImport_Model_Cron
         $this->helper->setOutput(function($message) {
             $this->log($message);
         });
+        $this->logEnabled = Mage::getStoreConfigFlag(self::XML_PATH_LOG);
     }
 
     public function updateEpaceEntities(Mage_Cron_Model_Schedule $schedule)
@@ -649,7 +656,7 @@ class Blackbox_EpaceImport_Model_Cron
 
     protected function logChanges($message, $changes)
     {
-        if (empty($changes)) {
+        if (!$this->logEnabled || empty($changes)) {
             return;
         }
         $msg = [];
@@ -661,6 +668,8 @@ class Blackbox_EpaceImport_Model_Cron
 
     protected function log($message)
     {
-        Mage::log($message, null, 'epace_import_cron.log', true);
+        if ($this->logEnabled) {
+            Mage::log($message, null, 'epace_import_cron.log', true);
+        }
     }
 }

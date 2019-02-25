@@ -105,6 +105,7 @@
                 <update_invoices>1</update_invoices>
                 <update_shipments>1</update_shipments>
                 <import_new>1</import_new>
+                <log>1</log>
             </import>
         </epace>
     </default>
