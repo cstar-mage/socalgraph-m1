@@ -73,6 +73,8 @@ class Blackbox_EpaceImport_Model_Cron
             $this->importNewShipments($dateTime);
 
             Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
+        } catch (\Exception $e) {
+            $this->log('Exception ' . get_class($e) . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
         } finally {
             $this->log('End import');
         }
@@ -163,6 +165,7 @@ class Blackbox_EpaceImport_Model_Cron
         $magentoEstimate = Mage::getModel('epacei/estimate');
         $magentoEstimate->loadByAttribute('epace_estimate_id', $estimate->getId());
         if ($magentoEstimate->getId()) {
+            $this->log('Estimate ' . $estimate->getId() . ' already imported.');
             return;
         }
 
@@ -172,8 +175,13 @@ class Blackbox_EpaceImport_Model_Cron
         if ($estimate->isConvertedToJob()) {
             $jobs = $estimate->getJobs();
             if (!empty ($jobs)) {
+                $count = count($jobs);
+                $this->log('Found ' . $count . ' jobs');
+                $i = 0;
                 foreach ($estimate->getJobs() as $job) {
+                    $this->log('Job ' . ++$i . '/' . $count . ': ' . $job->getId());
                     if ($job->getEstimateId() != $estimate->getId()) {
+                        $this->log('Job source does match with estimate.');
                         continue;
                     }
                     $this->importJob($job, $magentoEstimate, true);
@@ -192,25 +200,34 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         if ($order->getId()) {
+            $this->log('Job ' . $job->getId() . ' already imported');
             return;
         }
 
         $this->helper->importJob($job, $order, $magentoEstimate);
         $order->save();
 
+        $i = 0;
+        $count = count($job->getInvoices());
         foreach ($job->getInvoices() as $invoice) {
+            $i++;
+            $this->log("Invoice $i/$count: {$invoice->getId()}");
             try {
                 $this->importInvoice($invoice, $order);
             } catch (\Exception $e) {
-                $this->log($e->getMessage());
+                $this->log('Error: ' . $e->getMessage());
             }
         }
 
+        $i = 0;
+        $count = count($job->getShipments());
         foreach ($job->getShipments() as $shipment) {
+            $i++;
+            $this->log("Shipment $i/$count: {$shipment->getId()}");
             try {
                 $this->importShipment($shipment, $order);
             } catch (\Exception $e) {
-                $this->log($e->getMessage());
+                $this->log('Error: ' . $e->getMessage());
             }
         }
     }
@@ -222,6 +239,7 @@ class Blackbox_EpaceImport_Model_Cron
 
         $orderShipment->load($jobShipment->getId(), 'epace_shipment_id');
         if ($orderShipment->getId()) {
+            $this->log("Shipment {$jobShipment->getId()} already imported.");
             return;
         }
 
@@ -235,6 +253,7 @@ class Blackbox_EpaceImport_Model_Cron
         $magentoInvoice = Mage::getModel('sales/order_invoice');
         $magentoInvoice->load($invoice->getId(), 'epace_invoice_id');
         if ($magentoInvoice->getId()) {
+            $this->log("Invoice {$invoice->getId()} already imported.");
             return;
         }
 
@@ -263,6 +282,7 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $estimate) {
                 $estimate->setDataChanges(false);
                 try {
+                    $this->log('Updating estimate ' . $estimate->getId() . '. Epace estimate id: ' . $estimate->getEpaceEstimateId());
                     $this->updateEstimate($estimate);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
@@ -292,6 +312,7 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $order) {
                 $order->setDataChanges(false);
                 try {
+                    $this->log('Updating order ' . $order->getId() . '. Job: ' . $order->getEpaceJobId());
                     $this->updateOrder($order);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
@@ -319,6 +340,7 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $invoice) {
                 $invoice->setDataChanges(false);
                 try {
+                    $this->log('Updating invoice ' . $invoice->getId() . '. Epace invoice id: ' . $invoice->getEpaceInvoiceId());
                     $this->updateInvoice($invoice);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
@@ -346,6 +368,7 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $shipment) {
                 $shipment->setDataChanges(false);
                 try {
+                    $this->log('Updating shipment ' . $shipment->getId() . '. Epace shipment id: ' . $shipment->getEpaceShipmentId());
                     $this->updateShipment($shipment);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
@@ -364,11 +387,12 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $newEstimate = $this->helper->importEstimate($epaceEstimate);
-        $this->updateObject($estimate, $newEstimate, [
+        $changes = $this->updateObject($estimate, $newEstimate, [
             'store_name',
             'created_at',
             'updated_at'
         ]);
+        $this->logChanges('Estimate ' . $estimate->getId() . ' updates', $changes);
 
         $oldItems = $estimate->getAllItems();
         foreach ($oldItems as $item) {
@@ -385,12 +409,14 @@ class Blackbox_EpaceImport_Model_Cron
             }
 
             if ($oldItem) {
-                $this->updateObject($oldItem, $newItem, [
+                $changes = $this->updateObject($oldItem, $newItem, [
                     'estimate_id',
                     'store_id'
                 ]);
+                $this->logChanges('Estimate item ' . $oldItems->getId() . ' updates', $changes);
                 $oldItem->save();
             } else {
+                $this->log('Added estimate item ' . print_r($newItem->getData(), true));
                 $estimate->addItem($newItem);
                 $newItem->save();
             }
@@ -428,7 +454,8 @@ class Blackbox_EpaceImport_Model_Cron
         ];
 
         $newOrder = $this->helper->importJob($job);
-        $this->updateObject($order, $newOrder, $ignoreFields);
+        $changes = $this->updateObject($order, $newOrder, $ignoreFields);
+        $this->logChanges('Order ' . $order->getId() . ' updates', $changes);
 
         $ignoreFields = [
             'entity_id',
@@ -452,9 +479,11 @@ class Blackbox_EpaceImport_Model_Cron
             }
 
             if ($oldItem) {
-                $this->updateObject($oldItem, $newItem, $ignoreFields);
+                $changes = $this->updateObject($oldItem, $newItem, $ignoreFields);
+                $this->logChanges('Order item ' . $oldItem->getId() . ' updates', $changes);
                 $oldItem->save();
             } else {
+                $this->log('Added new order item ' . print_r($newItem->getData(), true));
                 $order->addItem($newItem);
                 $newItem->save();
             }
@@ -480,9 +509,11 @@ class Blackbox_EpaceImport_Model_Cron
             }
 
             if ($oldAddress) {
-                $this->updateObject($oldAddress, $newAddress, $ignoreFields);
+                $changes = $this->updateObject($oldAddress, $newAddress, $ignoreFields);
+                $this->logChanges('Order address ' . $oldAddress->getId() . ' updates', $changes);
                 $oldAddress->save();
             } else {
+                $this->log('Added new order address ' . print_r($newAddress->getData()));
                 $order->addAddress($newAddress);
                 $newAddress->save();
             }
@@ -511,11 +542,12 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $newInvoice = $this->helper->importInvoice($epaceInvoice);
-        $this->updateObject($invoice, $newInvoice, [
+        $changes = $this->updateObject($invoice, $newInvoice, [
             'order_id',
             'created_at',
             'updated_at'
         ]);
+        $this->logChanges('Invoice ' . $invoice->getId() . ' updates', $changes);
 
         if ($epaceInvoice->getReceivable()) {
             $magentoReceivable = Mage::getModel('epacei/receivable')->load($invoice->getId(), 'invoice_id');
@@ -532,10 +564,11 @@ class Blackbox_EpaceImport_Model_Cron
     protected function updateReceivable(Blackbox_EpaceImport_Model_Receivable $receivable, Blackbox_Epace_Model_Epace_Receivable $epaceReceivable, Mage_Sales_Model_Order_Invoice $invoice)
     {
         $newReceivable = $this->helper->importReceivable($epaceReceivable, $invoice);
-        $this->updateObject($receivable, $newReceivable, [
+        $changes = $this->updateObject($receivable, $newReceivable, [
             'created_at',
             'updated_at',
         ]);
+        $this->logChanges('Receivable ' . $receivable->getId() . ' updates', $changes);
 
         $receivable->save();
     }
@@ -549,10 +582,11 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $newShipment = $this->helper->importShipment($epaceShipment, $shipment->getOrder());
-        $this->updateObject($shipment, $newShipment, [
+        $changes = $this->updateObject($shipment, $newShipment, [
             'created_at',
             'updated_at'
         ]);
+        $this->logChanges('Shipment ' . $shipment->getId() . ' updates', $changes);
 
         /** @var Mage_Sales_Model_Order_Shipment_Track[] $oldTracks */
         $oldTracks = $shipment->getAllTracks();
@@ -576,6 +610,7 @@ class Blackbox_EpaceImport_Model_Cron
      */
     protected function updateObject($old, $new, $ignoreFields = [])
     {
+        $changes = [];
         $fields = $old->getResource()->getReadConnection()->describeTable($old->getResource()->getMainTable());
         foreach ($new->getData() as $key => $value) {
             if (in_array($key, $ignoreFields)) {
@@ -601,9 +636,27 @@ class Blackbox_EpaceImport_Model_Cron
                 }
             }
             if ($oldValue!= $value) {
+                $changes[] = [
+                    'field' => $key,
+                    'from' => $old->getData($key),
+                    'to' => $new->getData($key)
+                ];
                 $old->setData($key, $value);
             }
         }
+        return $changes;
+    }
+
+    protected function logChanges($message, $changes)
+    {
+        if (empty($changes)) {
+            return;
+        }
+        $msg = [];
+        foreach ($changes as $change) {
+            $msg[] = $change['field'] . ': ' . $change['from'] . ' => ' . $change['to'] . '.';
+        }
+        $this->log($message . '. ' . implode(' ', $msg));
     }
 
     protected function log($message)
