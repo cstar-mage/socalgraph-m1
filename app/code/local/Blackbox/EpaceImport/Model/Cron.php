@@ -69,7 +69,7 @@ class Blackbox_EpaceImport_Model_Cron
                 }
             }
             if (!isset($dateTime)) {
-                $dateTime = new \DateTime('-14 hours');
+                $dateTime = new \DateTime('-1 month');
             }
 
             $currentTime = time();
@@ -94,7 +94,11 @@ class Blackbox_EpaceImport_Model_Cron
         $collection->addFilter('entryDate', ['gteq' => $from]);
 
         $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' estimates.');
         foreach ($ids as $estimateId) {
+            $this->log('Estimate ' . ++$i . '/' . $count . ': ' . $estimateId);
             /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
             $estimate = Mage::getModel('efi/estimate')->load($estimateId);
             try {
@@ -117,10 +121,16 @@ class Blackbox_EpaceImport_Model_Cron
         $orderTable = $resource->getTableName('sales/order');
 
         $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' jobs.');
         foreach ($ids as $jobId) {
+            $this->log('Job ' . ++$i . '/' . $count . ': ' . $jobId);
             $select = $connection->select()->from($orderTable, 'count(*)')
                 ->where('epace_job_id = ?', $jobId);
-            if ($connection->fetchOne($select) == 0) {
+            if ($connection->fetchOne($select) > 0) {
+                $this->log("Job $jobId already imported.");
+            } else  {
                 /** @var Blackbox_Epace_Model_Epace_Job $job */
                 $job = Mage::getModel('efi/job')->load($jobId);
                 try {
@@ -138,7 +148,12 @@ class Blackbox_EpaceImport_Model_Cron
         $collection = Mage::getResourceModel('efi/job_shipment_collection');
         $collection->addFilter('date', ['gteq' => $from]);
 
-        foreach ($collection->loadIds() as $id) {
+        $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' shipments.');
+        foreach ($ids as $id) {
+            $this->log('Shipment ' . ++$i . '/' . $count . ': ' . $id);
             /** @var Blackbox_Epace_Model_Epace_Job_Shipment $shipment */
             $shipment = Mage::getModel('efi/job_shipment')->load($id);
             try {
@@ -155,7 +170,12 @@ class Blackbox_EpaceImport_Model_Cron
         $collection = Mage::getResourceModel('efi/invoice_collection');
         $collection->addFilter('invoiceDate', ['gteq' => $from]);
 
-        foreach ($collection->loadIds() as $id) {
+        $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' invoices.');
+        foreach ($ids as $id) {
+            $this->log('Invoice ' . ++$i . '/' . $count . ': ' . $id);
             /** @var Blackbox_Epace_Model_Epace_Invoice $invoice */
             $invoice = Mage::getModel('efi/invoice')->load($id);
             try {
