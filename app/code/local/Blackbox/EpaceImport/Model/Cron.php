@@ -540,7 +540,7 @@ class Blackbox_EpaceImport_Model_Cron
                 $this->logChanges('Order address ' . $oldAddress->getId() . ' updates', $changes);
                 $oldAddress->save();
             } else {
-                $this->log('Added new order address ' . print_r($newAddress->getData()));
+                $this->log('Added new order address ' . print_r($newAddress->getData(), true));
                 $order->addAddress($newAddress);
                 $newAddress->save();
             }
