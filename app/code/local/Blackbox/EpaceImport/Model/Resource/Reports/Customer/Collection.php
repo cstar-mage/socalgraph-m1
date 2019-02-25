@@ -48,16 +48,16 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
             'at_lastname.value'
         ], ' ');
 
-        $estimatesSelect = $this->getConnection()->select()->from($this->getTable('epacei/estimate'), ['customer_id', 'estimates' => 'base_grand_total']);
-        $ordersSelect = $this->getConnection()->select()->from($this->getTable('sales/order'), ['customer_id', 'orders' => 'base_grand_total', 'billed' => 'total_paid']);
+        $estimatesSelect = $this->getConnection()->select()->from($this->getTable('epacei/estimate'), ['customer_id', 'estimates' => 'sum(base_grand_total)'])->group('customer_id');
+        $ordersSelect = $this->getConnection()->select()->from($this->getTable('sales/order'), ['customer_id', 'orders' => 'sum(base_grand_total)', 'billed' => 'sum(total_paid)'])->group('customer_id');
 
         $this->getSelect()->joinLeft(['estimates' => $estimatesSelect], 'estimates.customer_id = e.entity_id', ['estimates'])
             ->joinLeft(['orders' => $ordersSelect], 'orders.customer_id = e.entity_id', ['orders', 'billed'])
             ->group('e.entity_id')
             ->columns([
-                'estimates' => 'sum(estimates)',
-                'orders' => 'sum(orders)',
-                'billed' => 'sum(billed)',
+                'estimates.estimates',
+                'orders.orders',
+                'orders.billed',
                 'customer' => $customerFieldSql
             ])
             ->order('billed DESC');
