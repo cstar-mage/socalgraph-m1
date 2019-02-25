@@ -440,7 +440,7 @@ class Blackbox_EpaceImport_Model_Cron
                     'estimate_id',
                     'store_id'
                 ]);
-                $this->logChanges('Estimate item ' . $oldItems->getId() . ' updates', $changes);
+                $this->logChanges('Estimate item ' . $oldItem->getId() . ' updates', $changes);
                 $oldItem->save();
             } else {
                 $this->log('Added estimate item ' . print_r($newItem->getData(), true));
