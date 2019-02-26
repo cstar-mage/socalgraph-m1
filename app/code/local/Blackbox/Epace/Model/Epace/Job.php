@@ -80,36 +80,6 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
 {
     use Blackbox_Epace_Model_Epace_PersonsTrait;
 
-    /**
-     * @var Blackbox_Epace_Model_Epace_Job_Type
-     */
-    protected $type;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Job_Status
-     */
-    protected $status;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Job_Status
-     */
-    protected $prevStatus;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Quote
-     */
-    protected $quote;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Estimate
-     */
-    protected $estimate;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Ship_Via
-     */
-    protected $shipVia;
-
     protected function _construct()
     {
         $this->_init('Job', 'job');
@@ -137,9 +107,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
      */
     public function setType(Blackbox_Epace_Model_Epace_Job_Type $type)
     {
-        $this->type = $type;
-
-        return $this;
+        return $this->_setObject('type', $type);
     }
 
     public function getAdminStatusCode()
@@ -161,9 +129,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
      */
     public function setAdminStatus(Blackbox_Epace_Model_Epace_Job_Status $status)
     {
-        $this->status = $status;
-
-        return $this;
+        return $this->_setObject('status', $status);
     }
 
     /**
@@ -188,9 +154,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
      */
     public function setPrevAdminStatus(Blackbox_Epace_Model_Epace_Job_Status $status)
     {
-        $this->prevStatus = $status;
-
-        return $this;
+        return $this->_setObject('prevStatus', $status);
     }
 
     /**
@@ -203,9 +167,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
 
     public function setQuote(Blackbox_Epace_Model_Epace_Quote $quote)
     {
-        $this->quote = $quote;
-
-        return $this;
+        return $this->_setObject('quote', $quote);
     }
 
     public function isSourceEstimate()
@@ -224,25 +186,23 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
 
     public function getEstimate()
     {
-        if (is_null($this->estimate)) {
-            $this->estimate = false;
+        if (!$this->_hasObjectField('estimate')) {
+            $this->_setObject('estimate', false);
 
             if ($this->isSourceEstimate()) {
                 $estimate = $this->_loadObject('efi/estimate', $this->getData('altCurrencyRateSourceNote'));
                 if ($estimate->getId()) {
-                    $this->estimate = $estimate;
+                    $this->_setObject('estimate', $estimate);
                 }
             }
         }
 
-        return $this->estimate;
+        return $this->_getObjectField('estimate');
     }
 
     public function setEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
     {
-        $this->estimate = $estimate;
-
-        return $this;
+        return $this->_setObject('estimate', $estimate);
     }
 
     public function getShipVia()

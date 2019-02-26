@@ -3,11 +3,6 @@
 trait Blackbox_Epace_Model_Epace_Job_Part_ChildTrait
 {
     /**
-     * @var Blackbox_Epace_Model_Epace_Job_Part
-     */
-    protected $jobPart = null;
-
-    /**
      * @return Blackbox_Epace_Model_Epace_Job_Part|false
      */
     public function getPart()
@@ -21,9 +16,7 @@ trait Blackbox_Epace_Model_Epace_Job_Part_ChildTrait
      */
     public function setPart(Blackbox_Epace_Model_Epace_Job_Part $part)
     {
-        $this->jobPart = $part;
-
-        return $this;
+        return $this->_setObject('jobPart', $part);
     }
 
     /**

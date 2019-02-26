@@ -54,16 +54,6 @@
  */
 class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Customer
-     */
-    protected $customer;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Invoice
-     */
-    protected $invoice;
-
     protected function _construct()
     {
         $this->_init('Receivable', 'id');
@@ -83,9 +73,7 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
      */
     public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
     {
-        $this->customer = $customer;
-
-        return $this;
+        return $this->_setObject('customer', $customer);
     }
 
     /**
@@ -95,8 +83,8 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
     {
         if ($this->getAltCurrencyRateSource() == 'Invoice') {
             return $this->_getObject('invoice', 'altCurrencyRateSourceNote', 'efi/invoice');
-        } else if ($this->invoice) {
-            return $this->invoice;
+        } else if ($this->_hasObjectField('invoice')) {
+            return $this->_getObjectField('invoice');
         } else {
             return false;
         }
@@ -108,9 +96,7 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
      */
     public function setInvoice(Blackbox_Epace_Model_Epace_Invoice $invoice)
     {
-        $this->invoice = $invoice;
-
-        return $this;
+        return $this->_setObject('invoice', $invoice);
     }
 
     /**

@@ -83,26 +83,6 @@
  */
 class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_AbstractObject
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesPerson
-     */
-    protected $salesPerson = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_CSR
-     */
-    protected $csr = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Country
-     */
-    protected $country = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesTax
-     */
-    protected $salesTax = null;
-
     protected function _construct()
     {
         $this->_init('Customer', 'id');
@@ -122,9 +102,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
     {
-        $this->salesPerson = $salesPerson;
-
-        return $this;
+        return $this->_setObject('salesPerson', $salesPerson);
     }
 
     /**
@@ -141,9 +119,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     public function setCSR(Blackbox_Epace_Model_Epace_CSR $csr)
     {
-        $this->csr = $csr;
-
-        return $this;
+        return $this->_setObject('csr', $csr);
     }
 
     /**
@@ -156,9 +132,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
 
     public function setCountry(Blackbox_Epace_Model_Epace_Country $country)
     {
-        $this->country = $country;
-
-        return $this;
+        return $this->_setObject('country', $country);
     }
 
     /**
@@ -179,9 +153,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
 
     public function setSalesTax(Blackbox_Epace_Model_Epace_SalesTax $salesTax)
     {
-        $this->salesTax = $salesTax;
-
-        return $this;
+        return $this->_setObject('salesTax', $salesTax);
     }
 
     public function getDefinition()

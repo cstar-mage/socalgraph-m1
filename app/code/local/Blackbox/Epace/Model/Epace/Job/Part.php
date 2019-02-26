@@ -168,21 +168,6 @@
  */
 class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Job_Product
-     */
-    protected $product = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Estimate
-     */
-    protected $estimate = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Estimate_Part
-     */
-    protected $estimatePart = null;
-
     protected function _construct()
     {
         $this->_init('JobPart', 'primaryKey');
@@ -198,9 +183,7 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
 
     public function setProduct(Blackbox_Epace_Model_Epace_Job_Product $product)
     {
-        $this->product = $product;
-
-        return $this;
+        return $this->_setObject('product', $product);
     }
 
     /**
@@ -208,8 +191,8 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
      */
     public function getEstimate()
     {
-        if (is_null($this->estimate)) {
-            $this->estimate = false;
+        if (!$this->_hasObjectField('estimate')) {
+            $this->_setObject('estimate', false);
             if ($this->getData('estimate')) {
                 /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
                 $collection = $this->_getCollection('efi/estimate_collection');
@@ -217,11 +200,11 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
                 $collection->setPageSize(1)->setCurPage(1);
                 $estimate = $collection->getFirstItem();
                 if ($estimate && $estimate->getId()) {
-                    $this->estimate = $estimate;
+                    $this->_setObject('estimate', $estimate);
                 }
             }
         }
-        return $this->estimate;
+        return $this->_getObjectField('estimate');
     }
 
     /**
@@ -230,9 +213,7 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
      */
     public function setEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
     {
-        $this->estimate = $estimate;
-
-        return $this;
+        return $this->_setObject('estimate', $estimate);
     }
 
     /**
@@ -240,8 +221,8 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
      */
     public function getEstimatePart()
     {
-        if (is_null($this->estimatePart)) {
-            $this->estimatePart = false;
+        if (!$this->_hasObjectField('estimatePart')) {
+            $this->_setObject('estimatePart', false);
 
             if (!empty($this->getData('estimatePart')) && $this->getJob()->getEstimate()) {
                 $targetNum = (int)$this->getData('estimatePart');
@@ -254,12 +235,12 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
                     }
                 }
                 if ($part) {
-                    $this->estimatePart = $part;
+                    $this->_setObject('estimatePart', $part);
                 }
             }
         }
 
-        return $this->estimatePart;
+        return $this->_getObjectField('estimatePart');
     }
 
     /**
@@ -268,9 +249,7 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
      */
     public function setEstimatePart(Blackbox_Epace_Model_Epace_Estimate_Part $estimatePart)
     {
-        $this->estimatePart = $estimatePart;
-
-        return $this;
+        return $this->_setObject('estimatePart', $estimatePart);
     }
 
     /**

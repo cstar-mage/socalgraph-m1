@@ -2,9 +2,6 @@
 
 class Blackbox_Epace_Model_Epace_Job_Contact extends Blackbox_Epace_Model_Epace_Job_AbstractChild
 {
-    /** @var Blackbox_Epace_Model_Epace_Contact */
-    protected $contact = null;
-
     protected function _construct()
     {
         $this->_init('JobContact', 'id');
@@ -32,9 +29,7 @@ class Blackbox_Epace_Model_Epace_Job_Contact extends Blackbox_Epace_Model_Epace_
      */
     public function setContact(Blackbox_Epace_Model_Epace_Contact $contact)
     {
-        $this->contact = $contact;
-
-        return $this;
+        return $this->_setObject('contact', $contact);
     }
 
     public function getDefinition()

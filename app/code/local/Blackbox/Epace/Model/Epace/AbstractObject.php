@@ -16,6 +16,12 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
 
     private $_childItems = [];
 
+    private $_links = [];
+
+    private $_disposing = false;
+
+    private $global = false;
+
     /**
      * @var Blackbox_Epace_Model_Epace_Cache
      */
@@ -76,6 +82,65 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
      */
     public abstract function getDefinition();
 
+    /**
+     * @return bool
+     */
+    public function isGlobal()
+    {
+        return $this->global;
+    }
+
+    public function setGlobal($global)
+    {
+        $this->global = (bool) $global;
+
+        return $this;
+    }
+
+    /**
+     * Clear instance and all related instances
+     *
+     * @return $this
+     */
+    public function dispose()
+    {
+        if ($this->_disposing) {
+            return $this;
+        }
+
+        $this->_disposing = true;
+
+        try {
+            if ($this->_cache) {
+                $this->_cache->disposeAll();
+            }
+
+            foreach ($this->_childItems as &$items) {
+                foreach ($items as $key => $item) {
+                    if ($item && !$item->isGlobal()) {
+                        $item->dispose();
+                    }
+                    unset($items[$key]);
+                }
+            }
+            unset($this->_childItems);
+            $this->_childItems = [];
+
+            foreach ($this->_links as $key => $item) {
+                if ($item && !$item->isGlobal()) {
+                    $item->dispose();
+                }
+                unset($this->_links[$key]);
+            }
+
+            $this->unsetData();
+
+            return $this;
+        } finally {
+            $this->_disposing = false;
+        }
+    }
+
     protected function _prepareLoadedData(array $data)
     {
         $definition = $this->getDefinition();
@@ -111,22 +176,39 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
 
     protected function _getObject($objectField, $dataField, $modelClass, $globalCache = false, callable $initCallback = null)
     {
-        if (is_null($this->$objectField)) {
-            $this->$objectField = false;
+        if (!isset($this->_links[$objectField])) {
+            $this->_links[$objectField] = false;
             if (!empty($this->getData($dataField))) {
                 $object = $this->_loadObject($modelClass, $this->getData($dataField), $globalCache);
                 if ($object->getId()) {
                     if ($initCallback) {
                         $initCallback($object);
                     }
-                    $this->$objectField = $object;
+                    $this->_links[$objectField] = $object;
                 } else if (self::$debug) {
-                    throw new \Exception("Unable to load object {$object->getObjectType()} with id {$this->getData($dataField)} linked by {$this->getObjectType()} in field $objectField");
+                    throw new \Exception("Unable to load object {$object->getObjectType()} with id {$this->getData($dataField)} linked by {$this->getObjectType()} in $objectField");
                 }
             }
         }
 
-        return $this->$objectField;
+        return $this->_links[$objectField];
+    }
+
+    protected function _hasObjectField($objectField)
+    {
+        return array_key_exists($objectField, $this->_links);
+    }
+
+    protected function _getObjectField($objectField)
+    {
+        return $this->_links[$objectField];
+    }
+
+    protected function _setObject($dataField, $object)
+    {
+        $this->_links[$dataField] = $object;
+
+        return $this;
     }
 
     /**

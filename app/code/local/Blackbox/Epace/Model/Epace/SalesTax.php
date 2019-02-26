@@ -19,11 +19,6 @@
  */
 class Blackbox_Epace_Model_Epace_SalesTax extends Blackbox_Epace_Model_Epace_AbstractObject
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesCategory
-     */
-    protected $salesCategory;
-
     protected function _construct()
     {
         $this->_init('SalesTax', 'id');
@@ -43,9 +38,7 @@ class Blackbox_Epace_Model_Epace_SalesTax extends Blackbox_Epace_Model_Epace_Abs
      */
     public function setSalesCategory(Blackbox_Epace_Model_Epace_SalesCategory $salesCategory)
     {
-        $this->salesCategory = $salesCategory;
-
-        return $this;
+        return $this->_setObject('salesCategory', $salesCategory);
     }
 
     public function getDefinition()

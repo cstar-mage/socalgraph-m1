@@ -90,16 +90,6 @@
  */
 class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Invoice_Batch
-     */
-    protected $batch = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Receivable
-     */
-    protected $receivable;
-
     protected function _construct()
     {
         $this->_init('Invoice', 'id');
@@ -119,9 +109,7 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
      */
     public function setBatch(Blackbox_Epace_Model_Epace_Invoice_Batch $batch)
     {
-        $this->batch = $batch;
-
-        return $this;
+        return $this->_setObject('batch', $batch);
     }
 
     /**
@@ -140,9 +128,7 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
      */
     public function setReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable)
     {
-        $this->receivable = $receivable;
-
-        return $this;
+        return $this->_setObject('receivable', $receivable);
     }
 
     /**

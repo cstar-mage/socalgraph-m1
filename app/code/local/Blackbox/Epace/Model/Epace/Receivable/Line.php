@@ -14,26 +14,6 @@ class Blackbox_Epace_Model_Epace_Receivable_Line extends Blackbox_Epace_Model_Ep
     const ENTRY_TYPE_TAX_DISTRIBUTION = 7;
     const ENTRY_TYPE_COMISSION_DISTRIBUTION = 33;
 
-    /**
-     * @var Blackbox_Epace_Model_Epace_Receivable
-     */
-    protected $receivable;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesCategory
-     */
-    protected $salesCategory;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesTax
-     */
-    protected $salesTax;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesPerson
-     */
-    protected $salesPerson;
-
     protected function _construct()
     {
         $this->_init('ReceivableLine', 'id');
@@ -53,9 +33,7 @@ class Blackbox_Epace_Model_Epace_Receivable_Line extends Blackbox_Epace_Model_Ep
      */
     public function setReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable)
     {
-        $this->receivable = $receivable;
-
-        return $this;
+        return $this->_setObject('receivable', $receivable);
     }
 
     /**
@@ -72,9 +50,7 @@ class Blackbox_Epace_Model_Epace_Receivable_Line extends Blackbox_Epace_Model_Ep
      */
     public function setSalesCategory(Blackbox_Epace_Model_Epace_SalesCategory $salesCategory)
     {
-        $this->salesCategory = $salesCategory;
-
-        return $this;
+        return $this->_setObject('salesCategory', $salesCategory);
     }
 
     /**
@@ -87,13 +63,11 @@ class Blackbox_Epace_Model_Epace_Receivable_Line extends Blackbox_Epace_Model_Ep
 
     /**
      * @param Blackbox_Epace_Model_Epace_SalesTax $salesTax
-     * @return Blackbox_Epace_Model_Epace_SalesTax
+     * @return $this
      */
     public function setSalesTax(Blackbox_Epace_Model_Epace_SalesTax $salesTax)
     {
-        $this->salesTax = $salesTax;
-
-        return $this->salesTax;
+        return $this->_setObject('salesTax', $salesTax);
     }
 
     /**
@@ -110,9 +84,7 @@ class Blackbox_Epace_Model_Epace_Receivable_Line extends Blackbox_Epace_Model_Ep
      */
     public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
     {
-        $this->salesPerson = $salesPerson;
-
-        return $this;
+        return $this->_setObject('salesPerson', $salesPerson);
     }
 
     public function getDefinition()

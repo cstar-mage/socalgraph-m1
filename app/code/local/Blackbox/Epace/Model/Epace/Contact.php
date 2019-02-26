@@ -43,20 +43,6 @@
  */
 class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_AbstractObject
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Customer
-     */
-    protected $customer = null;
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesPerson
-     */
-    protected $salesPerson = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Country
-     */
-    protected $country = null;
-
     protected function _construct()
     {
         $this->_init('Contact', 'id');
@@ -72,9 +58,7 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
 
     public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
     {
-        $this->customer = $customer;
-
-        return $this;
+        return $this->_setObject('customer', $customer);
     }
 
     /**
@@ -91,9 +75,7 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
      */
     public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
     {
-        $this->salesPerson = $salesPerson;
-
-        return $this;
+        return $this->_setObject('salesPerson', $salesPerson);
     }
 
     /**
@@ -106,9 +88,7 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
 
     public function setCountry(Blackbox_Epace_Model_Epace_Country $country)
     {
-        $this->country = $country;
-
-        return $this;
+        return $this->_setObject('country', $country);
     }
 
     public function getDefinition()

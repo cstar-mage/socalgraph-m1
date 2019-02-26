@@ -53,31 +53,6 @@
  */
 class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace_Job_AbstractChild
 {
-    /**
-     * @var  Blackbox_Epace_Model_Epace_ShipmentType
-     */
-    protected $type;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Contact
-     */
-    protected $contact = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Job_Contact
-     */
-    protected $jobContact = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Contact
-     */
-    protected $shipBillToContact = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Ship_Via
-     */
-    protected $shipVia = null;
-
     protected function _construct()
     {
         $this->_init('JobShipment', 'id');
@@ -131,9 +106,7 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
      */
     public function setType(Blackbox_Epace_Model_Epace_ShipmentType $type)
     {
-        $this->type = $type;
-
-        return $this;
+        return $this->_setObject('type', $type);
     }
 
     /**
@@ -160,9 +133,7 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
      */
     public function setContact(Blackbox_Epace_Model_Epace_Contact $contact)
     {
-        $this->contact = $contact;
-
-        return $this;
+        return $this->_setObject('contact', $contact);
     }
 
     /**
@@ -189,9 +160,7 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
      */
     public function setJobContact(Blackbox_Epace_Model_Epace_Contact $jobContact)
     {
-        $this->jobContact = $jobContact;
-
-        return $this;
+        return $this->_setObject('jobContact', $jobContact);
     }
 
     /**
@@ -216,9 +185,7 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
      */
     public function setShipBillToContact(Blackbox_Epace_Model_Epace_Contact $contact)
     {
-        $this->shipBillToContact = $contact;
-
-        return $this;
+        return $this->_setObject('shipBillToContact', $contact);
     }
 
     /**
@@ -251,9 +218,7 @@ class Blackbox_Epace_Model_Epace_Job_Shipment extends Blackbox_Epace_Model_Epace
      */
     public function setShipVia(Blackbox_Epace_Model_Epace_Ship_Via $shipVia)
     {
-        $this->shipVia = $shipVia;
-
-        return $this;
+        return $this->_setObject('shipVia', $shipVia);
     }
 
     /**
