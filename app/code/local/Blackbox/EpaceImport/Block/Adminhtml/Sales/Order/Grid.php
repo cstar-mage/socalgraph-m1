@@ -16,13 +16,13 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                 'change_order_total',
                 'estimate_id',
             ])
-        ], 'main_table.entity_id = o.entity_id')->joinLeft([
+        ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total'])->joinLeft([
             'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), [
-                'entity_id',
+                'estimate_id' => 'entity_id',
                 'estimate_price' => 'base_grand_total',
                 'estimate_currency_code',
             ])
-        ], 'o.estimate_id = e.entity_id')->columns(['delta' => 'o.amount_to_invoice - COALESCE(estimate_price, 0)']);
+        ], 'o.estimate_id = e.estimate_id', ['estimate_price', 'estimate_currency_code'])->columns(['delta' => 'o.amount_to_invoice - COALESCE(estimate_price, 0)']);
 
 
         $this->setCollection($collection);
