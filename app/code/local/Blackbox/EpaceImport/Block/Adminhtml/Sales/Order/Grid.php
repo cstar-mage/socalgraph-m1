@@ -6,23 +6,31 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
     {
         /** @var Mage_Sales_Model_Resource_Order_Grid_Collection $collection */
         $collection = Mage::getResourceModel($this->_getCollectionClass());
-        $collection->getSelect()->join([
-            'o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), [
-                'entity_id',
-                'epace_job_id',
-                'customer' => 'CONCAT(COALESCE(customer_firstname, \'\'), \' \', COALESCE(customer_lastname, \'\'))',
-                'sales_person_id',
-                'amount_to_invoice',
-                'change_order_total',
-                'estimate_id',
-            ])
-        ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total'])->joinLeft([
-            'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), [
-                'estimate_id' => 'entity_id',
-                'estimate_price' => 'base_grand_total',
-                'estimate_currency_code',
-            ])
-        ], 'o.estimate_id = e.estimate_id', ['estimate_price', 'estimate_currency_code'])->columns(['delta' => 'o.amount_to_invoice - COALESCE(estimate_price, 0)']);
+        $collection->getSelect()
+            ->join([
+                'o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), [
+                    'entity_id',
+                    'epace_job_id',
+                    'customer' => 'CONCAT(COALESCE(customer_firstname, \'\'), \' \', COALESCE(customer_lastname, \'\'))',
+                    'sales_person_id',
+                    'amount_to_invoice',
+                    'change_order_total',
+                    'estimate_id',
+                ])
+            ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id'])
+            ->joinLeft([
+                'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), [
+                    'estimate_id' => 'entity_id',
+                    'estimate_price' => 'base_grand_total',
+                    'estimate_currency_code',
+                ])
+            ], 'o.estimate_id = e.estimate_id', ['estimate_price', 'estimate_currency_code'])->columns(['delta' => 'o.amount_to_invoice - COALESCE(estimate_price, 0)'])
+            ->joinLeft([
+                's' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/shipment'), [
+                    'order_id',
+                    'shipments' => 'GROUP_CONCAT(epace_shipment_id SEPARATOR \', \')'
+                ])->group('order_id')
+            ], 'main_table.entity_id = s.order_id', ['shipments']);
 
 
         $this->setCollection($collection);
@@ -31,11 +39,25 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
 
     protected function _prepareColumns()
     {
-        $this->addColumn('real_order_id', array(
-            'header'=> Mage::helper('sales')->__('Order #'),
+        $this->addColumn('estimate_id', array(
+            'header'=> Mage::helper('sales')->__('Estimate ID'),
             'width' => '80px',
             'type'  => 'text',
-            'index' => 'increment_id',
+            'index' => 'estimate_id',
+        ));
+
+        $this->addColumn('job_id', array(
+            'header'=> Mage::helper('sales')->__('Job ID'),
+            'width' => '80px',
+            'type'  => 'text',
+            'index' => 'epace_job_id',
+        ));
+
+        $this->addColumn('shipments', array(
+            'header'=> Mage::helper('sales')->__('Shipment IDs'),
+            'width' => '80px',
+            'type'  => 'text',
+            'index' => 'shipments',
         ));
 
         if (!Mage::app()->isSingleStoreMode()) {
@@ -56,28 +78,16 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
             'width' => '100px',
         ));
 
-        $this->addColumn('billing_name', array(
-            'header' => Mage::helper('sales')->__('Bill to Name'),
-            'index' => 'billing_name',
+        $this->addColumn('customer', array(
+            'header'=> Mage::helper('sales')->__('Customer'),
+            'width' => '80px',
+            'type'  => 'text',
+            'index' => 'customer'
         ));
 
         $this->addColumn('shipping_name', array(
             'header' => Mage::helper('sales')->__('Ship to Name'),
             'index' => 'shipping_name',
-        ));
-
-        $this->addColumn('base_grand_total', array(
-            'header' => Mage::helper('sales')->__('G.T. (Base)'),
-            'index' => 'base_grand_total',
-            'type'  => 'currency',
-            'currency' => 'base_currency_code',
-        ));
-
-        $this->addColumn('grand_total', array(
-            'header' => Mage::helper('sales')->__('G.T. (Purchased)'),
-            'index' => 'grand_total',
-            'type'  => 'currency',
-            'currency' => 'order_currency_code',
         ));
 
         $this->addColumn('status', array(
@@ -86,20 +96,6 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
             'type'  => 'options',
             'width' => '70px',
             'options' => Mage::getSingleton('sales/order_config')->getStatuses(),
-        ));
-
-        $this->addColumn('job_id', array(
-            'header'=> Mage::helper('sales')->__('Job ID'),
-            'width' => '80px',
-            'type'  => 'text',
-            'index' => 'epace_job_id',
-        ));
-
-        $this->addColumn('customer', array(
-            'header'=> Mage::helper('sales')->__('Customer'),
-            'width' => '80px',
-            'type'  => 'text',
-            'index' => 'customer'
         ));
 
         $this->addColumn('sales_rep', array(
