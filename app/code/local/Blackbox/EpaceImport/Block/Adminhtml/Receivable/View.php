@@ -24,6 +24,11 @@ class Blackbox_EpaceImport_Block_Adminhtml_Receivable_View extends Mage_Adminhtm
         $this->setId('epacei_receivable_view');
         $receivable = $this->getReceivable();
         $coreHelper = Mage::helper('core');
+
+        $this->addButton('go_to_epace', [
+            'label' => Mage::helper('sales')->__('Go to Epace'),
+            'onclick' => 'popWin(\'' . $this->getEpaceUrl($this->getReceivable()->getEpaceReceivableId()) . '\', \'_blank\', null)'
+        ]);
     }
 
     /**
@@ -84,5 +89,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Receivable_View extends Mage_Adminhtm
         }
 
         return $this->getUrl('*/*/');
+    }
+
+    public function getEpaceUrl($receivableId)
+    {
+        /** @var Blackbox_Epace_Helper_Api $api */
+        $api = Mage::helper('epace/api');
+        return $api->getHost() . '/epace/company:public/object/Receivable/detail/' . $receivableId;
     }
 }

@@ -15,6 +15,9 @@
                     <dashboard_sales>Blackbox_EpaceImport_Block_Adminhtml_Dashboard_Sales</dashboard_sales>
                     <sales_order_totals>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Totals</sales_order_totals>
                     <sales_order_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid</sales_order_grid>
+                    <sales_order_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_View</sales_order_view>
+                    <sales_order_shipment_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Shipment_View</sales_order_shipment_view>
+                    <sales_order_invoice_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Invoice_View</sales_order_invoice_view>
                 </rewrite>
             </adminhtml>
         </blocks>

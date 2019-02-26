@@ -24,6 +24,11 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View extends Mage_Adminhtml_
         $this->setId('epacei_estimate_view');
         $estimate = $this->getEstimate();
         $coreHelper = Mage::helper('core');
+
+        $this->addButton('go_to_epace', [
+            'label' => Mage::helper('sales')->__('Go to Epace'),
+            'onclick' => 'popWin(\'' . $this->getEpaceUrl($this->getEstimate()->getEpaceEstimateId()) . '\', \'_blank\', null)'
+        ]);
     }
 
     /**
@@ -84,5 +89,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View extends Mage_Adminhtml_
         }
 
         return $this->getUrl('*/*/');
+    }
+
+    public function getEpaceUrl($estimateId)
+    {
+        /** @var Blackbox_Epace_Helper_Api $api */
+        $api = Mage::helper('epace/api');
+        return $api->getHost() . '/epace/company:public/object/Estimate/detail/' . $estimateId;
     }
 }

@@ -6,6 +6,7 @@
             <codePool>local</codePool>
             <depends>
                 <Mage_Sales />
+                <Blackbox_OrderApproval />
             </depends>
         </Blackbox_EpaceImport>
     </modules>
