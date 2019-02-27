@@ -38,7 +38,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_CategoryBreakdown_Grid exte
      */
     protected function _preparePage()
     {
-        $this->getCollection()->setPageSize($this->getParam($this->getVarNameLimit(), $this->_defaultLimit));
+        //$this->getCollection()->setPageSize($this->getParam($this->getVarNameLimit(), $this->_defaultLimit));
         // Remove count of total orders $this->getCollection()->setCurPage($this->getParam($this->getVarNamePage(), $this->_defaultPage));
     }
 
@@ -47,7 +47,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_CategoryBreakdown_Grid exte
         $this->addColumn('category', array(
             'header'    => $this->__('Category Breakdown'),
             'sortable'  => false,
-            'index'     => 'category',
+            'index'     => 'job_type',
+            'type'      => 'options',
+            'options'   => Mage::helper('epacei')->getJobTypes()
         ));
 
         $baseCurrencyCode = Mage::app()->getStore((int)$this->getParam('store'))->getBaseCurrencyCode();

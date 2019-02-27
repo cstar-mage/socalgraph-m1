@@ -96,13 +96,13 @@ class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Mage_
 
         $this->getSelect()
             ->columns([
-                'category' => $categoryExpr,
+                'job_type',
                 'total' => "SUM({$expr})",
                 'count' => 'SUM(entity_id)'
             ])
-            ->group('category')
-            ->having('category IS NOT NULL AND category <> \'\'')
-            ->order('total');
+            ->where('job_type is not null')
+            ->group('job_type')
+            ->order('total DESC');
 
         return $this;
     }
@@ -116,53 +116,13 @@ class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Mage_
     protected function _getCategoryExpression()
     {
         $types = Mage::helper('epacei')->getJobTypes();
-        $types = array_map('strtolower', $types);
-        $categoryTypes = [];
-
-        foreach ($this->_getCategories() as $category) {
-            $lowerCategory = strtolower($category);
-            foreach ($types as $id => $description) {
-                if (strpos($description, $lowerCategory) !== false) {
-                    $categoryTypes[$category][] = $id;
-                }
-            }
-        }
 
         $sql = 'case';
-        foreach ($categoryTypes as $category => $types) {
-            $sql .= ' when job_type IN (' . implode(',', $types) . ') then \'' . $category . '\'';
+        foreach ($types as $id => $name) {
+            $sql .= ' when job_type = ' . $id . ' then \'' . $name . '\'';
         }
         $sql .= ' end';
 
         return new Zend_Db_Expr($sql);
-    }
-
-    protected function _getCategories()
-    {
-        return [
-            'Litho',
-            'Large Format',
-            'Digital Printing',
-            'Pre-press',
-            'Buyout'
-        ];
-    }
-
-    protected function _afterLoadData()
-    {
-        if ($this->categories) {
-            foreach ($this->_getCategories() as $category) {
-                foreach ($this->_data as $row) {
-                    if ($row['category'] == $category) {
-                        continue 2;
-                    }
-                }
-                $this->_data[] = [
-                    'category' => $category,
-                    'total' => 0,
-                    'count' => 0
-                ];
-            }
-        }
     }
 }
