@@ -51,6 +51,11 @@
                     </receivable>
                 </entities>
             </epacei_resource>
+            <sales>
+                <rewrite>
+                    <order_shipment>Blackbox_EpaceImport_Model_Sales_Order_Shipment</order_shipment>
+                </rewrite>
+            </sales>
         </models>
         <resources>
             <epace_import_setup>

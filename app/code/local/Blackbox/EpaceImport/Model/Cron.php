@@ -397,6 +397,9 @@ class Blackbox_EpaceImport_Model_Cron
                 try {
                     $this->log('Updating shipment ' . $shipment->getId() . '. Epace shipment id: ' . $shipment->getEpaceShipmentId());
                     $this->updateShipment($shipment);
+                    $shipment->getOrder()->reset();
+                    $shipment->dispose();
+                    gc_collect_cycles();
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
                 }
@@ -609,6 +612,7 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $newShipment = $this->helper->importShipment($epaceShipment, $shipment->getOrder());
+        $epaceShipment->dispose();
         $changes = $this->updateObject($shipment, $newShipment, [
             'created_at',
             'updated_at'
@@ -628,6 +632,8 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $shipment->save();
+        $newShipment->getOrder()->reset();
+        $newShipment->dispose();
     }
 
     /**
