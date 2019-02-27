@@ -34,6 +34,7 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
                 'estimates_cost' => 'sum(base_total_cost)'
             ])
             ->where('created_at > ?', date('y-m-d', strtotime('-1 month')))
+            ->where('status = ?', Blackbox_EpaceImport_Model_Estimate::STATUS_CONVERTED_TO_JOB)
             ->group('sales_person_id');
 
         $this->getSelect()
@@ -61,7 +62,10 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
             'at_lastname.value'
         ], ' ');
 
-        $estimatesSelect = $this->getConnection()->select()->from($this->getTable('epacei/estimate'), ['customer_id', 'estimates' => 'sum(base_grand_total)'])->group('customer_id');
+        $estimatesSelect = $this->getConnection()->select()
+            ->from($this->getTable('epacei/estimate'), ['customer_id', 'estimates' => 'sum(base_grand_total)'])
+            ->where('status = ?', Blackbox_EpaceImport_Model_Estimate::STATUS_CONVERTED_TO_JOB);
+            ->group('customer_id');
         $ordersSelect = $this->getConnection()->select()->from($this->getTable('sales/order'), ['customer_id', 'orders' => 'sum(base_grand_total)', 'billed' => 'sum(total_paid)'])->group('customer_id');
 
         $this->getSelect()->joinLeft(['estimates' => $estimatesSelect], 'estimates.customer_id = e.entity_id', ['estimates'])

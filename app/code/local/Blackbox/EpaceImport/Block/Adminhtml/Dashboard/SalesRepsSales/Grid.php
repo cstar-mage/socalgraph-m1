@@ -40,7 +40,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_SalesRepsSales_Grid extends
         $baseCurrencyCode = Mage::app()->getStore((int)$this->getParam('store'))->getBaseCurrencyCode();
 
         $this->addColumn('estimates', array(
-            'header'    => $this->__('Estimates'),
+            'header'    => $this->__('Estimated Total'),
             'align'     => 'right',
             'sortable'  => false,
             'type'      => 'currency',
@@ -58,14 +58,14 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_SalesRepsSales_Grid extends
         ));
 
         $this->addColumn('jobs', array(
-            'header'    => $this->__('Jobs'),
+            'header'    => $this->__('Jobs Count'),
             'align'     => 'right',
             'type'      => 'number',
             'sortable'  => false,
             'index'     => 'orders_count'
         ));
         $this->addColumn('total', array(
-            'header'    => $this->__('Grand Total'),
+            'header'    => $this->__('Job Total'),
             'align'     => 'right',
             'sortable'  => false,
             'type'      => 'currency',

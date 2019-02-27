@@ -20,7 +20,8 @@ class Blackbox_EpaceImport_Model_resource_Reports_Estimate_Collection extends Ma
                 'monthly' => "SUM({$expr})",
                 'average'  => "AVG({$expr})"
             ))
-            ->where('main_table.created_at > ?', date('Y-m-d', strtotime('-1 month')));
+            ->where('main_table.created_at > ?', date('Y-m-d', strtotime('-1 month')))
+            ->where('status = ?', Blackbox_EpaceImport_Model_Estimate::STATUS_CONVERTED_TO_JOB);
 
         return $this;
     }
