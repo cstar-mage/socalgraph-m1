@@ -64,7 +64,7 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
 
         $estimatesSelect = $this->getConnection()->select()
             ->from($this->getTable('epacei/estimate'), ['customer_id', 'estimates' => 'sum(base_grand_total)'])
-            ->where('status = ?', Blackbox_EpaceImport_Model_Estimate::STATUS_CONVERTED_TO_JOB);
+            ->where('status = ?', Blackbox_EpaceImport_Model_Estimate::STATUS_CONVERTED_TO_JOB)
             ->group('customer_id');
         $ordersSelect = $this->getConnection()->select()->from($this->getTable('sales/order'), ['customer_id', 'orders' => 'sum(base_grand_total)', 'billed' => 'sum(total_paid)'])->group('customer_id');
 
