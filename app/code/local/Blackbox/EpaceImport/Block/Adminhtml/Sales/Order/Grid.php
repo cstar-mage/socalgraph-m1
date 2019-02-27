@@ -24,7 +24,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                     'estimate_price' => 'base_grand_total',
                     'estimate_currency_code',
                 ])
-            ], 'o.estimate_id = e.estimate_id', ['estimate_price', 'estimate_currency_code'])->columns(['delta' => 'o.amount_to_invoice - COALESCE(estimate_price, 0)'])
+            ], 'o.estimate_id = e.estimate_id', ['estimate_price', 'estimate_currency_code'])->columns(['delta' => 'IF(estimate_price is not null, o.amount_to_invoice - COALESCE(estimate_price, 0), o.amount_to_invoice)'])
             ->joinLeft([
                 's' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/shipment'), [
                     'order_id',
