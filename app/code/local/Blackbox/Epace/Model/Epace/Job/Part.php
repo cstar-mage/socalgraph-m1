@@ -253,6 +253,37 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     }
 
     /**
+     * @return Blackbox_Epace_Model_Epace_Estimate_Quantity
+     */
+    public function getEstimateQuantity()
+    {
+        if (!$this->_hasObjectField('estimateQuantity')) {
+            $this->_setObject('estimateQuantity');
+
+            if ($estimatePart = $this->getEstimatePart()) {
+                $qtyOrdered = $this->getQtyOrdered();
+                foreach ($estimatePart->getQuantities() as $quantity) {
+                    if ($quantity->getQuantityOrdered() == $qtyOrdered) {
+                        $this->_setObject('estimateQuantity', $quantity);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->_getObjectField('estimateQuantity');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Estimate_Quantity $estimateQuantity
+     * @return $this
+     */
+    public function setEstimateQuantity(Blackbox_Epace_Model_Epace_Estimate_Quantity $estimateQuantity)
+    {
+        return $this->_setObject('estimateQuantity', $estimateQuantity);
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Job_Material[]
      */
     public function getMaterials()
@@ -336,11 +367,11 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
     }
 
     /**
-     * @return Blackbox_Epace_Model_Epace_Job_Material[]
+     * @return Blackbox_Epace_Model_Epace_Job_Cost[]
      */
     public function getCosts()
     {
-        return $this->_getPartItems('efi/job_material_collection');
+        return $this->_getPartItems('efi/job_cost_collection');
     }
 
     /**

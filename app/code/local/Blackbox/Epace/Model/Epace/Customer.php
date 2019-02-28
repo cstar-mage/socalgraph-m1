@@ -32,7 +32,6 @@
  * @method string getEmail()
  * @method bool getOrderAlert()
  * @method int getPhoneNumber()
- * @method int getSalesCategory()
  * @method float getSalesYTD()
  * @method int getShipToContact()
  * @method int getShipVia()
@@ -136,6 +135,23 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
     }
 
     /**
+     * @return Blackbox_Epace_Model_Epace_SalesCategory|false
+     */
+    public function getSalesCategory()
+    {
+        return $this->_getObject('salesCategory', 'salesCategory', 'efi/salesCategory', true);
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesCategory $salesCategory
+     * @return $this
+     */
+    public function setSalesCategory(Blackbox_Epace_Model_Epace_SalesCategory $salesCategory)
+    {
+        return $this->_setObject('salesCategory', $salesCategory);
+    }
+
+    /**
      * @return string
      */
     public function getSalesTaxCode()
@@ -151,9 +167,30 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
         return $this->_getObject('salesTax', 'salesTax', 'efi/salesTax', true);
     }
 
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesTax $salesTax
+     * @return $this
+     */
     public function setSalesTax(Blackbox_Epace_Model_Epace_SalesTax $salesTax)
     {
         return $this->_setObject('salesTax', $salesTax);
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Ship_Via|bool
+     */
+    public function getShipVia()
+    {
+        return $this->_getObject('shipVia', 'shipVia', 'efi/ship_via');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Ship_Via $shipVia
+     * @return $this
+     */
+    public function setShipVia(Blackbox_Epace_Model_Epace_Ship_Via $shipVia)
+    {
+        return $this->_setObject('shipVia', $shipVia);
     }
 
     public function getDefinition()
@@ -192,11 +229,11 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'email' => '',
             'orderAlert' => 'bool',
             'phoneNumber' => '',
-            'salesCategory' => '',
-            'salesPerson' => '',
-            'salesTax' => '',
+            'salesCategory' => 'int',
+            'salesPerson' => 'int',
+            'salesTax' => 'string',
             'salesYTD' => '',
-            'shipVia' => '',
+            'shipVia' => 'int',
             'state' => '',
             'statementCycle' => '',
             'taxableCode' => '',

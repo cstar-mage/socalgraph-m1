@@ -165,16 +165,26 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
         return $this->_getObject('quote', 'quoteNumber', 'efi/estimate_quote');
     }
 
+    /**
+     * @param Blackbox_Epace_Model_Epace_Quote $quote
+     * @return $this
+     */
     public function setQuote(Blackbox_Epace_Model_Epace_Quote $quote)
     {
         return $this->_setObject('quote', $quote);
     }
 
+    /**
+     * @return bool
+     */
     public function isSourceEstimate()
     {
         return $this->getData('altCurrencyRateSource') == 'Estimate';
     }
 
+    /**
+     * @return int|string
+     */
     public function getEstimateId()
     {
         if ($this->isSourceEstimate()) {
@@ -184,6 +194,9 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
         }
     }
 
+    /**
+     * @return Blackbox_Epace_Model_Epace_Estimate
+     */
     public function getEstimate()
     {
         if (!$this->_hasObjectField('estimate')) {
@@ -200,11 +213,18 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
         return $this->_getObjectField('estimate');
     }
 
+    /**
+     * @param Blackbox_Epace_Model_Epace_Estimate $estimate
+     * @return $this
+     */
     public function setEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
     {
         return $this->_setObject('estimate', $estimate);
     }
 
+    /**
+     * @return Blackbox_Epace_Model_Epace_Ship_Via
+     */
     public function getShipVia()
     {
         return $this->_getObject('shipVia', 'shipVia', 'efi/ship_via', true);
