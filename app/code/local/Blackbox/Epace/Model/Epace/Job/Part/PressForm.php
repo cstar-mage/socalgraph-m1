@@ -35,7 +35,7 @@ class Blackbox_Epace_Model_Epace_Job_Part_PressForm extends Blackbox_Epace_Model
             'impressionsPerHour' => '',
             'runSpoilageSheets' => '',
             'numSigs' => '',
-            'time' => '',
+            'time' => 'float',
             'plate' => '',
             'registration' => '',
             'numAcross' => '',

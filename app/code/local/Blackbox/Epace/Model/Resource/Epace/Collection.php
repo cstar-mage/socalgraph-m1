@@ -189,109 +189,19 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
             return $this;
         }
 
-        if (empty($this->_filters)) {
-            $idFieldName = $this->getResource()->getIdFieldName();
-            $this->_renderedFilters = "@$idFieldName = 1 or @$idFieldName != 1";
-        } else {
-            $this->_renderedFilters = '';
-
-            foreach ($this->_filters as $filter) {
-                switch ($filter['type']) {
-                    case 'or' :
-                    case 'and':
-                        if (!empty($this->_renderedFilters)) {
-                            $this->_renderedFilters .= ' ' . $filter['type'] . ' ';
-                        }
-                        $this->_renderedFilters .= $this->_renderFilter($filter);
-                        break;
-                    default:
-                        throw new \Exception('Unrecognized filter type.');
-                }
-            }
-        }
+        $this->_renderedFilters = $this->getResource()->getApi()->renderFilters($this->_filters, $this->getResource());
         $this->_isFiltersRendered = true;
+
         return $this;
-    }
-
-    protected function _renderFilter($filter)
-    {
-        $definition = $this->getResource()->getDefinition();
-        if (is_array($filter['value'])) {
-            $conditionKeyMap = [
-                'eq'            => '=',
-                'neq'           => '!=',
-                'gt'            => '>',
-                'lt'            => '<',
-                'gteq'          => '>=',
-                'lteq'          => '<=',
-            ];
-
-            $functionConditionKeyMap = [
-                'starts' => 'starts-with({{field}}, {{value}})',
-                'ends' => 'ends-with({{field}}, {{value}})',
-                'contains' => 'contains({{field}}, {{value}})'
-            ];
-
-            foreach ($filter['value'] as $k => $v) {
-                if ($conditionKeyMap[$k]) {
-                    return $this->_renderFieldName($filter['field']) . ' ' . $conditionKeyMap[$k] . ' ' . $this->_renderFilterValue($v, $definition[$filter['field']]);
-                }
-                if ($functionConditionKeyMap[$k]) {
-                    return str_replace('{{value}}', $this->_renderFilterValue($v, $definition[$filter['field']]), str_replace('{{field}}', $this->_renderFieldName($filter['field']), $functionConditionKeyMap[$k]));
-                }
-                break;
-            }
-
-            throw new \Exception('Unable to render filters.');
-        } else {
-            return $this->_renderFieldName($filter['field']) . ' = ' . $this->_renderFilterValue($filter['value'], $definition[$filter['field']]);
-        }
-    }
-
-    protected function _renderFieldName($field)
-    {
-        if (strpos($field, '@') === false && strpos($field, '/') === false) {
-            return '@' . $field;
-        } else {
-            return $field;
-        }
-    }
-
-    protected function _renderFilterValue($value, $type = null)
-    {
-        if ($value instanceof \DateTime) {
-            return 'date( ' . $value->format('Y, m, d') . ' )';
-        } else if (is_string($value) && !($type == 'int' && is_numeric($value))) {
-            return '\'' . str_replace('\'', '\\\'', $value) . '\'';
-        } else {
-            return (string)$value;
-        }
     }
 
     protected function _renderOrders()
     {
-        if (empty($this->_orders)) {
-            $this->_renderedOrder = null;
-        } else {
-            $this->_renderedOrder = [];
-            foreach ($this->_orders as $field => $direction) {
-                switch ($direction) {
-                    case 'DESC':
-                        $descending = 'true';
-                        break;
-                    case 'ASC':
-                        $descending = 'false';
-                        break;
-                    default:
-                        throw new \Exception('Invalid sort direction: ' . $direction);
-                }
-                $this->_renderedOrder['XPathDataSort'][] = [
-                    'xmlns' => 'http://rpc.services.appbox.pace2020.com',
-                    'descending' => $descending,
-                    'xpath' => $this->_renderFieldName($field)
-                ];
-            }
+        if ($this->_isOrdersRendered) {
+            return $this;
         }
+
+        $this->_renderedOrder = $this->getResource()->getApi()->renderOrders($this->_orders);
         $this->_isOrdersRendered = true;
 
         return $this;

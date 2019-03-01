@@ -10,6 +10,11 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
     protected $_api;
 
     /**
+     * @var Blackbox_Epace_Helper_Mongo
+     */
+    protected $_monoApi;
+
+    /**
      * @var string
      */
     protected $_objectType;
@@ -26,6 +31,8 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
      * @var Blackbox_Epace_Model_Epace_Cache
      */
     private $_cache = null;
+
+    public static $useMongo = false;
 
     public function __construct($cache = null)
     {
@@ -46,13 +53,27 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
     public function load($id)
     {
         try {
+            $type = $this->getDefinition()[$this->getIdFieldName()];
+            switch ($type) {
+                case 'string':
+                default:
+                    $id = (string)$id;
+                    break;
+                case 'int':
+                    $id = (int)$id;
+                    break;
+                case 'date':
+                    $id = new MongoDB\BSON\UTCDateTime(is_string($id) && !is_numeric($id) ? strtotime($id) : $id);
+                    break;
+            }
+
             $data = $this->getApi()->readObject($this->_objectType, [
                 $this->getIdFieldName() => $id
             ]);
             $this->setData($this->_prepareLoadedData($data));
 
             $this->_getCache()->add(get_class($this), $id, $this);
-        } catch (Epace_Exception $e) {
+        } catch (Blackbox_Epace_Model_Exception $e) {
             $this->unsetData();
         }
         $this->_hasDataChanges = false;
@@ -71,10 +92,17 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
      */
     public function getApi()
     {
-        if (!$this->_api) {
-            $this->_api = Mage::helper('epace/api');
+        if (self::$useMongo) {
+            if (!$this->_monoApi) {
+                $this->_monoApi = Mage::helper('epace/mongo');
+            }
+            return $this->_monoApi;
+        } else {
+            if (!$this->_api) {
+                $this->_api = Mage::helper('epace/api');
+            }
+            return $this->_api;
         }
-        return $this->_api;
     }
 
     /**
@@ -147,8 +175,14 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
 
         foreach ($data as $key => $value)
         {
+            if (is_null($value)) {
+                continue;
+            }
             switch ($definition[$key]) {
                 case 'bool':
+                    if (is_bool($value)) {
+                        continue;
+                    }
                     if ($value == 'true') {
                         $data[$key] = true;
                     } else if ($value == 'false') {

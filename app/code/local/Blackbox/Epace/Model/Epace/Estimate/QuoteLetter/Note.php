@@ -28,15 +28,15 @@ class Blackbox_Epace_Model_Epace_Estimate_QuoteLetter_Note extends Blackbox_Epac
     {
         return [
             'id' => 'int',
-            'estimateQuoteLetter' => '',
+            'estimateQuoteLetter' => 'int',
             'note' => 'string',
             'printOnReport' => 'bool',
             'section' => 'string',
             'category' => 'string',
             'useStandardSpaceFont' => 'bool',
-            'sequence' => '',
-            'product' => '',
-            'part' => '',
+            'sequence' => 'float',
+            'product' => 'float',
+            'part' => 'float',
         ];
     }
 }

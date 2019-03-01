@@ -15,12 +15,17 @@ class MongoEpaceCollection
     protected $database;
 
     /**
+     * @var Blackbox_Epace_Helper_Mongo
+     */
+    protected $api;
+
+    /**
      * @var MongoDB\Driver\BulkWrite
      */
     protected $bulkWrite;
     protected $currentBulkWriteIds = [];
 
-    public static $bulkWriteLimit = 1;
+    public static $bulkWriteLimit = 500;
 
     protected $existingIds = [];
 
@@ -31,25 +36,28 @@ class MongoEpaceCollection
         $this->database = $database;
     }
 
+    /**
+     * @return string
+     */
     public function getCollectionName()
     {
         return $this->epaceResource->getObjectType();
     }
 
+    /**
+     * @return string
+     */
     public function getPrimariKey()
     {
         return $this->epaceResource->getIdFieldName();
     }
 
-    public function insertData($data)
+    /**
+     * @return Blackbox_Epace_Model_Epace_AbstractObject
+     */
+    public function getResource()
     {
-        //$this->manager->executeQuery($this->database . '.' . $this->getCollectionName(),)
-    }
-
-    public function updateData($data)
-    {
-        $id = $data[$this->getPrimariKey()];
-
+        return $this->epaceResource;
     }
 
     public function exists(Blackbox_Epace_Model_Epace_AbstractObject $object)
@@ -68,7 +76,7 @@ class MongoEpaceCollection
         //$id = new \MongoDB\BSON\ObjectID($id);
         $filter = ['_id' => $id];
         $options = [
-            'projection' => ['_id' => 0]
+            'projection' => ['_id' => 1]
         ];
 
         $query = new \MongoDB\Driver\Query($filter, $options);
@@ -82,33 +90,115 @@ class MongoEpaceCollection
         return $result;
     }
 
-    public function insertIfNotExists(Blackbox_Epace_Model_Epace_AbstractObject $object)
+    public function loadData($id)
+    {
+        $query = new MongoDB\Driver\Query([
+            '_id' => $id
+        ]);
+        $rows = $this->manager->executeQuery($this->database . '.' . $this->getCollectionName(), $query);
+        foreach ($rows as $row) {
+            return (array)$row;
+        }
+        return null;
+    }
+
+    public function loadIds($filter = [])
+    {
+        $options = [
+            'projection' => ['_id' => 1]
+        ];
+        $rows = $this->manager->executeQuery($this->database . '.' . $this->getCollectionName(), new MongoDB\Driver\Query($filter, $options))->toArray();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = $row->_id;
+        }
+
+        return $result;
+    }
+
+    public function insertOrUpdate(Blackbox_Epace_Model_Epace_AbstractObject $object, $forceUpdate = false)
     {
         $this->validateObject($object);
+        return $this->insertOrUpdateData($object->getData(), $forceUpdate);
+    }
 
-        if (in_array($object->getId(), $this->currentBulkWriteIds) || $this->isIdExists($object->getId())) {
-            return;
+    protected function insertOrUpdateData($data, $forceUpdate = false)
+    {
+        $id = $data[$this->epaceResource->getIdFieldName()];
+        if (in_array($id, $this->currentBulkWriteIds)) {
+            if ($forceUpdate) {
+                $this->flush();
+            } else {
+                return true;
+            }
         }
 
         if (!$this->bulkWrite) {
             $this->bulkWrite = new MongoDB\Driver\BulkWrite(['ordered' => true]);
         }
 
-        $data = $object->getData();
-        $data['_id'] = $object->getId();
+        $data = $this->_prepareData($data, true);
+        if ($old = $this->loadData($id)) {
+            $systemFields = [
+                '_created_at',
+                '_updated_at',
+                '_id'
+            ];
+            foreach ($systemFields as $field) {
+                unset($old[$field]);
+            }
 
-        $this->bulkWrite->insert($data);
-        $this->currentBulkWriteIds[] = $object->getId();
+            $update = false;
+            foreach ($data as $key => $value) {
+                if (in_array($key, $systemFields)) {
+                    continue;
+                }
+                if ($value != $old[$key]) {
+                    $update = true;
+                    break;
+                } else {
+                    unset($old[$key]);
+                }
+            }
+            if (!$update && empty($old)) {
+                if ($forceUpdate) {
+                    echo 'FORCE UPDATE' . PHP_EOL;
+                    $this->bulkWrite->update(
+                        ['_id' => $id],
+                        ['$set' => ['_updated_at' => new MongoDB\BSON\UTCDateTime(time() * 1000)]],
+                        ['multi' => false]);
+                } else {
+                    echo 'IGNORE' . PHP_EOL;
+                    return false;
+                }
+            }
+            $data['_updated_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
+            $this->bulkWrite->update(
+                ['_id' => $id],
+                ['$set' => $data],
+                ['multi' => false]
+            );
+            echo 'UPDATE' . PHP_EOL;
+        } else {
+            $data['_created_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
+            $data['_updated_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
+            $this->bulkWrite->insert($data);
+            echo 'INSERT' . PHP_EOL;
+        }
+        $this->currentBulkWriteIds[] = $id;
 
-        if ($this->bulkWrite->count() == self::$bulkWriteLimit) {
+        if ($this->bulkWrite->count() >= self::$bulkWriteLimit) {
             $this->flush();
         }
+
+        return true;
     }
 
-    public function insertOrUpdate(Blackbox_Epace_Model_Epace_AbstractObject $object)
+    public function updateDataRaw($data)
     {
-        $this->validateObject($object);
-        if (in_array($object->getId(), $this->currentBulkWriteIds)) {
+        $id = $data[$this->epaceResource->getIdFieldName()];
+        if (in_array($id, $this->currentBulkWriteIds)) {
             return;
         }
 
@@ -117,13 +207,13 @@ class MongoEpaceCollection
         }
 
         $this->bulkWrite->update(
-            ['_id' => $object->getId()],
-            ['$set' => $object->getData()],
-            ['multi' => false, 'upsert' => true]
+            ['_id' => $id],
+            ['$set' => $data],
+            ['multi' => false]
         );
-        $this->currentBulkWriteIds[] = $object->getId();
+        $this->currentBulkWriteIds[] = $id;
 
-        if ($this->bulkWrite->count() == self::$bulkWriteLimit) {
+        if ($this->bulkWrite->count() >= self::$bulkWriteLimit) {
             $this->flush();
         }
     }
@@ -164,6 +254,31 @@ class MongoEpaceCollection
             throw new \Exception('Trying add to collection of type ' . $this->epaceResource->getObjectType() . ' object of type ' . $object->getObjectType());
         }
     }
+
+    /**
+     * @param array $data
+     * @param bool $addId
+     * @return array
+     */
+    protected function _prepareData($data, $addId)
+    {
+        foreach ($this->epaceResource->getDefinition() as $field => $type) {
+            if (!array_key_exists($field, $data) || is_null($data[$field])) {
+                continue;
+            }
+            if ($type == 'date') {
+                if (is_string($data[$field]) && !is_numeric($data[$field])) {
+                    $data[$field] = new MongoDB\BSON\UTCDateTime(strtotime($data[$field]) * 1000);
+                } else {
+                    $data[$field] = new MongoDB\BSON\UTCDateTime((int)$data[$field] * 1000);
+                }
+            }
+        }
+        if ($addId) {
+            $data['_id'] = $data[$this->epaceResource->getIdFieldName()];
+        }
+        return $data;
+    }
 }
 
 class EpaceMongo extends Mage_Shell_Abstract
@@ -178,6 +293,9 @@ class EpaceMongo extends Mage_Shell_Abstract
 
     protected $tabs = 0;
 
+    protected $processedEstimates = [];
+    protected $processedJobs = [];
+
     public function run()
     {
         error_reporting(E_ALL);
@@ -188,6 +306,15 @@ class EpaceMongo extends Mage_Shell_Abstract
         $this->database = $this->getArg('database');
         if (!$this->database) {
             throw new \Exception('No database specified.');
+        }
+
+        if ($this->getArg('bulkWriteLimit')) {
+            MongoEpaceCollection::$bulkWriteLimit = (int)$this->getArg('bulkWriteLimit');
+        }
+
+        if ($this->getArg('fixDates')) {
+            $this->fixDates();
+            return;
         }
 
         $this->importToMongo();
@@ -275,11 +402,6 @@ class EpaceMongo extends Mage_Shell_Abstract
                 }
             }
 
-            /** @var Mage_Core_Model_Resource $resource */
-            $resource = Mage::getSingleton('core/resource');
-            $connection = $resource->getConnection('core_read');
-            $orderTable = $resource->getTableName('sales/order');
-
             $ids = $collection->loadIds();
             $count = count($ids);
             $i = 0;
@@ -288,10 +410,8 @@ class EpaceMongo extends Mage_Shell_Abstract
             try {
                 foreach ($ids as $jobId) {
                     $this->writeln('Job ' . ++$i . '/' . $count . ': ' . $jobId);
-                    $select = $connection->select()->from($orderTable, 'count(*)')
-                        ->where('epace_job_id = ?', $jobId);
-                    if ($connection->fetchOne($select) > 0) {
-                        $this->writeln("\tJob $jobId already imported.");
+                    if (in_array($jobId, $this->processedJobs)) {
+                        $this->writeln("\tJob $jobId already processed.");
                     } else {
                         /** @var Blackbox_Epace_Model_Epace_Job $job */
                         $job = Mage::getModel('efi/job')->load($jobId);
@@ -309,41 +429,119 @@ class EpaceMongo extends Mage_Shell_Abstract
         }
     }
 
+    protected function fixDates()
+    {
+        $collections = $this->manager->executeCommand($this->database, new MongoDB\Driver\Command(['listCollections' => 1, 'nameOnly' => true]));
+        /** @var Blackbox_Epace_Helper_Data $helper */
+        $helper = Mage::helper('epace');
+        foreach ($collections as $collection) {
+            $type = $helper->getTypeName($collection->name);
+            if ($type) {
+                $this->writeln($collection->name);
+                $this->fixCollectionDates($type);
+            } else {
+                $this->writeln('Object type for collection ' . $collection->name . ' not found');
+            }
+        }
+    }
+
+    protected function fixCollectionDates($type)
+    {
+        Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+        $adapter = $this->getCollectionAdapter($type);
+
+        $definition = $adapter->getResource()->getDefinition();
+        $dateFields = array_keys(array_filter($definition, function($value) {
+            return $value == 'date';
+        }));
+
+        $ids = $adapter->loadIds();
+        $count = count($ids);
+        $i = 0;
+        foreach ($ids as $id) {
+            $this->write(++$i . '/' . $count . ' ' . $id);
+            $data = $adapter->loadData($id);
+            if (!$data) {
+                $this->writeln('not found');
+                continue;
+            }
+
+            $updated = false;
+            foreach ($dateFields as $field) {
+                if (!array_key_exists($field, $data) || is_null($data[$field]) || $data[$field] instanceof MongoDB\BSON\UTCDateTime) {
+                    continue;
+                }
+
+                if (is_string($data[$field]) && !is_numeric($data[$field])) {
+                    $data[$field] = new MongoDB\BSON\UTCDateTime(strtotime($data[$field]) *1000);
+                } else {
+                    $data[$field] = new MongoDB\BSON\UTCDateTime((int)$data[$field] * 1000);
+                }
+                $updated = true;
+            }
+
+            if (!isset($data['_created_at'])) {
+                $data['_created_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
+                $data['_updated_at'] = $data['_created_at'];
+                $updated = true;
+            } else if (!isset($data['_updated_at'])) {
+                $data['_updated_at'] = $data['_created_at'];
+                $updated = true;
+            }
+
+            if ($updated) {
+                $this->writeln(' update');
+                $adapter->updateDataRaw($data);
+            } else {
+                $this->writeln('');
+            }
+        }
+
+        $adapter->flush();
+    }
+
     protected function importEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
     {
-        $this->getCollectionAdapter('estimate')->insertOrUpdate($estimate);
-        foreach ($estimate->getProducts() as $product) {
-            $this->getCollectionAdapter('estimate_product')->insertOrUpdate($product);
-            foreach ($product->getParts() as $part) {
-                $this->getCollectionAdapter('estimate_part')->insertOrUpdate($part);
-                foreach ($part->getSizeAllowances() as $sizeAllowance) {
-                    $this->getCollectionAdapter('estimate_part_sizeAllowance')->insertOrUpdate($sizeAllowance);
+        if (in_array($estimate->getId(), $this->processedEstimates)) {
+            $this->writeln('Estimate ealready processed');
+        } else {
+            $forceUpdate = false;
+            foreach ($estimate->getProducts() as $product) {
+                $forceUpdate |= $this->getCollectionAdapter('estimate_product')->insertOrUpdate($product);
+                foreach ($product->getParts() as $part) {
+                    $forceUpdate |= $this->getCollectionAdapter('estimate_part')->insertOrUpdate($part);
+                    foreach ($part->getSizeAllowances() as $sizeAllowance) {
+                        $forceUpdate |= $this->getCollectionAdapter('estimate_part_sizeAllowance')->insertOrUpdate($sizeAllowance);
+                    }
+                    foreach ($part->getQuantities() as $quantity) {
+                        $forceUpdate |= $this->getCollectionAdapter('estimate_quantity')->insertOrUpdate($quantity);
+                    }
                 }
-                foreach ($part->getQuantities() as $quantity) {
-                    $this->getCollectionAdapter('estimate_quantity')->insertOrUpdate($quantity);
+                foreach ($product->getPriceSummaries() as $priceSummary) {
+                    $forceUpdate |= $this->getCollectionAdapter('estimate_product_priceSummary')->insertOrUpdate($priceSummary);
                 }
             }
-            foreach ($product->getPriceSummaries() as $priceSummary) {
-                $this->getCollectionAdapter('estimate_product_priceSummary')->insertOrUpdate($priceSummary);
+            foreach ($estimate->getQuoteLetters() as $quoteLetter) {
+                $forceUpdate |= $this->getCollectionAdapter('estimate_quoteLetter')->insertOrUpdate($quoteLetter);
+                foreach ($quoteLetter->getNotes() as $note) {
+                    $forceUpdate |= $this->getCollectionAdapter('estimate_quoteLetter_note')->insertOrUpdate($note);
+                }
             }
-        }
-        foreach ($estimate->getQuoteLetters() as $quoteLetter) {
-            $this->getCollectionAdapter('estimate_quoteLetter')->insertOrUpdate($quoteLetter);
-            foreach ($quoteLetter->getNotes() as $note) {
-                $this->getCollectionAdapter('estimate_quoteLetter_note')->insertOrUpdate($note);
+            if ($estimate->getCustomer()) {
+                $this->getCollectionAdapter('customer')->insertOrUpdate($estimate->getCustomer());
             }
-        }
-        if ($estimate->getCustomer()) {
-            $this->getCollectionAdapter('customer')->insertIfNotExists($estimate->getCustomer());
+            $this->getCollectionAdapter('estimate')->insertOrUpdate($estimate, $forceUpdate);
+
+            $this->processedEstimates[] = $estimate->getId();
         }
 //        if ($estimate->getSalesPerson()) {
-//            $this->getCollectionAdapter('salesPerson')->insertIfNotExists($estimate->getSalesPerson());
+//            $this->getCollectionAdapter('salesPerson')->insertOrUpdate($estimate->getSalesPerson());
 //        }
 //        if ($estimate->getCSR()) {
-//            $this->getCollectionAdapter('cSR')->insertIfNotExists($estimate->getCSR());
+//            $this->getCollectionAdapter('cSR')->insertOrUpdate($estimate->getCSR());
 //        }
 //        if ($estimate->getStatus()) {
-//            $this->getCollectionAdapter('estimate_status')->insertIfNotExists($estimate->getStatus());
+//            $this->getCollectionAdapter('estimate_status')->insertOrUpdate($estimate->getStatus());
 //        }
 
         if ($estimate->isConvertedToJob()) {
@@ -371,74 +569,78 @@ class EpaceMongo extends Mage_Shell_Abstract
 
     protected function importJob(Blackbox_Epace_Model_Epace_Job $job)
     {
-        $this->getCollectionAdapter('job')->insertOrUpdate($job);
+        if (in_array($job->getId(), $this->processedJobs)) {
+            $this->writeln('Job already processed');
+            return;
+        }
+        $forceUpdate = false;
 //        if ($job->getAdminStatus()) {
-//            $this->getCollectionAdapter('job_status')->insertIfNotExists($job->getAdminStatus());
+//            $this->getCollectionAdapter('job_status')->insertOrUpdate($job->getAdminStatus());
 //        }
 //        if ($job->getPrevAdminStatus()) {
-//            $this->getCollectionAdapter('job_status')->insertIfNotExists($job->getPrevAdminStatus());
+//            $this->getCollectionAdapter('job_status')->insertOrUpdate($job->getPrevAdminStatus());
 //        }
         if ($job->getCustomer()) {
-            $this->getCollectionAdapter('customer')->insertIfNotExists($job->getCustomer());
+            $this->getCollectionAdapter('customer')->insertOrUpdate($job->getCustomer());
         }
 //        if ($job->getCSR()) {
-//            $this->getCollectionAdapter('cSR')->insertIfNotExists($job->getCSR());
+//            $this->getCollectionAdapter('cSR')->insertOrUpdate($job->getCSR());
 //        }
 //        if ($job->getSalesPerson()) {
-//            $this->getCollectionAdapter('salesPerson')->insertIfNotExists($job->getSalesPerson());
+//            $this->getCollectionAdapter('salesPerson')->insertOrUpdate($job->getSalesPerson());
 //        }
         if ($job->getQuote()) {
-            $this->getCollectionAdapter('quote')->insertIfNotExists($job->getQuote());
+            $this->getCollectionAdapter('quote')->insertOrUpdate($job->getQuote());
         }
         foreach($job->getProducts() as $product) {
-            $this->getCollectionAdapter('job_product')->insertOrUpdate($product);
+            $forceUpdate |= $this->getCollectionAdapter('job_product')->insertOrUpdate($product);
         }
 //        $this->importShipVia($job->getShipVia());
         foreach ($job->getParts() as $part) {
-            $this->getCollectionAdapter('job_part')->insertOrUpdate($part);
+            $forceUpdate |= $this->getCollectionAdapter('job_part')->insertOrUpdate($part);
             foreach ($part->getMaterials() as $material) {
-                $this->getCollectionAdapter('job_material')->insertOrUpdate($material);
+                $forceUpdate |= $this->getCollectionAdapter('job_material')->insertOrUpdate($material);
             }
             foreach ($part->getPrePressOps() as $prePressOp) {
-                $this->getCollectionAdapter('job_part_prePressOp')->insertOrUpdate($prePressOp);
+                $forceUpdate |= $this->getCollectionAdapter('job_part_prePressOp')->insertOrUpdate($prePressOp);
             }
             foreach ($part->getChangeOrders() as $changeOrder) {
-                $this->getCollectionAdapter('change_order')->insertOrUpdate($changeOrder);
+                $forceUpdate |= $this->getCollectionAdapter('change_order')->insertOrUpdate($changeOrder);
             }
             foreach ($part->getProofs() as $proof) {
-                $this->getCollectionAdapter('proof')->insertOrUpdate($proof);
+                $forceUpdate |= $this->getCollectionAdapter('proof')->insertOrUpdate($proof);
             }
             foreach ($part->getItems() as $item) {
-                $this->getCollectionAdapter('job_part_item')->insertOrUpdate($item);
+                $forceUpdate |= $this->getCollectionAdapter('job_part_item')->insertOrUpdate($item);
             }
             foreach ($part->getPressForms() as $pressForm) {
-                $this->getCollectionAdapter('job_part_pressForm')->insertOrUpdate($pressForm);
+                $forceUpdate |= $this->getCollectionAdapter('job_part_pressForm')->insertOrUpdate($pressForm);
             }
             foreach ($part->getComponents() as $component) {
-                $this->getCollectionAdapter('job_component')->insertOrUpdate($component);
+                $forceUpdate |= $this->getCollectionAdapter('job_component')->insertOrUpdate($component);
             }
             foreach ($part->getFinishingOps() as $finishingOp) {
-                $this->getCollectionAdapter('job_part_finishingOp')->insertOrUpdate($finishingOp);
+                $forceUpdate |= $this->getCollectionAdapter('job_part_finishingOp')->insertOrUpdate($finishingOp);
             }
             foreach ($part->getOutsidePurchs() as $outsidePurch) {
-                $this->getCollectionAdapter('job_part_outsidePurch')->insertOrUpdate($outsidePurch);
+                $forceUpdate |= $this->getCollectionAdapter('job_part_outsidePurch')->insertOrUpdate($outsidePurch);
             }
             foreach ($part->getPlans() as $plan) {
-                $this->getCollectionAdapter('job_plan')->insertOrUpdate($plan);
+                $forceUpdate |= $this->getCollectionAdapter('job_plan')->insertOrUpdate($plan);
             }
             foreach ($part->getCosts() as $cost) {
-                $this->getCollectionAdapter('job_cost')->insertOrUpdate($cost);
+                $forceUpdate |= $this->getCollectionAdapter('job_cost')->insertOrUpdate($cost);
             }
             foreach ($part->getSizeAllowances() as $sizeAllowance) {
-                $this->getCollectionAdapter('job_part_sizeAllowance')->insertOrUpdate($sizeAllowance);
+                $forceUpdate |= $this->getCollectionAdapter('job_part_sizeAllowance')->insertOrUpdate($sizeAllowance);
             }
         }
         foreach ($job->getJobContacts() as $jobContact) {
-            $this->getCollectionAdapter('job_contact')->insertOrUpdate($jobContact);
+            $forceUpdate |= $this->getCollectionAdapter('job_contact')->insertOrUpdate($jobContact);
             $this->importContact($jobContact->getContact());
         }
         foreach ($job->getNotes() as $note) {
-            $this->getCollectionAdapter('job_note')->insertOrUpdate($note);
+            $forceUpdate |= $this->getCollectionAdapter('job_note')->insertOrUpdate($note);
         }
 
         $this->tabs++;
@@ -450,7 +652,7 @@ class EpaceMongo extends Mage_Shell_Abstract
                 $this->writeln("Invoice $i/$count: {$invoice->getId()}");
                 try {
                     $this->tabs++;
-                    $this->importInvoice($invoice);
+                    $forceUpdate |= $this->importInvoice($invoice);
                 } catch (\Exception $e) {
                     $this->writeln('Error: ' . $e->getMessage());
                 } finally {
@@ -465,7 +667,7 @@ class EpaceMongo extends Mage_Shell_Abstract
                 $this->writeln("Shipment $i/$count: {$shipment->getId()}");
                 try {
                     $this->tabs++;
-                    $this->importShipment($shipment);
+                    $forceUpdate |= $this->importShipment($shipment);
                 } catch (\Exception $e) {
                     $this->writeln('Error: ' . $e->getMessage());
                 } finally {
@@ -475,81 +677,91 @@ class EpaceMongo extends Mage_Shell_Abstract
         } finally {
             $this->tabs--;
         }
+
+        $this->getCollectionAdapter('job')->insertOrUpdate($job, $forceUpdate);
+
+        $this->processedJobs[] = $job->getId();
     }
 
     protected function importShipment(Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment)
     {
-        $this->getCollectionAdapter('job_shipment')->insertOrUpdate($jobShipment);
-        $this->importContact($jobShipment->getContact());
-        $this->importContact($jobShipment->getShipTo());
+        $forceUpdate = false;
+        $forceUpdate |= $this->importContact($jobShipment->getContact());
+        $forceUpdate |= $this->importContact($jobShipment->getShipTo());
 //        $this->importShipVia($jobShipment->getShipVia());
         foreach ($jobShipment->getCartons() as $carton) {
-            $this->getCollectionAdapter('carton')->insertOrUpdate($carton);
+            $forceUpdate |= $this->getCollectionAdapter('carton')->insertOrUpdate($carton);
             foreach ($carton->getContents() as $content) {
-                $this->getCollectionAdapter('carton_content')->insertOrUpdate($content);
+                $forceUpdate |= $this->getCollectionAdapter('carton_content')->insertOrUpdate($content);
             }
         }
         foreach ($jobShipment->getSkids() as $skid) {
-            $this->getCollectionAdapter('skid')->insertOrUpdate($skid);
+            $forceUpdate |= $this->getCollectionAdapter('skid')->insertOrUpdate($skid);
         }
+
+        $this->getCollectionAdapter('job_shipment')->insertOrUpdate($jobShipment, $forceUpdate);
     }
 
     protected function importInvoice(Blackbox_Epace_Model_Epace_Invoice $invoice)
     {
-        $this->getCollectionAdapter('invoice')->insertOrUpdate($invoice);
+        $forceUpdate = false;
 //        if ($invoice->getSalesCategory()) {
-//            $this->getCollectionAdapter('salesCategory')->insertIfNotExists($invoice->getSalesCategory());
+//            $this->getCollectionAdapter('salesCategory')->insertOrUpdate($invoice->getSalesCategory());
 //        }
 //        if ($invoice->getSalesTax()) {
-//            $this->getCollectionAdapter('salesTax')->insertIfNotExists($invoice->getSalesTax());
+//            $this->getCollectionAdapter('salesTax')->insertOrUpdate($invoice->getSalesTax());
 //        }
         foreach ($invoice->getLines() as $line) {
-            $this->getCollectionAdapter('invoice_line')->insertOrUpdate($line);
+            $forceUpdate |= $this->getCollectionAdapter('invoice_line')->insertOrUpdate($line);
         }
         foreach ($invoice->getTaxDists() as $taxDist) {
-            $this->getCollectionAdapter('invoice_taxDist')->insertOrUpdate($taxDist);
+            $forceUpdate |= $this->getCollectionAdapter('invoice_taxDist')->insertOrUpdate($taxDist);
         }
         foreach ($invoice->getCommDists() as $commDist) {
-            $this->getCollectionAdapter('invoice_commDist')->insertOrUpdate($commDist);
+            $forceUpdate |= $this->getCollectionAdapter('invoice_commDist')->insertOrUpdate($commDist);
         }
         foreach ($invoice->getExtras() as $extra) {
-            $this->getCollectionAdapter('invoice_extra')->insertOrUpdate($extra);
+            $forceUpdate |= $this->getCollectionAdapter('invoice_extra')->insertOrUpdate($extra);
         }
         foreach ($invoice->getSalesDists() as $salesDist) {
-            $this->getCollectionAdapter('invoice_salesDist')->insertOrUpdate($salesDist);
+            $forceUpdate |= $this->getCollectionAdapter('invoice_salesDist')->insertOrUpdate($salesDist);
         }
 
         if ($invoice->getReceivable()) {
-            $this->importReceivable($invoice->getReceivable());
+            $forceUpdate |= $this->importReceivable($invoice->getReceivable());
         }
+
+        return $this->getCollectionAdapter('invoice')->insertOrUpdate($invoice, $forceUpdate);
     }
 
     protected function importReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable)
     {
-        $this->getCollectionAdapter('receivable')->insertOrUpdate($receivable);
+        $forceUpdate = false;
         foreach ($receivable->getLines() as $line) {
-            $this->getCollectionAdapter('receivable_line')->insertOrUpdate($line);
+            $forceUpdate |= $this->getCollectionAdapter('receivable_line')->insertOrUpdate($line);
         }
+
+        return $this->getCollectionAdapter('receivable')->insertOrUpdate($receivable, $forceUpdate);
     }
 
     protected function importCustomer($customer)
     {
         if ($customer instanceof Blackbox_Epace_Model_Epace_Customer) {
-            $this->getCollectionAdapter('customer')->insertIfNotExists($customer);
+            $this->getCollectionAdapter('customer')->insertOrUpdate($customer);
 //            if ($customer->getSalesPerson()) {
-//                $this->getCollectionAdapter('salesPerson')->insertIfNotExists($customer->getSalesPerson());
+//                $this->getCollectionAdapter('salesPerson')->insertOrUpdate($customer->getSalesPerson());
 //            }
 //            if ($customer->getSalesTax()) {
-//                $this->getCollectionAdapter('salesTax')->insertIfNotExists($customer->getSalesTax());
+//                $this->getCollectionAdapter('salesTax')->insertOrUpdate($customer->getSalesTax());
 //            }
 //            if ($customer->getCSR()) {
-//                $this->getCollectionAdapter('cSR')->insertIfNotExists($customer->getCSR());
+//                $this->getCollectionAdapter('cSR')->insertOrUpdate($customer->getCSR());
 //            }
 //            if ($customer->getCountry()) {
-//                $this->getCollectionAdapter('country')->insertIfNotExists($customer->getCountry());
+//                $this->getCollectionAdapter('country')->insertOrUpdate($customer->getCountry());
 //            }
 //            if ($customer->getSalesCategory()) {
-//                $this->getCollectionAdapter('salesCategory')->insertIfNotExists($customer->getSalesCategory());
+//                $this->getCollectionAdapter('salesCategory')->insertOrUpdate($customer->getSalesCategory());
 //            }
         }
     }
@@ -562,21 +774,24 @@ class EpaceMongo extends Mage_Shell_Abstract
         foreach ($collection->getItems() as $item) {
             $adapter->insertOrUpdate($item);
         }
+
+        $adapter->flush();
     }
 
     protected function importContact($contact)
     {
         if ($contact instanceof Blackbox_Epace_Model_Epace_Contact) {
-            $this->getCollectionAdapter('contact')->insertIfNotExists($contact);
+            return $this->getCollectionAdapter('contact')->insertOrUpdate($contact);
         }
+        return false;
     }
 
 //    protected function importShipVia($shipVia)
 //    {
 //        if ($shipVia instanceof Blackbox_Epace_Model_Epace_Ship_Via) {
-//            $this->getCollectionAdapter('ship_via')->insertIfNotExists($shipVia);
+//            $this->getCollectionAdapter('ship_via')->insertOrUpdate($shipVia);
 //            if ($shipVia->getShipProvider()) {
-//                $this->getCollectionAdapter('ship_provider')->insertIfNotExists($shipVia->getShipProvider());
+//                $this->getCollectionAdapter('ship_provider')->insertOrUpdate($shipVia->getShipProvider());
 //            }
 //        }
 //    }
@@ -592,6 +807,11 @@ class EpaceMongo extends Mage_Shell_Abstract
         }
 
         return $this->collectionAdapters[$class];
+    }
+
+    protected function write($message)
+    {
+        echo str_repeat("\t", $this->tabs) . $message;
     }
 
     protected function writeln($message)

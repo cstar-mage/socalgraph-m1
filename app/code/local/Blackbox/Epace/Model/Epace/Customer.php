@@ -33,8 +33,6 @@
  * @method bool getOrderAlert()
  * @method int getPhoneNumber()
  * @method float getSalesYTD()
- * @method int getShipToContact()
- * @method int getShipVia()
  * @method string getState()
  * @method int getStatementCycle()
  * @method int getTaxableCode()
@@ -193,6 +191,23 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
         return $this->_setObject('shipVia', $shipVia);
     }
 
+    /**
+     * @return Blackbox_Epace_Model_Epace_Contact|bool
+     */
+    public function getShipToContact()
+    {
+        return $this->_getObject('shipToContact', 'shipToContact', 'efi/contact');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Contact $contact
+     * @return $this
+     */
+    public function setShipToContact(Blackbox_Epace_Model_Epace_Contact $contact)
+    {
+        return $this->_setObject('shipToContact', $contact);
+    }
+
     public function getDefinition()
     {
         return [
@@ -221,9 +236,10 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'country' => 'int',
             'creditLimit' => '',
             'csr' => 'int',
-            'dateHighBalance' => '',
-            'dateLastInvoice' => '',
-            'dateSetup' => '',
+            'dateHighBalance' => 'date',
+            'dateLastInvoice' => 'date',
+            'dateLastPayment' => 'date',
+            'dateSetup' => 'date',
             'defaultDaysUntilJobDue' => '',
             'highestBalance' => '',
             'email' => '',
@@ -242,7 +258,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'zip' => '',
             'creditCardProcessingEnabled' => 'bool',
             'shipToFormat' => '',
-            'nextServiceChargeDate' => '',
+            'nextServiceChargeDate' => 'date',
             'applyDiscountToInvoice' => 'bool',
             'calculateTax' => 'bool',
             'calculateFreight' => 'bool',

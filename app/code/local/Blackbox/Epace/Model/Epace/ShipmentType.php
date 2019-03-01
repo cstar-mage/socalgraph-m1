@@ -15,7 +15,7 @@ class Blackbox_Epace_Model_Epace_ShipmentType extends Blackbox_Epace_Model_Epace
             'printLabel' => 'bool',
             'printDelTicket' => 'bool',
             'addQty' => 'bool',
-            'status' => '',
+            'status' => 'int',
             'defaultContact' => '',
             'showInEService' => 'bool',
             'shipToInventory' => 'bool',

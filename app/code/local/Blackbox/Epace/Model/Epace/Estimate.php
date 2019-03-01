@@ -118,7 +118,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     {
         return $this->_getChildItems('efi/job_collection', [
             'altCurrencyRateSource' => 'Estimate',
-            'altCurrencyRateSourceNote' => (int)$this->getId()
+            'altCurrencyRateSourceNote' => $this->getId()
         ], function ($item) {
             if ($this->getId() == $item->getEstimateId()) {
                 $item->setEstimate($this);
@@ -148,17 +148,17 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'salesPerson' => 'int',
             'csr' => 'int',
             'estimator' => '',
-            'entryDate' => '',
-            'entryTime' => '',
+            'entryDate' => 'date',
+            'entryTime' => 'date',
             'enteredBy' => '',
-            'followUpDate' => '',
+            'followUpDate' => 'date',
             'customer' => 'string',
             'customerProspectName' => '',
             'prospectName' => '',
             'description' => '',
             'notes' => '',
-            'status' => '',
-            'rewardDate' => '',
+            'status' => 'int',
+            'rewardDate' => 'date',
             'lastJob' => '',
             'estimateRequest' => '',
             'shipToContact' => '',
@@ -171,7 +171,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'altCurrency' => '',
             'altCurrencyRate' => '',
             'altCurrencyRateSource' => '',
-            'altCurrencyRateSourceNote' => '',
+            'altCurrencyRateSourceNote' => 'string',
             'forceQuotedPriceOnConvert' => '',
             'committedFromMetrix' => '',
             'allowVAT' => '',
@@ -179,8 +179,8 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'manufacturingLocation' => '',
             'highestEstimateVersion' => '',
             'autoAddQuoteLetter' => '',
-            'lastChangedDate' => '',
-            'lastChangedTime' => '',
+            'lastChangedDate' => 'date',
+            'lastChangedTime' => 'date',
             'lastChangedBy' => '',
             'totalParts' => '',
             'totalPages' => ''

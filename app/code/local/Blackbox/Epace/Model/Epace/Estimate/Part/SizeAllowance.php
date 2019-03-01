@@ -13,7 +13,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Part_SizeAllowance extends Blackbox_Ep
     {
         return [
             'id' => 'int',
-            'estimatePart' => '',
+            'estimatePart' => 'int',
             'state' => '',
             'source' => '',
             'sizeAllowanceType' => '',

@@ -14,6 +14,7 @@ class Blackbox_EpaceImport_Model_Cron
     const XML_PATH_UPDATE_SHIPMENTS = 'epace/import/update_shipments';
     const XML_PATH_IMPORT_NEW_OBJECTS = 'epace/import/import_new';
     const XML_PATH_LOG = 'epace/import/log';
+    const XML_PATH_MONGO_ENABLE = 'epace/mongo/enable';
 
     /**
      * @var bool
@@ -35,27 +36,13 @@ class Blackbox_EpaceImport_Model_Cron
             return;
         }
 
+        if (Mage::getStoreConfigFlag(self::XML_PATH_MONGO_ENABLE)) {
+            Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+        }
+
         $this->log('Start import');
         try {
-
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
-                $this->updateEstimates();
-            }
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
-                $this->updateJobs();
-            }
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
-                $this->updateInvoices();
-            }
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
-                $this->updateShipments();
-            }
-
-            if (!Mage::getStoreConfigFlag(self::XML_PATH_IMPORT_NEW_OBJECTS)) {
-                return;
-            }
-
-            $lastUpdateTime = Mage::getStoreConfig('epace/import/last_update_time');
+            $lastUpdateTime = Mage::getStoreConfig(self::XML_PATH_LAST_UPDATE_TIME);
             if (!empty($lastUpdateTime)) {
                 if (is_numeric($lastUpdateTime)) {
                     $dateTime = new \DateTime();
@@ -70,6 +57,23 @@ class Blackbox_EpaceImport_Model_Cron
             }
             if (!isset($dateTime)) {
                 $dateTime = new \DateTime('-1 month');
+            }
+
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
+                $this->updateEstimates($dateTime);
+            }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
+                $this->updateJobs($dateTime);
+            }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
+                $this->updateInvoices($dateTime);
+            }
+            if (true || Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
+                $this->updateShipments($dateTime);
+            }
+
+            if (!Mage::getStoreConfigFlag(self::XML_PATH_IMPORT_NEW_OBJECTS)) {
+                return;
             }
 
             $currentTime = time();
@@ -89,9 +93,14 @@ class Blackbox_EpaceImport_Model_Cron
 
     protected function importNewEstimates(\DateTime $from)
     {
+        $from = new \DateTime('-20 hours');
         /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('efi/estimate_collection');
-        $collection->addFilter('entryDate', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('entryDate', ['gteq' => $from]);
+        }
 
         $ids = $collection->loadIds();
         $count = count($ids);
@@ -113,7 +122,11 @@ class Blackbox_EpaceImport_Model_Cron
     {
         /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
         $collection = Mage::getResourceModel('efi/job_collection');
-        $collection->addFilter('dateSetup', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('dateSetup', ['gteq' => $from]);
+        }
 
         /** @var Mage_Core_Model_Resource $resource */
         $resource = Mage::getSingleton('core/resource');
@@ -146,7 +159,11 @@ class Blackbox_EpaceImport_Model_Cron
     {
         /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $collection */
         $collection = Mage::getResourceModel('efi/job_shipment_collection');
-        $collection->addFilter('date', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('date', ['gteq' => $from]);
+        }
 
         $ids = $collection->loadIds();
         $count = count($ids);
@@ -168,7 +185,11 @@ class Blackbox_EpaceImport_Model_Cron
     {
         /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $collection */
         $collection = Mage::getResourceModel('efi/invoice_collection');
-        $collection->addFilter('invoiceDate', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('invoiceDate', ['gteq' => $from]);
+        }
 
         $ids = $collection->loadIds();
         $count = count($ids);
@@ -291,11 +312,20 @@ class Blackbox_EpaceImport_Model_Cron
         }
     }
 
-    protected function updateEstimates()
+    protected function updateEstimates(\DateTime $from)
     {
         /** @var Blackbox_EpaceImport_Model_Resource_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('epacei/estimate_collection');
-        $collection->addFieldToFilter('epace_estimate_id', ['notnull' => true]);
+
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/estimate_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_estimate_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_estimate_id', ['notnull' => true]);
+        }
 
         $page = 0;
         $collection->setPageSize(100);
@@ -318,11 +348,19 @@ class Blackbox_EpaceImport_Model_Cron
         } while ($page < $lastPage);
     }
 
-    protected function updateJobs()
+    protected function updateJobs(\DateTime $from)
     {
         /** @var Mage_Sales_Model_Resource_Order_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_collection');
-        $collection->addFieldToFilter('epace_job_id', ['notnull' => true]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/job_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_job_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_job_id', ['notnull' => true]);
+        }
         if (!Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_CLOSED_JOBS)) {
             $collection->addFieldToFilter('state', ['neq' => Mage_Sales_Model_Order::STATE_CLOSED]);
         }
@@ -349,11 +387,19 @@ class Blackbox_EpaceImport_Model_Cron
         } while ($page < $lastPage);
     }
 
-    protected function updateInvoices()
+    protected function updateInvoices(\DateTime $from)
     {
         /** @var Mage_Sales_Model_Entity_Order_Invoice_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_invoice_collection');
-        $collection->addFieldToFilter('epace_invoice_id', ['notnull' => true]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/invoice_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_invoice_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_invoice_id', ['notnull' => true]);
+        }
 
         $page = 0;
         $collection->setPageSize(100);
@@ -377,11 +423,19 @@ class Blackbox_EpaceImport_Model_Cron
         } while ($page < $lastPage);
     }
 
-    protected function updateShipments()
+    protected function updateShipments(\DateTime $from)
     {
         /** @var Mage_Sales_Model_Entity_Order_Shipment_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_shipment_collection');
-        $collection->addFieldToFilter('epace_shipment_id', ['notnull' => true]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/job_shipment_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_shipment_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_shipment_id', ['notnull' => true]);
+        }
 
         $page = 0;
         $collection->setPageSize(100);

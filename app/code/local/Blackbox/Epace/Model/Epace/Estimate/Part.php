@@ -55,7 +55,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epac
             'id' => 'int',
             'metrixEnabled' => '',
             'includeMailing' => '',
-            'estimate' => '',
+            'estimate' => 'int',
             'numSigs' => '',
             'description' => '',
             'jobProductType' => '',

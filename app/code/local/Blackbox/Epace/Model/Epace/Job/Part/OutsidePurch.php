@@ -30,7 +30,7 @@ class Blackbox_Epace_Model_Epace_Job_Part_OutsidePurch extends Blackbox_Epace_Mo
             'altCurrency' => '',
             'altCurrencyRate' => '',
             'altCurrencyRateSource' => '',
-            'altCurrencyRateSourceNote' => '',
+            'altCurrencyRateSourceNote' => 'string',
             'unitPrice' => '',
             'uom' => '',
             'mWeight' => '',

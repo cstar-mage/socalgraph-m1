@@ -29,7 +29,7 @@ class Blackbox_Epace_Model_Epace_Job_Material extends Blackbox_Epace_Model_Epace
             'altCurrency' => '',
             'altCurrencyRate' => '',
             'altCurrencyRateSource' => '',
-            'altCurrencyRateSourceNote' => '',
+            'altCurrencyRateSourceNote' => 'string',
             'mWeightForced' => 'bool',
             'ink' => 'bool',
             'cover' => 'bool',

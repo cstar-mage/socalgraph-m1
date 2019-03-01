@@ -40,13 +40,13 @@ class Blackbox_Epace_Model_Epace_Estimate_Product extends Blackbox_Epace_Model_E
     {
         return [
             'id' => 'int',
-            'sequence' => '',
-            'estimate' => '',
-            'description' => '',
+            'sequence' => 'float',
+            'estimate' => 'int',
+            'description' => 'string',
             'systemGenerated' => 'bool',
             'singleWebDelivery' => 'bool',
-            'manufacturingLocation' => '',
-            'lookupUrl' => '',
+            'manufacturingLocation' => 'int',
+            'lookupUrl' => 'string',
             'wrapRearWindow' => 'bool',
             'wrapSideWindow' => 'bool',
             'secondSurface' => 'bool'

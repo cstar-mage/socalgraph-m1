@@ -40,7 +40,7 @@ class Blackbox_Epace_Model_Epace_Estimate_QuoteLetter extends Blackbox_Epace_Mod
             'printPriceGrid' => 'bool',
             'quoteLetterType' => 'int',
             'estimate' => 'int',
-            'date' => 'string',
+            'date' => 'date',
             'salutation' => 'string',
             'body' => 'string',
             'comment' => 'string',

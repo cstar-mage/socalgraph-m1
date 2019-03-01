@@ -186,7 +186,7 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
             'carton' => 'int',
             'quantity' => 'int',
             'job' => 'string',
-            'jobProduct' => '',
+            'jobProduct' => 'int',
             'jobPartJob' => 'string',
             'jobPart' => 'string',
             'jobMaterial' => 'int',
