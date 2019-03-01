@@ -162,7 +162,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
      */
     public function getQuote()
     {
-        return $this->_getObject('quote', 'quoteNumber', 'efi/estimate_quote');
+        return $this->_getObject('quote', 'quoteNumber', 'efi/quote');
     }
 
     /**
