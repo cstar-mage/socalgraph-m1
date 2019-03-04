@@ -3,11 +3,6 @@
 abstract class Blackbox_Epace_Model_Epace_Shipment_ChildAbstract extends Blackbox_Epace_Model_Epace_AbstractObject
 {
     /**
-     * @var Blackbox_Epace_Model_Epace_Job_Shipment
-     */
-    protected $shipment;
-
-    /**
      * @return Blackbox_Epace_Model_Epace_Job_Shipment|bool
      */
     public function getShipment()
@@ -21,9 +16,7 @@ abstract class Blackbox_Epace_Model_Epace_Shipment_ChildAbstract extends Blackbo
      */
     public function setShipment(Blackbox_Epace_Model_Epace_Job_Shipment $shipment)
     {
-        $this->shipment = $shipment;
-
-        return $this;
+        return $this->_setObject('shipment', $shipment);
     }
 
     protected abstract function getShipmentKey();

@@ -7,11 +7,6 @@
  */
 class Blackbox_Epace_Model_Epace_Ship_Via extends Blackbox_Epace_Model_Epace_AbstractObject
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Ship_Provider
-     */
-    protected $provider = null;
-
     protected function _construct()
     {
         $this->_init('ShipVia', 'id');
@@ -31,9 +26,7 @@ class Blackbox_Epace_Model_Epace_Ship_Via extends Blackbox_Epace_Model_Epace_Abs
      */
     public function setShipProvider(Blackbox_Epace_Model_Epace_Ship_Provider $provider)
     {
-        $this->provider = $provider;
-
-        return $this;
+        return $this->_setObject('provider', $provider);
     }
 
     public function getDefinition()
@@ -48,8 +41,8 @@ class Blackbox_Epace_Model_Epace_Ship_Via extends Blackbox_Epace_Model_Epace_Abs
             'maxWeightPerBox' => '',
             'active' => 'bool',
             'daysintransit' => '',
-            'cutOffTime' => '',
-            'earliestDeliveryTime' => '',
+            'cutOffTime' => 'date',
+            'earliestDeliveryTime' => 'date',
             'dateCalcType' => '',
             'dsfDeliveryMethod' => 'bool',
             'availForRelay' => 'bool',

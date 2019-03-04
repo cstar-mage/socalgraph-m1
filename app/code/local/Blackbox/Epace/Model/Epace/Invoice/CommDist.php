@@ -15,7 +15,7 @@ class Blackbox_Epace_Model_Epace_Invoice_CommDist extends Blackbox_Epace_Model_E
             'amount' => '',
             'commBase' => '',
             'memoCreated' => 'bool',
-            'salesPerson' => '',
+            'salesPerson' => 'int',
             'lockCommBase' => 'bool',
             'lockAmount' => 'bool',
             'salesCategory' => '',

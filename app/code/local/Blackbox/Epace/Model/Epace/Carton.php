@@ -19,11 +19,6 @@
  */
 class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Shipment_ChildAbstract
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Skid
-     */
-    protected $skid;
-
     protected function _construct()
     {
         $this->_init('Carton', 'id');
@@ -43,9 +38,7 @@ class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Shipm
      */
     public function setSkid(Blackbox_Epace_Model_Epace_Skid $skid)
     {
-        $this->skid = $skid;
-
-        return $this;
+        return $this->_setObject('skid', $skid);
     }
 
     /**
@@ -70,8 +63,8 @@ class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Shipm
             'addDefaultContent' => 'bool',
             'note' => '',
             'trackingNumber' => '',
-            'actualDate' => '',
-            'actualTime' => '',
+            'actualDate' => 'date',
+            'actualTime' => 'date',
             'skidCount' => 'int',
             'skid' => 'int',
             'weight' => 'float',

@@ -54,16 +54,6 @@
  */
 class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Customer
-     */
-    protected $customer;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Invoice
-     */
-    protected $invoice;
-
     protected function _construct()
     {
         $this->_init('Receivable', 'id');
@@ -83,9 +73,7 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
      */
     public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
     {
-        $this->customer = $customer;
-
-        return $this;
+        return $this->_setObject('customer', $customer);
     }
 
     /**
@@ -95,8 +83,8 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
     {
         if ($this->getAltCurrencyRateSource() == 'Invoice') {
             return $this->_getObject('invoice', 'altCurrencyRateSourceNote', 'efi/invoice');
-        } else if ($this->invoice) {
-            return $this->invoice;
+        } else if ($this->_hasObjectField('invoice')) {
+            return $this->_getObjectField('invoice');
         } else {
             return false;
         }
@@ -108,9 +96,7 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
      */
     public function setInvoice(Blackbox_Epace_Model_Epace_Invoice $invoice)
     {
-        $this->invoice = $invoice;
-
-        return $this;
+        return $this->_setObject('invoice', $invoice);
     }
 
     /**
@@ -134,9 +120,9 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
             'invoiceNumber' => 'string',
             'job' => 'string',
             'jobPart' => 'string',
-            'invoiceDate' => '',
-            'dueDate' => '',
-            'expectedPaymentDate' => '',
+            'invoiceDate' => 'date',
+            'dueDate' => 'date',
+            'expectedPaymentDate' => 'date',
             'taxAmount' => '',
             'targetSell' => '',
             'taxableCode' => '',
@@ -150,30 +136,33 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
             'originalAmount' => '',
             'invoiceAmount' => '',
             'freightAmount' => '',
-            'discountDate' => '',
+            'discountDate' => 'date',
             'discountAvailable' => '',
             'salesCategory' => '',
-            'dateCommissionPaid' => '',
-            'datePaidOff' => '',
+            'dateCommissionPaid' => 'date',
+            'datePaidOff' => 'date',
             'orginalBatchId' => '',
             'altCurrency' => '',
-            'altCurrencyRate' => '',
-            'altCurrencyRateSource' => '',
-            'altCurrencyRateSourceNote' => '',
-            'glRegisterNumber' => '',
-            'commissionRate' => '',
+            'altCurrencyRate' => 'float',
+            'altCurrencyRateSource' => 'string',
+            'altCurrencyRateSourceNote' => 'string',
+            'glRegisterNumber' => 'string',
+            'commissionRate' => 'float',
+            'sendDunningLetter' => 'bool',
+            'dateSetup' => 'date',
+            'timeSetup' => 'date',
             'sendDunningLetter' => 'bool',
             'agingCategory' => '',
-            'taxRate1Amount' => '',
-            'taxRate2Amount' => '',
-            'taxRate3Amount' => '',
-            'taxRate4Amount' => '',
-            'taxRate5Amount' => '',
-            'taxRate6Amount' => '',
-            'taxRate7Amount' => '',
-            'discountApplied' => '',
-            'unpaidAmount' => '',
-            'availRemainingDeposit' => '',
+            'taxRate1Amount' => 'float',
+            'taxRate2Amount' => 'float',
+            'taxRate3Amount' => 'float',
+            'taxRate4Amount' => 'float',
+            'taxRate5Amount' => 'float',
+            'taxRate6Amount' => 'float',
+            'taxRate7Amount' => 'float',
+            'discountApplied' => 'float',
+            'unpaidAmount' => 'float',
+            'availRemainingDeposit' => 'float',
         ];
     }
 }

@@ -24,7 +24,7 @@ class Blackbox_Epace_Helper_Object extends Mage_Core_Helper_Abstract
             if (isset($this->cache[$type][$id])) {
                 return $this->cache[$type][$id];
             }
-            return $this->cache[$type][$id] = Mage::getModel($type)->load($id);
+            return $this->cache[$type][$id] = Mage::getModel($type)->setGlobal(true)->load($id);
         } else {
             return Mage::getModel($type)->load($id);
         }

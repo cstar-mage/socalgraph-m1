@@ -23,15 +23,29 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
                 'grand_total' => 'sum(base_grand_total)',
             ])
             ->where('created_at > ?', date('y-m-d', strtotime('-1 month')))
-            ->group('sales_person_id')
-            ->order('grand_total DESC');
-        if (!$limit) {
-            $select->limit($limit);
-        }
+            ->group('sales_person_id');
 
-        $this->getSelect()->join(['orders' => $select], 'sales_person_id = e.entity_id', ['orders_count', 'grand_total'])->columns([
-            'customer' => $customerFieldSql,
-        ]);
+        /** @var Blackbox_EpaceImport_Model_Resource_Estimate_Collection $estimateCollection */
+        $estimateCollection = Mage::getResourceModel('epacei/estimate_collection');
+        $select = $estimateCollection->getSelect()->reset(Zend_Db_Select::COLUMNS)
+            ->columns([
+                'sales_person_id',
+                'estimates' => 'sum(base_grand_total)',
+                'estimates_cost' => 'sum(base_total_cost)'
+            ])
+            ->where('created_at > ?', date('y-m-d', strtotime('-1 month')))
+            ->where('status = ?', Blackbox_EpaceImport_Model_Estimate::STATUS_CONVERTED_TO_JOB)
+            ->group('sales_person_id');
+
+        $this->getSelect()
+            ->join(['orders' => $orderCollection->getSelect()], 'orders.sales_person_id = e.entity_id', ['orders_count', 'grand_total'])
+            ->join(['estimates' => $estimateCollection->getSelect()], 'estimates.sales_person_id = e.entity_id', ['estimates', 'estimates_cost'])
+            ->columns([
+                'customer' => $customerFieldSql,
+            ]);
+        if ($limit) {
+            $this->getSelect()->limit($limit);
+        }
 
         return $this;
     }
@@ -48,16 +62,19 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
             'at_lastname.value'
         ], ' ');
 
-        $estimatesSelect = $this->getConnection()->select()->from($this->getTable('epacei/estimate'), ['customer_id', 'estimates' => 'base_grand_total']);
-        $ordersSelect = $this->getConnection()->select()->from($this->getTable('sales/order'), ['customer_id', 'orders' => 'base_grand_total', 'billed' => 'total_paid']);
+        $estimatesSelect = $this->getConnection()->select()
+            ->from($this->getTable('epacei/estimate'), ['customer_id', 'estimates' => 'sum(base_grand_total)'])
+            ->where('status = ?', Blackbox_EpaceImport_Model_Estimate::STATUS_CONVERTED_TO_JOB)
+            ->group('customer_id');
+        $ordersSelect = $this->getConnection()->select()->from($this->getTable('sales/order'), ['customer_id', 'orders' => 'sum(base_grand_total)', 'billed' => 'sum(total_paid)'])->group('customer_id');
 
         $this->getSelect()->joinLeft(['estimates' => $estimatesSelect], 'estimates.customer_id = e.entity_id', ['estimates'])
             ->joinLeft(['orders' => $ordersSelect], 'orders.customer_id = e.entity_id', ['orders', 'billed'])
             ->group('e.entity_id')
             ->columns([
-                'estimates' => 'sum(estimates)',
-                'orders' => 'sum(orders)',
-                'billed' => 'sum(billed)',
+                'estimates.estimates',
+                'orders.orders',
+                'orders.billed',
                 'customer' => $customerFieldSql
             ])
             ->order('billed DESC');

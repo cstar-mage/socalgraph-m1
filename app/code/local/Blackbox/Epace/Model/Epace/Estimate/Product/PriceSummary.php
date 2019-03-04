@@ -2,11 +2,6 @@
 
 class Blackbox_Epace_Model_Epace_Estimate_Product_PriceSummary extends Blackbox_Epace_Model_Epace_AbstractObject
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Estimate_Product
-     */
-    protected $product = null;
-
     protected function _construct()
     {
         $this->_init('EstimateProductPriceSummary', 'id');
@@ -22,9 +17,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Product_PriceSummary extends Blackbox_
 
     public function setProduct(Blackbox_Epace_Model_Epace_Estimate_Product $product)
     {
-        $this->product = $product;
-
-        return $this;
+        return $this->_setObject('product', $product);
     }
 
     public function getDefinition()

@@ -32,6 +32,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected $output = null;
 
+    protected $salesRepsOptions = null;
+
     /**
      * @param callable $output
      * @return $this
@@ -97,6 +99,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                         'weight' => (float)$quantity->getWeightPerPiece(),
                         'row_weight' => $quantity->getWeightPerPiece() * $quantity->getQuantityOrdered(),
                         'qty' => $quantity->getData('quantityOrdered'),
+                        'base_cost' => $quantity->getCost(),
                         'price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getPart()->getData('numSigs'),
                         'base_price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getPart()->getData('numSigs'),
                         'tax_percent' => $quantity->getTaxEffectivePercent(),
@@ -123,7 +126,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'tax_amount' => 'tax_amount',
             'total_qty' => 'qty',
             'base_subtotal_incl_tax' => 'row_total_incl_tax',
-            'subtotal_incl_tax' => 'row_total_incl_tax'
+            'subtotal_incl_tax' => 'row_total_incl_tax',
+            'base_total_cost' => 'base_cost'
         ];
         $aggregatedFields = [];
         foreach ($aggregateFields as $field => $sourceField) {
@@ -327,13 +331,12 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         $salesPersonCustomer = $this->getCustomerFromSalesPerson($job->getSalesPerson());
 
         $subTotal = $job->getAmountToInvoice();
-        $markup = $job->getJobValue() * 0.4;
-        $subTotal += $markup;
 
         $totalTaxAmount = $subTotal * $taxPercent;
 
         $shippingAmount = $job->getFreightAmountTotal();
-        $shippingInclTax = $shippingAmount;
+        $shippingTaxAmount = $markup = $shippingAmount * 0.4;
+        $shippingInclTax = $shippingAmount + $shippingTaxAmount;
 
         // some jobs have empty amountInvoiced
         $amountInvoiced = 0;
@@ -367,7 +370,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'base_grand_total' => $grandTotal,
             'base_shipping_amount' => $shippingAmount,
             'base_shipping_invoiced' => $shippingInvoiced,
-            'base_shipping_tax_amount' => 0,
+            'base_shipping_tax_amount' => $shippingTaxAmount,
             'base_subtotal' => $subTotal,
             'base_subtotal_invoiced' => min($amountInvoiced, $subTotal),
             'base_tax_amount' => $totalTaxAmount,
@@ -381,7 +384,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'grand_total' => $grandTotal,
             'shipping_amount' => $shippingAmount,
             'shipping_invoiced' => $shippingInvoiced,
-            'shipping_tax_amount' => 0,
+            'shipping_tax_amount' => $shippingTaxAmount,
             'store_to_base_rate' => 1,
             'store_to_order_rate' => 1,
             'subtotal' => $subTotal,
@@ -419,7 +422,9 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'job_value' => $job->getJobValue(),
             'job_type' => $job->getTypeId(),
             'base_markup' => $markup,
-            'markup' => $markup
+            'markup' => $markup,
+            'amount_to_invoice' => $job->getAmountToInvoice(),
+            'change_order_total' => $job->getChangeOrderTotal()
         ]);
 
         $this->setOrderStatus($order, $job->getAdminStatusCode());
@@ -628,6 +633,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                 $orderItem = $_item;
                 break;
             }
+        }
+
+        if (!$orderItem) {
+            throw new \Exception('Unable to find order item for invoice. Order id: ' . $order->getId() . '. Job: ' . $invoice->getJobId() . '. Invoice epace id: ' . $invoice->getId());
         }
 
         foreach ($invoice->getLines() as $line) {
@@ -1278,6 +1287,30 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
     public function getStore()
     {
         return Mage::app()->getStore();
+    }
+
+    public function getSalesRepsOptions()
+    {
+        if (is_null($this->salesRepsOptions)) {
+            $this->salesRepsOptions = [];
+            $wholesaleGroup = Mage::getResourceModel('customer/group_collection')->addFieldToFilter('customer_group_code', ['like' => 'wholesale'])->getFirstItem();
+
+            /** @var Mage_Customer_Model_Resource_Customer_Collection $collection */
+            $collection = Mage::getResourceModel('customer/customer_collection');
+            $collection
+                ->addAttributeToSelect('prefix')
+                ->addAttributeToSelect('firstname')
+                ->addAttributeToSelect('middlename')
+                ->addAttributeToSelect('lastname')
+                ->addAttributeToSelect('suffix')
+                ->addFieldToFilter('group_id', $wholesaleGroup->getId());
+            /** @var Mage_Customer_Model_Customer $customer */
+            foreach ($collection->getItems() as $customer) {
+                $this->salesRepsOptions[$customer->getId()] = $customer->getName();
+            }
+        }
+
+        return $this->salesRepsOptions;
     }
 
     protected function writeln($message)

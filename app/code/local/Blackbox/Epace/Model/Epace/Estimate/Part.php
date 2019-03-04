@@ -7,11 +7,6 @@
  */
 class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epace_Estimate_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Estimate_Product
-     */
-    protected $product = null;
-
     protected function _construct()
     {
         $this->_init('EstimatePart', 'id');
@@ -27,9 +22,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epac
 
     public function setProduct(Blackbox_Epace_Model_Epace_Estimate_Product $product)
     {
-        $this->product = $product;
-
-        return $this;
+        return $this->_setObject('product', $product);
     }
 
     /**
@@ -62,7 +55,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epac
             'id' => 'int',
             'metrixEnabled' => '',
             'includeMailing' => '',
-            'estimate' => '',
+            'estimate' => 'int',
             'numSigs' => '',
             'description' => '',
             'jobProductType' => '',

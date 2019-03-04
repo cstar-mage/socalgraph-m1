@@ -96,7 +96,8 @@ class Blackbox_Soap_Model_Api
 
         if($error = curl_error($ch)) {
             $this->logResponse($requestInfo, $error, $action, $url, $_headers);
-            return false;
+            curl_close($ch);
+            throw new \Blackbox_Soap_Model_Exception($error);
         }
 
         curl_close($ch);

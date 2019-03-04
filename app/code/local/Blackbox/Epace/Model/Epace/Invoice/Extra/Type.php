@@ -15,11 +15,6 @@ class Blackbox_Epace_Model_Epace_Invoice_Extra_Type extends Blackbox_Epace_Model
     const EXTRA_CATEGORY_TYPE_DISCOUNT = 4;
     const EXTRA_CATEGORY_TYPE_POSTAGE = 5;
 
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesCategory
-     */
-    protected $salesCategory;
-
     protected function _construct()
     {
         $this->_init('InvoiceExtraType', 'id');
@@ -39,9 +34,7 @@ class Blackbox_Epace_Model_Epace_Invoice_Extra_Type extends Blackbox_Epace_Model
      */
     public function setSalesCategory(Blackbox_Epace_Model_Epace_SalesCategory $salesCategory)
     {
-        $this->salesCategory = $salesCategory;
-
-        return $this;
+        return $this->_setObject('salesCategory', $salesCategory);
     }
 
     public function getDefinition()

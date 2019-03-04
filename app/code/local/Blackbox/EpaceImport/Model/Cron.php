@@ -13,6 +13,13 @@ class Blackbox_EpaceImport_Model_Cron
     const XML_PATH_UPDATE_INVOICES = 'epace/import/update_invoices';
     const XML_PATH_UPDATE_SHIPMENTS = 'epace/import/update_shipments';
     const XML_PATH_IMPORT_NEW_OBJECTS = 'epace/import/import_new';
+    const XML_PATH_LOG = 'epace/import/log';
+    const XML_PATH_MONGO_ENABLE = 'epace/mongo/enable';
+
+    /**
+     * @var bool
+     */
+    protected $logEnabled;
 
     public function __construct()
     {
@@ -20,6 +27,7 @@ class Blackbox_EpaceImport_Model_Cron
         $this->helper->setOutput(function($message) {
             $this->log($message);
         });
+        $this->logEnabled = Mage::getStoreConfigFlag(self::XML_PATH_LOG);
     }
 
     public function updateEpaceEntities(Mage_Cron_Model_Schedule $schedule)
@@ -28,27 +36,13 @@ class Blackbox_EpaceImport_Model_Cron
             return;
         }
 
+        if (Mage::getStoreConfigFlag(self::XML_PATH_MONGO_ENABLE)) {
+            Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+        }
+
         $this->log('Start import');
         try {
-
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
-                $this->updateEstimates();
-            }
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
-                $this->updateJobs();
-            }
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
-                $this->updateInvoices();
-            }
-            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
-                $this->updateShipments();
-            }
-
-            if (!Mage::getStoreConfigFlag(self::XML_PATH_IMPORT_NEW_OBJECTS)) {
-                return;
-            }
-
-            $lastUpdateTime = Mage::getStoreConfig('epace/import/last_update_time');
+            $lastUpdateTime = Mage::getStoreConfig(self::XML_PATH_LAST_UPDATE_TIME);
             if (!empty($lastUpdateTime)) {
                 if (is_numeric($lastUpdateTime)) {
                     $dateTime = new \DateTime();
@@ -62,7 +56,24 @@ class Blackbox_EpaceImport_Model_Cron
                 }
             }
             if (!isset($dateTime)) {
-                $dateTime = new \DateTime('-14 hours');
+                $dateTime = new \DateTime('-1 month');
+            }
+
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
+                $this->updateEstimates($dateTime);
+            }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
+                $this->updateJobs($dateTime);
+            }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
+                $this->updateInvoices($dateTime);
+            }
+            if (true || Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
+                $this->updateShipments($dateTime);
+            }
+
+            if (!Mage::getStoreConfigFlag(self::XML_PATH_IMPORT_NEW_OBJECTS)) {
+                return;
             }
 
             $currentTime = time();
@@ -73,6 +84,8 @@ class Blackbox_EpaceImport_Model_Cron
             $this->importNewShipments($dateTime);
 
             Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
+        } catch (\Exception $e) {
+            $this->log('Exception ' . get_class($e) . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
         } finally {
             $this->log('End import');
         }
@@ -80,12 +93,21 @@ class Blackbox_EpaceImport_Model_Cron
 
     protected function importNewEstimates(\DateTime $from)
     {
+        $from = new \DateTime('-20 hours');
         /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('efi/estimate_collection');
-        $collection->addFilter('entryDate', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('entryDate', ['gteq' => $from]);
+        }
 
         $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' estimates.');
         foreach ($ids as $estimateId) {
+            $this->log('Estimate ' . ++$i . '/' . $count . ': ' . $estimateId);
             /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
             $estimate = Mage::getModel('efi/estimate')->load($estimateId);
             try {
@@ -100,7 +122,11 @@ class Blackbox_EpaceImport_Model_Cron
     {
         /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $collection */
         $collection = Mage::getResourceModel('efi/job_collection');
-        $collection->addFilter('dateSetup', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('dateSetup', ['gteq' => $from]);
+        }
 
         /** @var Mage_Core_Model_Resource $resource */
         $resource = Mage::getSingleton('core/resource');
@@ -108,10 +134,16 @@ class Blackbox_EpaceImport_Model_Cron
         $orderTable = $resource->getTableName('sales/order');
 
         $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' jobs.');
         foreach ($ids as $jobId) {
+            $this->log('Job ' . ++$i . '/' . $count . ': ' . $jobId);
             $select = $connection->select()->from($orderTable, 'count(*)')
                 ->where('epace_job_id = ?', $jobId);
-            if ($connection->fetchOne($select) == 0) {
+            if ($connection->fetchOne($select) > 0) {
+                $this->log("Job $jobId already imported.");
+            } else  {
                 /** @var Blackbox_Epace_Model_Epace_Job $job */
                 $job = Mage::getModel('efi/job')->load($jobId);
                 try {
@@ -127,9 +159,18 @@ class Blackbox_EpaceImport_Model_Cron
     {
         /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $collection */
         $collection = Mage::getResourceModel('efi/job_shipment_collection');
-        $collection->addFilter('date', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('date', ['gteq' => $from]);
+        }
 
-        foreach ($collection->loadIds() as $id) {
+        $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' shipments.');
+        foreach ($ids as $id) {
+            $this->log('Shipment ' . ++$i . '/' . $count . ': ' . $id);
             /** @var Blackbox_Epace_Model_Epace_Job_Shipment $shipment */
             $shipment = Mage::getModel('efi/job_shipment')->load($id);
             try {
@@ -144,9 +185,18 @@ class Blackbox_EpaceImport_Model_Cron
     {
         /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $collection */
         $collection = Mage::getResourceModel('efi/invoice_collection');
-        $collection->addFilter('invoiceDate', ['gteq' => $from]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+        } else {
+            $collection->addFilter('invoiceDate', ['gteq' => $from]);
+        }
 
-        foreach ($collection->loadIds() as $id) {
+        $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' invoices.');
+        foreach ($ids as $id) {
+            $this->log('Invoice ' . ++$i . '/' . $count . ': ' . $id);
             /** @var Blackbox_Epace_Model_Epace_Invoice $invoice */
             $invoice = Mage::getModel('efi/invoice')->load($id);
             try {
@@ -163,6 +213,7 @@ class Blackbox_EpaceImport_Model_Cron
         $magentoEstimate = Mage::getModel('epacei/estimate');
         $magentoEstimate->loadByAttribute('epace_estimate_id', $estimate->getId());
         if ($magentoEstimate->getId()) {
+            $this->log('Estimate ' . $estimate->getId() . ' already imported.');
             return;
         }
 
@@ -172,8 +223,13 @@ class Blackbox_EpaceImport_Model_Cron
         if ($estimate->isConvertedToJob()) {
             $jobs = $estimate->getJobs();
             if (!empty ($jobs)) {
+                $count = count($jobs);
+                $this->log('Found ' . $count . ' jobs');
+                $i = 0;
                 foreach ($estimate->getJobs() as $job) {
+                    $this->log('Job ' . ++$i . '/' . $count . ': ' . $job->getId());
                     if ($job->getEstimateId() != $estimate->getId()) {
+                        $this->log('Job source does match with estimate.');
                         continue;
                     }
                     $this->importJob($job, $magentoEstimate, true);
@@ -192,25 +248,34 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         if ($order->getId()) {
+            $this->log('Job ' . $job->getId() . ' already imported');
             return;
         }
 
         $this->helper->importJob($job, $order, $magentoEstimate);
         $order->save();
 
+        $i = 0;
+        $count = count($job->getInvoices());
         foreach ($job->getInvoices() as $invoice) {
+            $i++;
+            $this->log("Invoice $i/$count: {$invoice->getId()}");
             try {
                 $this->importInvoice($invoice, $order);
             } catch (\Exception $e) {
-                $this->log($e->getMessage());
+                $this->log('Error: ' . $e->getMessage());
             }
         }
 
+        $i = 0;
+        $count = count($job->getShipments());
         foreach ($job->getShipments() as $shipment) {
+            $i++;
+            $this->log("Shipment $i/$count: {$shipment->getId()}");
             try {
                 $this->importShipment($shipment, $order);
             } catch (\Exception $e) {
-                $this->log($e->getMessage());
+                $this->log('Error: ' . $e->getMessage());
             }
         }
     }
@@ -222,6 +287,7 @@ class Blackbox_EpaceImport_Model_Cron
 
         $orderShipment->load($jobShipment->getId(), 'epace_shipment_id');
         if ($orderShipment->getId()) {
+            $this->log("Shipment {$jobShipment->getId()} already imported.");
             return;
         }
 
@@ -235,6 +301,7 @@ class Blackbox_EpaceImport_Model_Cron
         $magentoInvoice = Mage::getModel('sales/order_invoice');
         $magentoInvoice->load($invoice->getId(), 'epace_invoice_id');
         if ($magentoInvoice->getId()) {
+            $this->log("Invoice {$invoice->getId()} already imported.");
             return;
         }
 
@@ -245,11 +312,20 @@ class Blackbox_EpaceImport_Model_Cron
         }
     }
 
-    protected function updateEstimates()
+    protected function updateEstimates(\DateTime $from)
     {
         /** @var Blackbox_EpaceImport_Model_Resource_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('epacei/estimate_collection');
-        $collection->addFieldToFilter('epace_estimate_id', ['notnull' => true]);
+
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/estimate_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_estimate_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_estimate_id', ['notnull' => true]);
+        }
 
         $page = 0;
         $collection->setPageSize(100);
@@ -263,6 +339,7 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $estimate) {
                 $estimate->setDataChanges(false);
                 try {
+                    $this->log('Updating estimate ' . $estimate->getId() . '. Epace estimate id: ' . $estimate->getEpaceEstimateId());
                     $this->updateEstimate($estimate);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
@@ -271,11 +348,19 @@ class Blackbox_EpaceImport_Model_Cron
         } while ($page < $lastPage);
     }
 
-    protected function updateJobs()
+    protected function updateJobs(\DateTime $from)
     {
         /** @var Mage_Sales_Model_Resource_Order_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_collection');
-        $collection->addFieldToFilter('epace_job_id', ['notnull' => true]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/job_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_job_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_job_id', ['notnull' => true]);
+        }
         if (!Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_CLOSED_JOBS)) {
             $collection->addFieldToFilter('state', ['neq' => Mage_Sales_Model_Order::STATE_CLOSED]);
         }
@@ -292,6 +377,7 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $order) {
                 $order->setDataChanges(false);
                 try {
+                    $this->log('Updating order ' . $order->getId() . '. Job: ' . $order->getEpaceJobId());
                     $this->updateOrder($order);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
@@ -301,11 +387,19 @@ class Blackbox_EpaceImport_Model_Cron
         } while ($page < $lastPage);
     }
 
-    protected function updateInvoices()
+    protected function updateInvoices(\DateTime $from)
     {
         /** @var Mage_Sales_Model_Entity_Order_Invoice_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_invoice_collection');
-        $collection->addFieldToFilter('epace_invoice_id', ['notnull' => true]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/invoice_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_invoice_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_invoice_id', ['notnull' => true]);
+        }
 
         $page = 0;
         $collection->setPageSize(100);
@@ -319,6 +413,7 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $invoice) {
                 $invoice->setDataChanges(false);
                 try {
+                    $this->log('Updating invoice ' . $invoice->getId() . '. Epace invoice id: ' . $invoice->getEpaceInvoiceId());
                     $this->updateInvoice($invoice);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
@@ -328,11 +423,19 @@ class Blackbox_EpaceImport_Model_Cron
         } while ($page < $lastPage);
     }
 
-    protected function updateShipments()
+    protected function updateShipments(\DateTime $from)
     {
         /** @var Mage_Sales_Model_Entity_Order_Shipment_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_shipment_collection');
-        $collection->addFieldToFilter('epace_shipment_id', ['notnull' => true]);
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/job_shipment_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_shipment_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_shipment_id', ['notnull' => true]);
+        }
 
         $page = 0;
         $collection->setPageSize(100);
@@ -346,7 +449,11 @@ class Blackbox_EpaceImport_Model_Cron
             foreach ($collection->getItems() as $shipment) {
                 $shipment->setDataChanges(false);
                 try {
+                    $this->log('Updating shipment ' . $shipment->getId() . '. Epace shipment id: ' . $shipment->getEpaceShipmentId());
                     $this->updateShipment($shipment);
+                    $shipment->getOrder()->reset();
+                    $shipment->dispose();
+                    gc_collect_cycles();
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
                 }
@@ -364,11 +471,12 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $newEstimate = $this->helper->importEstimate($epaceEstimate);
-        $this->updateObject($estimate, $newEstimate, [
+        $changes = $this->updateObject($estimate, $newEstimate, [
             'store_name',
             'created_at',
             'updated_at'
         ]);
+        $this->logChanges('Estimate ' . $estimate->getId() . ' updates', $changes);
 
         $oldItems = $estimate->getAllItems();
         foreach ($oldItems as $item) {
@@ -385,12 +493,14 @@ class Blackbox_EpaceImport_Model_Cron
             }
 
             if ($oldItem) {
-                $this->updateObject($oldItem, $newItem, [
+                $changes = $this->updateObject($oldItem, $newItem, [
                     'estimate_id',
                     'store_id'
                 ]);
+                $this->logChanges('Estimate item ' . $oldItem->getId() . ' updates', $changes);
                 $oldItem->save();
             } else {
+                $this->log('Added estimate item ' . print_r($newItem->getData(), true));
                 $estimate->addItem($newItem);
                 $newItem->save();
             }
@@ -428,7 +538,8 @@ class Blackbox_EpaceImport_Model_Cron
         ];
 
         $newOrder = $this->helper->importJob($job);
-        $this->updateObject($order, $newOrder, $ignoreFields);
+        $changes = $this->updateObject($order, $newOrder, $ignoreFields);
+        $this->logChanges('Order ' . $order->getId() . ' updates', $changes);
 
         $ignoreFields = [
             'entity_id',
@@ -452,9 +563,11 @@ class Blackbox_EpaceImport_Model_Cron
             }
 
             if ($oldItem) {
-                $this->updateObject($oldItem, $newItem, $ignoreFields);
+                $changes = $this->updateObject($oldItem, $newItem, $ignoreFields);
+                $this->logChanges('Order item ' . $oldItem->getId() . ' updates', $changes);
                 $oldItem->save();
             } else {
+                $this->log('Added new order item ' . print_r($newItem->getData(), true));
                 $order->addItem($newItem);
                 $newItem->save();
             }
@@ -480,9 +593,11 @@ class Blackbox_EpaceImport_Model_Cron
             }
 
             if ($oldAddress) {
-                $this->updateObject($oldAddress, $newAddress, $ignoreFields);
+                $changes = $this->updateObject($oldAddress, $newAddress, $ignoreFields);
+                $this->logChanges('Order address ' . $oldAddress->getId() . ' updates', $changes);
                 $oldAddress->save();
             } else {
+                $this->log('Added new order address ' . print_r($newAddress->getData(), true));
                 $order->addAddress($newAddress);
                 $newAddress->save();
             }
@@ -511,11 +626,12 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $newInvoice = $this->helper->importInvoice($epaceInvoice);
-        $this->updateObject($invoice, $newInvoice, [
+        $changes = $this->updateObject($invoice, $newInvoice, [
             'order_id',
             'created_at',
             'updated_at'
         ]);
+        $this->logChanges('Invoice ' . $invoice->getId() . ' updates', $changes);
 
         if ($epaceInvoice->getReceivable()) {
             $magentoReceivable = Mage::getModel('epacei/receivable')->load($invoice->getId(), 'invoice_id');
@@ -532,10 +648,11 @@ class Blackbox_EpaceImport_Model_Cron
     protected function updateReceivable(Blackbox_EpaceImport_Model_Receivable $receivable, Blackbox_Epace_Model_Epace_Receivable $epaceReceivable, Mage_Sales_Model_Order_Invoice $invoice)
     {
         $newReceivable = $this->helper->importReceivable($epaceReceivable, $invoice);
-        $this->updateObject($receivable, $newReceivable, [
+        $changes = $this->updateObject($receivable, $newReceivable, [
             'created_at',
             'updated_at',
         ]);
+        $this->logChanges('Receivable ' . $receivable->getId() . ' updates', $changes);
 
         $receivable->save();
     }
@@ -549,10 +666,12 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $newShipment = $this->helper->importShipment($epaceShipment, $shipment->getOrder());
-        $this->updateObject($shipment, $newShipment, [
+        $epaceShipment->dispose();
+        $changes = $this->updateObject($shipment, $newShipment, [
             'created_at',
             'updated_at'
         ]);
+        $this->logChanges('Shipment ' . $shipment->getId() . ' updates', $changes);
 
         /** @var Mage_Sales_Model_Order_Shipment_Track[] $oldTracks */
         $oldTracks = $shipment->getAllTracks();
@@ -567,6 +686,8 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $shipment->save();
+        $newShipment->getOrder()->reset();
+        $newShipment->dispose();
     }
 
     /**
@@ -576,6 +697,7 @@ class Blackbox_EpaceImport_Model_Cron
      */
     protected function updateObject($old, $new, $ignoreFields = [])
     {
+        $changes = [];
         $fields = $old->getResource()->getReadConnection()->describeTable($old->getResource()->getMainTable());
         foreach ($new->getData() as $key => $value) {
             if (in_array($key, $ignoreFields)) {
@@ -601,13 +723,33 @@ class Blackbox_EpaceImport_Model_Cron
                 }
             }
             if ($oldValue!= $value) {
+                $changes[] = [
+                    'field' => $key,
+                    'from' => $old->getData($key),
+                    'to' => $new->getData($key)
+                ];
                 $old->setData($key, $value);
             }
         }
+        return $changes;
+    }
+
+    protected function logChanges($message, $changes)
+    {
+        if (!$this->logEnabled || empty($changes)) {
+            return;
+        }
+        $msg = [];
+        foreach ($changes as $change) {
+            $msg[] = $change['field'] . ': ' . $change['from'] . ' => ' . $change['to'] . '.';
+        }
+        $this->log($message . '. ' . implode(' ', $msg));
     }
 
     protected function log($message)
     {
-        Mage::log($message, null, 'epace_import_cron.log', true);
+        if ($this->logEnabled) {
+            Mage::log($message, null, 'epace_import_cron.log', true);
+        }
     }
 }

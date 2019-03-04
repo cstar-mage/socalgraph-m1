@@ -2,11 +2,6 @@
 
 class Blackbox_Epace_model_Epace_Change_Order extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Change_Order_Type
-     */
-    protected $type;
-
     protected function _construct()
     {
         $this->_init('ChangeOrder', 'id');
@@ -26,9 +21,7 @@ class Blackbox_Epace_model_Epace_Change_Order extends Blackbox_Epace_Model_Epace
      */
     public function setType(Blackbox_Epace_Model_Epace_Change_Order_Type $type)
     {
-        $this->type = $type;
-
-        return $this;
+        return $this->_setObject('type', $type);
     }
 
     public function getDefinition()
@@ -39,8 +32,8 @@ class Blackbox_Epace_model_Epace_Change_Order extends Blackbox_Epace_Model_Epace
             'jobPart' => 'string',
             'department' => 'int',
             'num' => 'int',
-            'entryDate' => 'string',
-            'entryTime' => 'string',
+            'entryDate' => 'date',
+            'entryTime' => 'date',
             'description' => 'string',
             'enteredBy' => 'string',
             'type' => 'int',

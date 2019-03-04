@@ -2,11 +2,6 @@
 
 class Blackbox_Epace_Model_Epace_Invoice_Extra extends Blackbox_Epace_Model_Epace_Invoice_ChildAbstract
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Invoice_Extra_Type
-     */
-    protected $type;
-
     protected function _construct()
     {
         $this->_init('InvoiceExtra', 'id');
@@ -26,9 +21,7 @@ class Blackbox_Epace_Model_Epace_Invoice_Extra extends Blackbox_Epace_Model_Epac
      */
     public function setType(Blackbox_Epace_Model_Epace_Invoice_Extra_Type $type)
     {
-        $this->type = $type;
-
-        return $this;
+        return $this->_setObject('type', $type);
     }
 
     public function getDefinition()

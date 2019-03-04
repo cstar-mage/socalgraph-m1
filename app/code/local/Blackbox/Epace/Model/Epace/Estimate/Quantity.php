@@ -78,7 +78,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Quantity extends Blackbox_Epace_Model_
     {
         return [
             'id' => 'int',
-            'estimatePart' => '',
+            'estimatePart' => 'int',
             'quantityOrdered' => '',
             'metrixID' => '',
             'price' => '',
@@ -134,7 +134,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Quantity extends Blackbox_Epace_Model_
             'pricingUnits' => '',
             'pricingUnitsForced' => '',
             'effectiveCommissionRateForced' => '',
-            'estimate' => '',
+            'estimate' => 'int',
             'chartDescription' => '',
             'valueAddedPerPressHour' => '',
             'overallInkCoverageSide1' => '',

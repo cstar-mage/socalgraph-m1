@@ -3,11 +3,6 @@
 abstract class Blackbox_Epace_Model_Epace_Job_AbstractChild extends Blackbox_Epace_Model_Epace_AbstractObject
 {
     /**
-     * @var Blackbox_Epace_Model_Epace_Job
-     */
-    protected $job = null;
-
-    /**
      * @return string
      */
     public function getJobId()
@@ -25,8 +20,6 @@ abstract class Blackbox_Epace_Model_Epace_Job_AbstractChild extends Blackbox_Epa
 
     public function setJob(Blackbox_Epace_Model_Epace_Job $job)
     {
-        $this->job = $job;
-
-        return $this;
+        return $this->_setObject('job', $job);
     }
 }

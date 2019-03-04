@@ -86,4 +86,16 @@
             <block type="epacei/adminhtml_dashboard_shipping_grid" name="shipping"></block>
         </reference>
     </adminhtml_dashboard_index>
+
+    <adminhtml_customer_estimates>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="epacei/adminhtml_customer_edit_tab_estimates" name="adminhtml.customer.edit.tab.estimates"/>
+        </block>
+    </adminhtml_customer_estimates>
+
+    <adminhtml_customer_shipments>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="epacei/adminhtml_customer_edit_tab_shipments" name="adminhtml.customer.edit.tab.shipments"/>
+        </block>
+    </adminhtml_customer_shipments>
 </layout>

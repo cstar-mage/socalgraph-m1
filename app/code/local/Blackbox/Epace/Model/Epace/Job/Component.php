@@ -2,21 +2,6 @@
 
 class Blackbox_Epace_Model_Epace_Job_Component extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Ship_Via
-     */
-    protected $shipVia;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Contact
-     */
-    protected $contact;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Contact
-     */
-    protected $shipToContact;
-
     protected function _construct()
     {
         $this->_init('JobComponent', 'id');
@@ -36,9 +21,7 @@ class Blackbox_Epace_Model_Epace_Job_Component extends Blackbox_Epace_Model_Epac
      */
     public function setShipVia(Blackbox_Epace_Model_Epace_Ship_Via $shipVia)
     {
-        $this->shipVia = $shipVia;
-
-        return $this;
+        return $this->_setObject('shipVia', $shipVia);
     }
 
     /**
@@ -55,9 +38,7 @@ class Blackbox_Epace_Model_Epace_Job_Component extends Blackbox_Epace_Model_Epac
      */
     public function setShipToContact(Blackbox_Epace_Model_Epace_Contact $contact)
     {
-        $this->contact = $contact;
-
-        return $this;
+        return $this->_setObject('contact', $contact);
     }
 
     public function getDefinition()

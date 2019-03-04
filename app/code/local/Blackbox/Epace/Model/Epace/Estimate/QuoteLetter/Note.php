@@ -2,9 +2,6 @@
 
 class Blackbox_Epace_Model_Epace_Estimate_QuoteLetter_Note extends Blackbox_Epace_Model_Epace_AbstractObject
 {
-    /** @var Blackbox_Epace_Model_Epace_Estimate_QuoteLetter */
-    protected $quoteLetter = null;
-
     protected function _construct()
     {
         $this->_init('EstimateQuoteLetterNote', 'id');
@@ -24,24 +21,22 @@ class Blackbox_Epace_Model_Epace_Estimate_QuoteLetter_Note extends Blackbox_Epac
      */
     public function setQuoteLetter(Blackbox_Epace_Model_Epace_Estimate_QuoteLetter $quoteLetter)
     {
-        $this->quoteLetter = $quoteLetter;
-
-        return $this;
+        return $this->_setObject('quoteLetter', $quoteLetter);
     }
 
     public function getDefinition()
     {
         return [
             'id' => 'int',
-            'estimateQuoteLetter' => '',
+            'estimateQuoteLetter' => 'int',
             'note' => 'string',
             'printOnReport' => 'bool',
             'section' => 'string',
             'category' => 'string',
             'useStandardSpaceFont' => 'bool',
-            'sequence' => '',
-            'product' => '',
-            'part' => '',
+            'sequence' => 'float',
+            'product' => 'float',
+            'part' => 'float',
         ];
     }
 }

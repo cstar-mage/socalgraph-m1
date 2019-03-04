@@ -32,10 +32,7 @@
  * @method string getEmail()
  * @method bool getOrderAlert()
  * @method int getPhoneNumber()
- * @method int getSalesCategory()
  * @method float getSalesYTD()
- * @method int getShipToContact()
- * @method int getShipVia()
  * @method string getState()
  * @method int getStatementCycle()
  * @method int getTaxableCode()
@@ -83,26 +80,6 @@
  */
 class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_AbstractObject
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesPerson
-     */
-    protected $salesPerson = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_CSR
-     */
-    protected $csr = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Country
-     */
-    protected $country = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesTax
-     */
-    protected $salesTax = null;
-
     protected function _construct()
     {
         $this->_init('Customer', 'id');
@@ -122,9 +99,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
     {
-        $this->salesPerson = $salesPerson;
-
-        return $this;
+        return $this->_setObject('salesPerson', $salesPerson);
     }
 
     /**
@@ -141,9 +116,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
      */
     public function setCSR(Blackbox_Epace_Model_Epace_CSR $csr)
     {
-        $this->csr = $csr;
-
-        return $this;
+        return $this->_setObject('csr', $csr);
     }
 
     /**
@@ -156,9 +129,24 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
 
     public function setCountry(Blackbox_Epace_Model_Epace_Country $country)
     {
-        $this->country = $country;
+        return $this->_setObject('country', $country);
+    }
 
-        return $this;
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesCategory|false
+     */
+    public function getSalesCategory()
+    {
+        return $this->_getObject('salesCategory', 'salesCategory', 'efi/salesCategory', true);
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesCategory $salesCategory
+     * @return $this
+     */
+    public function setSalesCategory(Blackbox_Epace_Model_Epace_SalesCategory $salesCategory)
+    {
+        return $this->_setObject('salesCategory', $salesCategory);
     }
 
     /**
@@ -177,11 +165,47 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
         return $this->_getObject('salesTax', 'salesTax', 'efi/salesTax', true);
     }
 
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesTax $salesTax
+     * @return $this
+     */
     public function setSalesTax(Blackbox_Epace_Model_Epace_SalesTax $salesTax)
     {
-        $this->salesTax = $salesTax;
+        return $this->_setObject('salesTax', $salesTax);
+    }
 
-        return $this;
+    /**
+     * @return Blackbox_Epace_Model_Epace_Ship_Via|bool
+     */
+    public function getShipVia()
+    {
+        return $this->_getObject('shipVia', 'shipVia', 'efi/ship_via');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Ship_Via $shipVia
+     * @return $this
+     */
+    public function setShipVia(Blackbox_Epace_Model_Epace_Ship_Via $shipVia)
+    {
+        return $this->_setObject('shipVia', $shipVia);
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Contact|bool
+     */
+    public function getShipToContact()
+    {
+        return $this->_getObject('shipToContact', 'shipToContact', 'efi/contact');
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Contact $contact
+     * @return $this
+     */
+    public function setShipToContact(Blackbox_Epace_Model_Epace_Contact $contact)
+    {
+        return $this->_setObject('shipToContact', $contact);
     }
 
     public function getDefinition()
@@ -212,19 +236,20 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'country' => 'int',
             'creditLimit' => '',
             'csr' => 'int',
-            'dateHighBalance' => '',
-            'dateLastInvoice' => '',
-            'dateSetup' => '',
+            'dateHighBalance' => 'date',
+            'dateLastInvoice' => 'date',
+            'dateLastPayment' => 'date',
+            'dateSetup' => 'date',
             'defaultDaysUntilJobDue' => '',
             'highestBalance' => '',
             'email' => '',
             'orderAlert' => 'bool',
             'phoneNumber' => '',
-            'salesCategory' => '',
-            'salesPerson' => '',
-            'salesTax' => '',
+            'salesCategory' => 'int',
+            'salesPerson' => 'int',
+            'salesTax' => 'string',
             'salesYTD' => '',
-            'shipVia' => '',
+            'shipVia' => 'int',
             'state' => '',
             'statementCycle' => '',
             'taxableCode' => '',
@@ -233,7 +258,7 @@ class Blackbox_Epace_Model_Epace_Customer extends Blackbox_Epace_Model_Epace_Abs
             'zip' => '',
             'creditCardProcessingEnabled' => 'bool',
             'shipToFormat' => '',
-            'nextServiceChargeDate' => '',
+            'nextServiceChargeDate' => 'date',
             'applyDiscountToInvoice' => 'bool',
             'calculateTax' => 'bool',
             'calculateFreight' => 'bool',

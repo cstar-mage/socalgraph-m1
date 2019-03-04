@@ -2,11 +2,6 @@
 
 class Blackbox_Epace_Model_Epace_Job_Part_SizeAllowance extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_SizeAllowanceType
-     */
-    protected $sizeAllowanceType;
-
     protected function _construct()
     {
         $this->_init('JobPartSizeAllowance', 'id');
@@ -26,9 +21,7 @@ class Blackbox_Epace_Model_Epace_Job_Part_SizeAllowance extends Blackbox_Epace_M
      */
     public function setSizeAllowanceType(Blackbox_Epace_Model_Epace_SizeAllowanceType $type)
     {
-        $this->sizeAllowanceType = $type;
-
-        return $this;
+        return $this->_setObject('sizeAllowanceType', $type);
     }
 
     public function getDefinition()

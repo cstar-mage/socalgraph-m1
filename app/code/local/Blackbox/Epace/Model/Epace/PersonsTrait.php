@@ -3,21 +3,6 @@
 trait Blackbox_Epace_Model_Epace_PersonsTrait
 {
     /**
-     * @var Blackbox_Epace_Model_Epace_Customer
-     */
-    protected $customer = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_SalesPerson
-     */
-    protected $salesPerson = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_CSR
-     */
-    protected $csr = null;
-
-    /**
      * @return Blackbox_Epace_Model_Epace_Customer|bool
      */
     public function getCustomer()
@@ -31,9 +16,7 @@ trait Blackbox_Epace_Model_Epace_PersonsTrait
      */
     public function setCustomer(Blackbox_Epace_Model_Epace_Customer $customer)
     {
-        $this->customer = $customer;
-
-        return $this;
+        return $this->_setObject('customer', $customer);
     }
 
     /**
@@ -50,9 +33,7 @@ trait Blackbox_Epace_Model_Epace_PersonsTrait
      */
     public function setSalesPerson(Blackbox_Epace_Model_Epace_SalesPerson $salesPerson)
     {
-        $this->salesPerson = $salesPerson;
-
-        return $this;
+        return $this->_setObject('salesPerson', $salesPerson);
     }
 
     /**
@@ -69,8 +50,6 @@ trait Blackbox_Epace_Model_Epace_PersonsTrait
      */
     public function setCSR(Blackbox_Epace_Model_Epace_CSR $csr)
     {
-        $this->csr = $csr;
-
-        return $this;
+        return $this->_setObject('csr', $csr);
     }
 }

@@ -2,7 +2,12 @@
 
 class Blackbox_Epace_Model_Epace_Cache
 {
+    /**
+     * @var Blackbox_Epace_Model_Epace_AbstractObject[][]
+     */
     protected $cache = [];
+
+    private $disposing = false;
 
     /**
      * @param $type
@@ -27,5 +32,44 @@ class Blackbox_Epace_Model_Epace_Cache
     public function add($className, $id, $object)
     {
         $this->cache[$className][$id] = $object;
+    }
+
+    public function remove($object)
+    {
+        foreach ($this->cache as &$items) {
+            foreach ($items as $key => $item) {
+                if ($item === $object) {
+                    unset($items[$key]);
+                    return;
+                }
+            }
+        }
+    }
+
+    public function clear()
+    {
+        unset($this->cache);
+        $this->cache = [];
+    }
+
+    public function disposeAll()
+    {
+        if ($this->disposing) {
+            return;
+        }
+        $this->disposing = true;
+
+        try {
+            foreach ($this->cache as &$items) {
+                foreach ($items as $key => $item) {
+                    if ($item) {
+                        $item->dispose();
+                    }
+                }
+            }
+            $this->clear();
+        } finally {
+            $this->disposing = false;
+        }
     }
 }

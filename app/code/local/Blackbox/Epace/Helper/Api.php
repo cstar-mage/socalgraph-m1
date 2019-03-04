@@ -1,20 +1,5 @@
 <?php
 
-class Epace_Exception extends Mage_Exception
-{
-    protected $response = null;
-
-    public function setResponse($response)
-    {
-        $this->response = $response;
-    }
-
-
-    public function getResponse() {
-        return $this->response;
-    }
-}
-
 class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
 {
     const JOB_STATUS_OPEN = 'O';
@@ -400,6 +385,115 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
         return $this->getObjectResponse($params, 'update', $objectType);
     }
 
+    public function renderFilters($filters, Blackbox_Epace_Model_Epace_AbstractObject $resource)
+    {
+        if (empty($filters)) {
+            $idFieldName = $resource->getIdFieldName();
+            $renderedFilters = "@$idFieldName = 1 or @$idFieldName != 1";
+        } else {
+            $renderedFilters = '';
+
+            foreach ($filters as $filter) {
+                switch ($filter['type']) {
+                    case 'or' :
+                    case 'and':
+                        if (!empty($renderedFilters)) {
+                            $renderedFilters .= ' ' . $filter['type'] . ' ';
+                        }
+                        $renderedFilters .= $this->_renderFilter($filter, $resource);
+                        break;
+                    default:
+                        throw new \Exception('Unrecognized filter type.');
+                }
+            }
+        }
+
+        return $renderedFilters;
+    }
+
+    public function renderOrders($orders)
+    {
+        if (empty($orders)) {
+            $renderedOrder = null;
+        } else {
+            $renderedOrder = [];
+            foreach ($orders as $field => $direction) {
+                switch ($direction) {
+                    case 'DESC':
+                        $descending = 'true';
+                        break;
+                    case 'ASC':
+                        $descending = 'false';
+                        break;
+                    default:
+                        throw new \Exception('Invalid sort direction: ' . $direction);
+                }
+                $renderedOrder['XPathDataSort'][] = [
+                    'xmlns' => 'http://rpc.services.appbox.pace2020.com',
+                    'descending' => $descending,
+                    'xpath' => $this->_renderFieldName($field)
+                ];
+            }
+        }
+
+        return $renderedOrder;
+    }
+
+    protected function _renderFilter($filter, Blackbox_Epace_Model_Epace_AbstractObject $resource)
+    {
+        $definition = $resource->getDefinition();
+        if (is_array($filter['value'])) {
+            $conditionKeyMap = [
+                'eq'            => '=',
+                'neq'           => '!=',
+                'gt'            => '>',
+                'lt'            => '<',
+                'gteq'          => '>=',
+                'lteq'          => '<=',
+            ];
+
+            $functionConditionKeyMap = [
+                'starts' => 'starts-with({{field}}, {{value}})',
+                'ends' => 'ends-with({{field}}, {{value}})',
+                'contains' => 'contains({{field}}, {{value}})'
+            ];
+
+            foreach ($filter['value'] as $k => $v) {
+                if ($conditionKeyMap[$k]) {
+                    return $this->_renderFieldName($filter['field']) . ' ' . $conditionKeyMap[$k] . ' ' . $this->_renderFilterValue($v, $definition[$filter['field']]);
+                }
+                if ($functionConditionKeyMap[$k]) {
+                    return str_replace('{{value}}', $this->_renderFilterValue($v, $definition[$filter['field']]), str_replace('{{field}}', $this->_renderFieldName($filter['field']), $functionConditionKeyMap[$k]));
+                }
+                break;
+            }
+
+            throw new \Exception('Unable to render filters.');
+        } else {
+            return $this->_renderFieldName($filter['field']) . ' = ' . $this->_renderFilterValue($filter['value'], $definition[$filter['field']]);
+        }
+    }
+
+    protected function _renderFieldName($field)
+    {
+        if (strpos($field, '@') === false && strpos($field, '/') === false) {
+            return '@' . $field;
+        } else {
+            return $field;
+        }
+    }
+
+    protected function _renderFilterValue($value, $type = null)
+    {
+        if ($value instanceof \DateTime) {
+            return 'date( ' . $value->format('Y, m, d') . ' )';
+        } else if (is_string($value) && !($type == 'int' && is_numeric($value))) {
+            return '\'' . str_replace('\'', '\\\'', $value) . '\'';
+        } else {
+            return (string)$value;
+        }
+    }
+
     protected function getObjectResponse($params, $method, $objectType, $ns1 = null)
     {
         $result = $this->sendParamsToServer(null, $params, '', $this->getMethodUrl(ucfirst($method) . 'Object'), array($this->getAuthHeader()));
@@ -489,7 +583,7 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
     }
 
     protected function throwException($message, $response) {
-        $e = new Epace_Exception($message);
+        $e = new Blackbox_Epace_Model_Exception($message);
         $e->setResponse($response);
         throw $e;
     }

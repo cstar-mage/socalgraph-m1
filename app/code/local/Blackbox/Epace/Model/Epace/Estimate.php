@@ -44,16 +44,6 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
 {
     use Blackbox_Epace_Model_Epace_PersonsTrait;
 
-    /**
-     * @var Blackbox_Epace_Model_Epace_Estimate_Status
-     */
-    protected $status = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Job
-     */
-    protected $job = null;
-
     protected function _construct()
     {
         $this->_init('Estimate', 'id');
@@ -78,9 +68,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
      */
     public function setStatus(Blackbox_Epace_Model_Epace_Estimate_Status $status)
     {
-        $this->status = $status;
-
-        return $this;
+        return $this->_setObject('status', $status);
     }
 
     /**
@@ -130,7 +118,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
     {
         return $this->_getChildItems('efi/job_collection', [
             'altCurrencyRateSource' => 'Estimate',
-            'altCurrencyRateSourceNote' => (int)$this->getId()
+            'altCurrencyRateSourceNote' => $this->getId()
         ], function ($item) {
             if ($this->getId() == $item->getEstimateId()) {
                 $item->setEstimate($this);
@@ -143,10 +131,8 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
      */
     public function getLastJob()
     {
-        if ($this->isConvertedToJob()) {
+        if ($this->isConvertedToJob() || $this->hasObject('job')) {
             return $this->_getObject('job', 'lastJob', 'efi/job');
-        } else if ($this->job) {
-            return $this->job;
         } else {
             return false;
         }
@@ -162,17 +148,17 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'salesPerson' => 'int',
             'csr' => 'int',
             'estimator' => '',
-            'entryDate' => '',
-            'entryTime' => '',
+            'entryDate' => 'date',
+            'entryTime' => 'date',
             'enteredBy' => '',
-            'followUpDate' => '',
+            'followUpDate' => 'date',
             'customer' => 'string',
             'customerProspectName' => '',
             'prospectName' => '',
             'description' => '',
             'notes' => '',
-            'status' => '',
-            'rewardDate' => '',
+            'status' => 'int',
+            'rewardDate' => 'date',
             'lastJob' => '',
             'estimateRequest' => '',
             'shipToContact' => '',
@@ -185,7 +171,7 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'altCurrency' => '',
             'altCurrencyRate' => '',
             'altCurrencyRateSource' => '',
-            'altCurrencyRateSourceNote' => '',
+            'altCurrencyRateSourceNote' => 'string',
             'forceQuotedPriceOnConvert' => '',
             'committedFromMetrix' => '',
             'allowVAT' => '',
@@ -193,8 +179,8 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'manufacturingLocation' => '',
             'highestEstimateVersion' => '',
             'autoAddQuoteLetter' => '',
-            'lastChangedDate' => '',
-            'lastChangedTime' => '',
+            'lastChangedDate' => 'date',
+            'lastChangedTime' => 'date',
             'lastChangedBy' => '',
             'totalParts' => '',
             'totalPages' => ''

@@ -5,8 +5,6 @@
  * @method string getInvoiceNum()
  * @method string getInvoiceDate()
  * @method int getInvoiceType()
- * @method int getSalesCategory()
- * @method string getSalesTax()
  * @method int getTaxableCode()
  * @method int getShipVia()
  * @method int getTerms()
@@ -90,16 +88,6 @@
  */
 class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
-    /**
-     * @var Blackbox_Epace_Model_Epace_Invoice_Batch
-     */
-    protected $batch = null;
-
-    /**
-     * @var Blackbox_Epace_Model_Epace_Receivable
-     */
-    protected $receivable;
-
     protected function _construct()
     {
         $this->_init('Invoice', 'id');
@@ -119,9 +107,49 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
      */
     public function setBatch(Blackbox_Epace_Model_Epace_Invoice_Batch $batch)
     {
-        $this->batch = $batch;
+        return $this->_setObject('batch', $batch);
+    }
 
-        return $this;
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesCategory|false
+     */
+    public function getSalesCategory()
+    {
+        return $this->_getObject('salesCategory', 'salesCategory', 'efi/salesCategory', true);
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesCategory $salesCategory
+     * @return $this
+     */
+    public function setSalesCategory(Blackbox_Epace_Model_Epace_SalesCategory $salesCategory)
+    {
+        return $this->_setObject('salesCategory', $salesCategory);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalesTaxCode()
+    {
+        return $this->getData('salesTax');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesTax
+     */
+    public function getSalesTax()
+    {
+        return $this->_getObject('salesTax', 'salesTax', 'efi/salesTax', true);
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_SalesTax $salesTax
+     * @return $this
+     */
+    public function setSalesTax(Blackbox_Epace_Model_Epace_SalesTax $salesTax)
+    {
+        return $this->_setObject('salesTax', $salesTax);
     }
 
     /**
@@ -140,9 +168,7 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
      */
     public function setReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable)
     {
-        $this->receivable = $receivable;
-
-        return $this;
+        return $this->_setObject('receivable', $receivable);
     }
 
     /**
@@ -194,9 +220,9 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
             'job' => 'string',
             'jobPart' => 'string',
             'invoiceNum' => 'string',
-            'invoiceDate' => '',
+            'invoiceDate' => 'date',
             'invoiceType' => '',
-            'salesCategory' => '',
+            'salesCategory' => 'int',
             'salesTax' => 'string',
             'taxableCode' => '',
             'shipVia' => 'int',
@@ -234,7 +260,7 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
             'altCurrency' => '',
             'altCurrencyRate' => '',
             'altCurrencyRateSource' => '',
-            'altCurrencyRateSourceNote' => '',
+            'altCurrencyRateSourceNote' => 'string',
             'percentWipToRelieve' => '',
             'balanced' => 'bool',
             'sendAsPreInvoice' => 'bool',
@@ -253,8 +279,8 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
             'distributionRemaining' => '',
             'closeJob' => '',
             'excludeFromConsolidation' => 'bool',
-            'dateSetup' => '',
-            'timeSetup' => '',
+            'dateSetup' => 'date',
+            'timeSetup' => 'date',
             'manufacturingLocation' => '',
             'taxDistributionMethod' => '',
             'taxDistributionSource' => '',
