@@ -635,6 +635,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
+        if (!$orderItem) {
+            throw new \Exception('Unable to find order item for invoice. Order id: ' . $order->getId() . '. Job: ' . $invoice->getJobId() . '. Invoice epace id: ' . $invoice->getId());
+        }
+
         foreach ($invoice->getLines() as $line) {
             /** @var Mage_Sales_Model_Order_Invoice_Item $invoiceItem */
             $invoiceItem = Mage::getModel('sales/order_invoice_item');
