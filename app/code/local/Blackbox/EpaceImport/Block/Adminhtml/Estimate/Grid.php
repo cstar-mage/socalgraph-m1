@@ -26,7 +26,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
      */
     protected function _getCollectionClass()
     {
-        return 'epacei/estimate_grid_collection';
+        return 'epacei/estimate_collection';
     }
 
     protected function _prepareCollection()
@@ -64,15 +64,16 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
             'width' => '100px',
         ));
 
-        $this->addColumn('base_grand_total', array(
-            'header' => Mage::helper('epacei')->__('G.T. (Base)'),
-            'index' => 'base_grand_total',
-            'type'  => 'currency',
-            'currency' => 'base_currency_code',
-        ));
+        $this->addColumn('salesRep', [
+            'header' => Mage::helper('epacei')->__('Sales Rep'),
+            'index' => 'sales_person_id',
+            'type'  => 'options',
+            'width' => '70px',
+            'options' => Mage::helper('epacei')->getSalesRepsOptions()
+        ]);
 
         $this->addColumn('grand_total', array(
-            'header' => Mage::helper('epacei')->__('G.T. (Purchased)'),
+            'header' => Mage::helper('epacei')->__('Grand Total'),
             'index' => 'grand_total',
             'type'  => 'currency',
             'currency' => 'estimate_currency_code',

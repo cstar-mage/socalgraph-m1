@@ -2,6 +2,11 @@
 
 require_once 'abstract.php';
 
+class EpaceMongoDebug
+{
+    public static $debug = false;
+}
+
 class MongoEpaceCollection
 {
     /**
@@ -163,13 +168,17 @@ class MongoEpaceCollection
             }
             if (!$update && empty($old)) {
                 if ($forceUpdate) {
-                    echo 'FORCE UPDATE' . PHP_EOL;
+                    if (EpaceMongoDebug::$debug) {
+                        echo 'FORCE UPDATE' . PHP_EOL;
+                    }
                     $this->bulkWrite->update(
                         ['_id' => $id],
                         ['$set' => ['_updated_at' => new MongoDB\BSON\UTCDateTime(time() * 1000)]],
                         ['multi' => false]);
                 } else {
-                    echo 'IGNORE' . PHP_EOL;
+                    if (EpaceMongoDebug::$debug) {
+                        echo 'IGNORE' . PHP_EOL;
+                    }
                     return false;
                 }
             }
@@ -179,12 +188,16 @@ class MongoEpaceCollection
                 ['$set' => $data],
                 ['multi' => false]
             );
-            echo 'UPDATE' . PHP_EOL;
+            if (EpaceMongoDebug::$debug) {
+                echo 'UPDATE' . PHP_EOL;
+            }
         } else {
             $data['_created_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
             $data['_updated_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
             $this->bulkWrite->insert($data);
-            echo 'INSERT' . PHP_EOL;
+            if (EpaceMongoDebug::$debug) {
+                echo 'INSERT' . PHP_EOL;
+            }
         }
         $this->currentBulkWriteIds[] = $id;
 
@@ -296,9 +309,14 @@ class EpaceMongo extends Mage_Shell_Abstract
     protected $processedEstimates = [];
     protected $processedJobs = [];
 
+    public static $debug = false;
+
     public function run()
     {
         error_reporting(E_ALL);
+        if ($this->getArg('debug')) {
+            EpaceMongoDebug::$debug = true;
+        }
 
         $host = $this->getArg('host');
         $this->manager = new MongoDB\Driver\Manager($host);
@@ -314,6 +332,11 @@ class EpaceMongo extends Mage_Shell_Abstract
 
         if ($this->getArg('fixDates')) {
             $this->fixDates();
+            return;
+        }
+
+        if ($this->getArg('resave')) {
+            $this->resaveEntities();
             return;
         }
 
@@ -427,6 +450,34 @@ class EpaceMongo extends Mage_Shell_Abstract
                 $this->tabs--;
             }
         }
+    }
+
+    public function resaveEntities()
+    {
+        Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+
+        $entities = array_filter(explode(',', $this->getArg('resave')));
+        if (empty($entities)) {
+            $this->writeln('Error: entities are empty.');
+            return;
+        }
+
+        foreach ($entities as $entity) {
+            $adapter = $this->getCollectionAdapter($entity);
+            /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
+            $collection = Mage::getResourceModel('efi/' . $entity . '_collection');
+            if (!$adapter || !$collection) {
+                $this->writeln('Error: invalid entity ' . $entity);
+            }
+
+            $ids = $collection->loadIds();
+            foreach ($ids as $id) {
+                $object = Mage::getModel('efi/' . $entity)->load($id);
+                $adapter->updateDataRaw($object->getData());
+            }
+        }
+
+        $this->writeln('Success.');
     }
 
     protected function fixDates()
