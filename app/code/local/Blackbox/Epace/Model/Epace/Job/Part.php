@@ -413,8 +413,8 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
             'description' => '',
             'desktop' => '',
             'estCostPerM' => '',
-            'estimate' => 'int',
-            'estimatePart' => 'int',
+            'estimate' => 'string',// estimate number
+            'estimatePart' => 'string',// index number, e.g. 01
             'estimatedCost' => '',
             'estimator' => '',
             'flatSizeH' => '',
