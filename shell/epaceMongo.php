@@ -469,9 +469,11 @@ class EpaceMongo extends Mage_Shell_Abstract
             if (!$adapter || !$collection) {
                 $this->writeln('Error: invalid entity ' . $entity);
             }
+            $this->writeln($adapter->getCollectionName());
 
             $ids = $collection->loadIds();
             foreach ($ids as $id) {
+                $this->writeln($id);
                 $object = Mage::getModel('efi/' . $entity)->load($id);
                 $adapter->updateDataRaw($object->getData());
             }
