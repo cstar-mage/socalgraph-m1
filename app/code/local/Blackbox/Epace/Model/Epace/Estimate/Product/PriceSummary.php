@@ -65,7 +65,7 @@ class Blackbox_Epace_Model_Epace_Estimate_Product_PriceSummary extends Blackbox_
             'quotedPricePer100' => 'float',
             'quotedPricePerEach' => 'float',
             'quotedPricePerAddlEach' => 'float',
-            'quantity' => 'int',
+            'quantity' => 'string',
         ];
     }
 }
