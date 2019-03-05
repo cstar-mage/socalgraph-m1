@@ -68,7 +68,7 @@ class Blackbox_EpaceImport_Model_Cron
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
                 $this->updateInvoices($dateTime);
             }
-            if (true || Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
                 $this->updateShipments($dateTime);
             }
 
