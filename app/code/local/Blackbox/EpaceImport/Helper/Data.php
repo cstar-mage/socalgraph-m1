@@ -352,8 +352,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         $grandTotal = $subTotal + $totalTaxAmount + $shippingInclTax;
-        if ($grandTotal < $subTotal) {
-            $discountAmount = $subTotal - $grandTotal;
+        if ($job->getAmountToInvoice() < $job->getJobValue()) {
+            $discountAmount = $job->getJobValue() - $job->getAmountToInvoice();
         } else {
             $discountAmount = 0;
         }

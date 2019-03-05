@@ -69,7 +69,21 @@ class Blackbox_Soap_Model_Api
     }
 
     public function sendParamsToServer($headerData, $bodyData, $action, $url = null, $headers = null) {
-        return $this->sendXmlToServer($this->paramsToXml($headerData, $bodyData, (bool)$this->logCallback), $action, $url, $headers);
+        $xml = $this->paramsToXml($headerData, $bodyData, (bool)$this->logCallback);
+        $i = 0;
+        $lastException = null;
+
+        do {
+            try {
+                return $this->sendXmlToServer($xml, $action, $url, $headers);
+            } catch (Blackbox_Soap_Model_Exception $e) {
+                Mage::logException($e);
+                echo $e->getMessage() . PHP_EOL;
+                $lastException = $e;
+            }
+        } while (++$i < 3);
+
+        throw $lastException;
     }
 
     public function sendXmlToServer($xml, $action, $url = null, $headers = null)
