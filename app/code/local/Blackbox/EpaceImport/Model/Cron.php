@@ -93,7 +93,6 @@ class Blackbox_EpaceImport_Model_Cron
 
     protected function importNewEstimates(\DateTime $from)
     {
-        $from = new \DateTime('-20 hours');
         /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('efi/estimate_collection');
         if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
