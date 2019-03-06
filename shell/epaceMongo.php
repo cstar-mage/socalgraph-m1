@@ -346,7 +346,8 @@ class EpaceMongo extends Mage_Shell_Abstract
     public function importToMongo()
     {
         $from = $this->getArg('from');
-        $to = $this->getArg('to');
+//        $to = $this->getArg('to');
+        $to = false; // operators < and <= do not work
 
         if ($this->getArg('global')) {
             $this->importEntities('salesPerson');

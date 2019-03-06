@@ -163,11 +163,12 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
     public function renderFilters($filters, Blackbox_Epace_Model_Epace_AbstractObject $resource)
     {
         $result = [];
-        $currentOp = null;
-        $currentGroup = [];
         if (count($filters) == 1) {
             $result = $this->_renderFilter($filters[0], $resource);
         } else {
+            $and = false;
+            $renderedFilters = [];
+            $fields = [];
             foreach ($filters as $filter) {
                 if ($filter['type'] != 'and') {
                     if ($filter['type'] == 'or') {
@@ -175,17 +176,26 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
                     }
                     throw new \Exception('Unrecognized filter type.');
                 }
-                $newFilter = $this->_renderFilter($filter, $resource);
-                foreach ($newFilter as $field => $value) {
-                    if (in_array($field, $result)) {
-                        throw new \Exception('Several values for one field are not supported.');
+                $renderedFilter = $this->_renderFilter($filter, $resource);
+                if (!$and) {
+                    $field = array_keys($renderedFilter)[0];
+                    if (in_array($field, $fields)) {
+                        $and = true;
+                    } else {
+                        $fields[] = $field;
                     }
                 }
-                $result = array_merge($result, $newFilter);
+                $renderedFilters[] = $renderedFilter;
             }
 
-            if (!empty($currentGroup)) {
-                $result['$' . $currentOp] = $currentGroup;
+            if ($and) {
+                foreach ($renderedFilters as $renderedFilter) {
+                    $result['$and'][] = $renderedFilter;
+                }
+            } else {
+                foreach ($renderedFilters as $renderedFilter) {
+                    $result = array_merge($result, $renderedFilter);
+                }
             }
         }
 
