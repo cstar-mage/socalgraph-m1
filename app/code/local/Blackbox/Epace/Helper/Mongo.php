@@ -169,18 +169,19 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
             $result = $this->_renderFilter($filters[0], $resource);
         } else {
             foreach ($filters as $filter) {
-                if ($currentOp && $currentOp != $filter['type']) {
-                    throw new \Exception('Different operators are currently not supported.');
-                }
-                if ($currentOp && $currentGroup != $filter['type'] && !empty($currentGroup)) {
-                    $result['$' . $currentOp] = $currentGroup;
-                    $currentGroup = [];
-                }
-                if ($filter['type'] != 'or' && $filter['type'] != 'and') {
+                if ($filter['type'] != 'and') {
+                    if ($filter['type'] == 'or') {
+                        throw new \Exception('OR filter not supported.');
+                    }
                     throw new \Exception('Unrecognized filter type.');
                 }
-                $currentOp = $filter['type'];
-                $currentGroup[] = $this->_renderFilter($filter, $resource);
+                $newFilter = $this->_renderFilter($filter, $resource);
+                foreach ($newFilter as $field => $value) {
+                    if (in_array($field, $result)) {
+                        throw new \Exception('Several values for one field are not supported.');
+                    }
+                }
+                $result = array_merge($result, $newFilter);
             }
 
             if (!empty($currentGroup)) {
