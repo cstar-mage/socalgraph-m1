@@ -4,7 +4,9 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
 {
     public function calculateSalesRepsMonthlySales($limit = null)
     {
-        $this->_addAttributeJoin('firstname', 'left')
+        $this
+            ->addAttributeToFilter('group_id', Mage::helper('epacei')->getWholesaleCustomerGroupId())
+            ->_addAttributeJoin('firstname', 'left')
             ->_addAttributeJoin('middlename', 'left')
             ->_addAttributeJoin('lastname', 'left');
 
@@ -38,14 +40,15 @@ class Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection extends Ma
             ->group('sales_person_id');
 
         $this->getSelect()
-            ->join(['orders' => $orderCollection->getSelect()], 'orders.sales_person_id = e.entity_id', ['orders_count', 'grand_total'])
-            ->join(['estimates' => $estimateCollection->getSelect()], 'estimates.sales_person_id = e.entity_id', ['estimates', 'estimates_cost'])
+            ->joinLeft(['orders' => $orderCollection->getSelect()], 'orders.sales_person_id = e.entity_id', ['orders_count', 'grand_total'])
+            ->joinLeft(['estimates' => $estimateCollection->getSelect()], 'estimates.sales_person_id = e.entity_id', ['estimates', 'estimates_cost'])
             ->columns([
                 'customer' => $customerFieldSql,
             ]);
         if ($limit) {
             $this->getSelect()->limit($limit);
         }
+        $this->getSelect()->order('grand_total DESC');
 
         return $this;
     }

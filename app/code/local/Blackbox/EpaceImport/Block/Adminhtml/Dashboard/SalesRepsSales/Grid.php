@@ -12,7 +12,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_SalesRepsSales_Grid extends
     {
         /** @var Blackbox_EpaceImport_Model_Resource_Reports_Customer_Collection $collection */
         $collection = Mage::getResourceModel('epacei/reports_customer_collection');
-        $collection->calculateSalesRepsMonthlySales($this->getParam($this->getVarNameLimit(), $this->_defaultLimit));
+        $collection->calculateSalesRepsMonthlySales(null);
         $this->setCollection($collection);
 
         return parent::_prepareCollection();
@@ -25,7 +25,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_SalesRepsSales_Grid extends
      */
     protected function _preparePage()
     {
-        $this->getCollection()->setPageSize($this->getParam($this->getVarNameLimit(), $this->_defaultLimit));
+        //$this->getCollection()->setPageSize($this->getParam($this->getVarNameLimit(), $this->_defaultLimit));
         // Remove count of total orders $this->getCollection()->setCurPage($this->getParam($this->getVarNamePage(), $this->_defaultPage));
     }
 
