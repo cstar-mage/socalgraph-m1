@@ -16,8 +16,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                     'amount_to_invoice',
                     'change_order_total',
                     'estimate_id',
+                    'job_type'
                 ])
-            ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id'])
+            ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id', 'job_type'])
             ->joinLeft([
                 'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), [
                     'estimate_id' => 'entity_id',
@@ -58,6 +59,14 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
             'width' => '80px',
             'type'  => 'text',
             'index' => 'shipments',
+        ));
+
+        $this->addColumn('job_type', array(
+            'header' => Mage::helper('sales')->__('Category'),
+            'index' => 'job_type',
+            'type'  => 'options',
+            'width' => '70px',
+            'options' => Mage::helper('epacei')->getJobTypes(),
         ));
 
         if (!Mage::app()->isSingleStoreMode()) {

@@ -31,7 +31,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
 
     protected function _prepareCollection()
     {
+        /** @var Blackbox_EpaceImport_Model_Resource_Estimate_Collection $collection */
         $collection = Mage::getResourceModel($this->_getCollectionClass());
+        $collection->getSelect()->columns(['customer_name' => 'CONCAT(COALESCE(customer_firstname, \'\'), \' \', COALESCE(customer_lastname, \'\'))']);
         $this->setCollection($collection);
         return parent::_prepareCollection();
     }
@@ -63,6 +65,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
             'type' => 'datetime',
             'width' => '100px',
         ));
+
+        $this->addColumn('company', [
+            'header' => Mage::helper('epacei')->__('Company'),
+            'index' => 'customer_name',
+            'width' => '70px',
+        ]);
 
         $this->addColumn('salesRep', [
             'header' => Mage::helper('epacei')->__('Sales Rep'),
