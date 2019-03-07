@@ -425,7 +425,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'base_markup' => $markup,
             'markup' => $markup,
             'amount_to_invoice' => $job->getAmountToInvoice(),
-            'change_order_total' => $job->getChangeOrderTotal()
+            'change_order_total' => $job->getChangeOrderTotal(),
+            'original_quoted_price' => $job->getOriginalQuotedPrice()
         ]);
 
         $this->setOrderStatus($order, $job->getAdminStatusCode());
