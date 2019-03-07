@@ -21,9 +21,16 @@
                     <sales_invoice_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Invoice_Grid</sales_invoice_grid>
                     <sales_order_invoice_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Invoice_View</sales_order_invoice_view>
                     <customer_edit_tab_orders>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders</customer_edit_tab_orders>
+                    <customer_edit_tab_view>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_View</customer_edit_tab_view>
+                    <customer_edit_tab_view_sales>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_View_Sales</customer_edit_tab_view_sales>
                     <customer_edit_tabs>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tabs</customer_edit_tabs>
                 </rewrite>
             </adminhtml>
+            <sales>
+                <rewrite>
+                    <adminhtml_customer_edit_tab_agreement>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Agreement</adminhtml_customer_edit_tab_agreement>
+                </rewrite>
+            </sales>
         </blocks>
         <helpers>
             <epacei>

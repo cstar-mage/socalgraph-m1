@@ -2,7 +2,13 @@
 
 class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tabs extends Mage_Adminhtml_Block_Customer_Edit_Tabs
 {
-
+    public function __construct()
+    {
+        parent::__construct();
+        if (Mage::registry('current_customer')->getGroupId() == Mage::helper('epacei')->getWholesaleCustomerGroupId()) {
+            $this->setTitle(Mage::helper('customer')->__('Sales Rep Information'));
+        }
+    }
 
     protected function _beforeToHtml()
     {
@@ -33,7 +39,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tabs extends Mage_Admin
 
             if (Mage::getSingleton('admin/session')->isAllowed('sales/order/actions/view')) {
                 $this->addTab('orders', array(
-                    'label'     => Mage::helper('customer')->__('Orders'),
+                    'label'     => Mage::helper('customer')->__('Jobs'),
                     'class'     => 'ajax',
                     'url'       => $this->getUrl('*/*/orders', array('_current' => true)),
                 ));
@@ -56,21 +62,21 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tabs extends Mage_Admin
             ));
 
             $this->addTab('wishlist', array(
-                'label'     => Mage::helper('customer')->__('Wishlist'),
+                'label'     => Mage::helper('customer')->__('Change orders'),
                 'class'     => 'ajax',
                 'url'       => $this->getUrl('*/*/wishlist', array('_current' => true)),
             ));
 
             if (Mage::getSingleton('admin/session')->isAllowed('newsletter/subscriber')) {
                 $this->addTab('newsletter', array(
-                    'label'     => Mage::helper('customer')->__('Newsletter'),
+                    'label'     => Mage::helper('customer')->__('Jobs With Bumb'),
                     'content'   => $this->getLayout()->createBlock('adminhtml/customer_edit_tab_newsletter')->initForm()->toHtml()
                 ));
             }
 
             if (Mage::getSingleton('admin/session')->isAllowed('catalog/reviews_ratings')) {
                 $this->addTab('reviews', array(
-                    'label'     => Mage::helper('customer')->__('Product Reviews'),
+                    'label'     => Mage::helper('customer')->__('Jobs Cut'),
                     'class'     => 'ajax',
                     'url'       => $this->getUrl('*/*/productReviews', array('_current' => true)),
                 ));
