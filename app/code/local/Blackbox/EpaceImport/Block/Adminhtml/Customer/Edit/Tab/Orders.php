@@ -18,9 +18,14 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders extends Mage
             ->addFieldToFilter(['customer_id', 'sales_person_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId])
             ->setIsCustomerMode(true);
         $collection->getSelect()->join(
-            ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'sales_person_id', 'original_quoted_price', 'subtotal'])],
+            ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'sales_person_id', 'original_quoted_price', 'subtotal', 'estimate_id'])],
             'main_table.entity_id = o.entity_id',
-            ['sales_person_id', 'original_quoted_price', 'subtotal']
+            ['sales_person_id', 'original_quoted_price', 'subtotal', 'estimate_id']
+        )->joinLeft(
+            [
+                'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), ['entity_id', 'grand_total'])
+            ], 'o.estimate_id = e.entity_id',
+            ['estimate_price' => 'COALESCE(e.grand_total, o.original_quoted_price)']
         );
 
         $this->setCollection($collection);
@@ -31,7 +36,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders extends Mage
     {
         $this->addColumnAfter('estimate_price', [
             'header'    => Mage::helper('customer')->__('Estimate Price'),
-            'index'     => 'original_quoted_price',
+            'index'     => 'estimate_price',
             'type'      => 'currency',
             'currency'  => 'order_currency_code',
         ], 'shipping_name');

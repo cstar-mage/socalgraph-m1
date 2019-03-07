@@ -16,7 +16,8 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                     'amount_to_invoice',
                     'change_order_total',
                     'estimate_id',
-                    'job_type'
+                    'job_type',
+                    'original_quoted_price'
                 ])
             ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id', 'job_type'])
             ->joinLeft([
@@ -25,7 +26,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                     'estimate_price' => 'base_grand_total',
                     'estimate_currency_code',
                 ])
-            ], 'o.estimate_id = e.estimate_id', ['estimate_price', 'estimate_currency_code'])->columns(['delta' => 'o.amount_to_invoice - COALESCE(estimate_price, 0)'])
+            ], 'o.estimate_id = e.estimate_id', ['estimate_price' => 'COALESCE(e.estimate_price, o.original_quoted_price, 0)', 'estimate_currency_code'])->columns(['delta' => 'o.amount_to_invoice - COALESCE(e.estimate_price, o.original_quoted_price, 0)'])
             ->joinLeft([
                 's' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/shipment'), [
                     'order_id',
@@ -119,7 +120,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
             'header' => Mage::helper('sales')->__('Estimate Price'),
             'index' => 'estimate_price',
             'type'  => 'currency',
-            'currency' => 'estimate_currency_code',
+            'currency' => 'order_currency_code',
         ));
 
         $this->addColumn('amount_to_invoice', array(

@@ -10,18 +10,27 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Totals extends Mage_Admin
             return $this;
         }
 
-        if ($order->getOriginalQuotedPrice()) {
-            $this->_totals = [
-                    'original_quoted_price' => new Varien_Object(array(
-                        'code'      => 'original_quoted_price',
-                        'strong'    => false,
-                        'value'     => $order->getOriginalQuotedPrice(),
-                        'base_value'=> $order->getOriginalQuotedPrice(),
-                        'label'     => $this->helper('sales')->__('Estimated Price'),
-                        'area'      => ''
-                    ))
-            ] + $this->_totals;
+        if ($order->getEstimateId()) {
+            $estimate = Mage::getModel('epacei/estimate')->load($order->getEstimateId());
+            if ($estimate->getId()) {
+                $estimatePrice = $estimate->getGrandTotal();
+            } else {
+                $estimatePrice = 0;
+            }
+        } else {
+            $estimatePrice = $order->getOriginalQuotedPrice();
         }
+        $this->_totals = [
+                'estimate_price' => new Varien_Object(array(
+                    'code'      => 'estimate_price',
+                    'strong'    => false,
+                    'value'     => $estimatePrice,
+                    'base_value'=> $estimatePrice,
+                    'label'     => $this->helper('sales')->__('Estimated Price'),
+                    'area'      => ''
+                ))
+            ] + $this->_totals;
+
         $this->_totals['subtotal']->setLabel($this->helper('sales')->__('Sold For'));
 
         $this->_totals['shipping'] = new Varien_Object(array(
