@@ -79,7 +79,7 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
             return (array)$row;
         }
 
-        $this->throwException('Object ' . $objectType . ' not found.');
+        $this->throwException('Object ' . $objectType . ' not found.', null);
     }
 
     public function findObjects($objectType, $filter, $sort = null, $offset = null, $limit = null)
