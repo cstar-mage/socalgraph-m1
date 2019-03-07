@@ -59,6 +59,18 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
 
     public function readObject($objectType, $params)
     {
+        $data = $this->_loadData($objectType, $params);
+        foreach ($data as &$value) {
+            if ($value instanceof \MongoDB\BSON\UTCDateTime) {
+                $value = $value->toDateTime()->format('Y-m-d\TH:i:s.0000\Z');
+            }
+        }
+
+        return $data;
+    }
+
+    protected function _loadData($objectType, $params)
+    {
         $objectType = ucfirst($objectType);
 
         $query = new MongoDB\Driver\Query($params);

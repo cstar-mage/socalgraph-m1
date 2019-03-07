@@ -169,7 +169,7 @@ class MongoEpaceCollection
             if (!$update && empty($old)) {
                 if ($forceUpdate) {
                     if (EpaceMongoDebug::$debug) {
-                        echo 'FORCE UPDATE' . PHP_EOL;
+                        echo $this->getCollectionName() . ' FORCE UPDATE' . PHP_EOL;
                     }
                     $this->bulkWrite->update(
                         ['_id' => $id],
@@ -177,7 +177,7 @@ class MongoEpaceCollection
                         ['multi' => false]);
                 } else {
                     if (EpaceMongoDebug::$debug) {
-                        echo 'IGNORE' . PHP_EOL;
+                        echo $this->getCollectionName() . ' IGNORE' . PHP_EOL;
                     }
                     return false;
                 }
@@ -189,14 +189,14 @@ class MongoEpaceCollection
                 ['multi' => false]
             );
             if (EpaceMongoDebug::$debug) {
-                echo 'UPDATE' . PHP_EOL;
+                echo $this->getCollectionName() . ' UPDATE' . PHP_EOL;
             }
         } else {
             $data['_created_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
             $data['_updated_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
             $this->bulkWrite->insert($data);
             if (EpaceMongoDebug::$debug) {
-                echo 'INSERT' . PHP_EOL;
+                echo $this->getCollectionName() . ' INSERT' . PHP_EOL;
             }
         }
         $this->currentBulkWriteIds[] = $id;

@@ -96,6 +96,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                         'store_id' => $store->getId(),
                         'sku' => $magentoProduct->getSku(),
                         'name' => $estimateProduct->getDescription() . ' - ' . $part->getDescription() . ' - ' . $quantity->getQuantityOrdered(),
+                        'description' => $part->getDescription(),
                         'weight' => (float)$quantity->getWeightPerPiece(),
                         'row_weight' => $quantity->getWeightPerPiece() * $quantity->getQuantityOrdered(),
                         'qty' => $quantity->getData('quantityOrdered'),
