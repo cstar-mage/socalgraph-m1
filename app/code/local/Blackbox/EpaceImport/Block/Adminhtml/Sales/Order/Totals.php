@@ -10,7 +10,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Totals extends Mage_Admin
             return $this;
         }
 
-        if ($order->getJobValue()) {
+        if ($order->getOriginalQuotedPrice()) {
             $this->_totals = [
                     'original_quoted_price' => new Varien_Object(array(
                         'code'      => 'original_quoted_price',
