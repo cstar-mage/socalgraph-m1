@@ -18,9 +18,9 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders extends Mage
             ->addFieldToFilter(['customer_id', 'sales_person_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId])
             ->setIsCustomerMode(true);
         $collection->getSelect()->join(
-            ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'sales_person_id', 'job_value', 'subtotal'])],
+            ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'sales_person_id', 'original_quoted_price', 'subtotal'])],
             'main_table.entity_id = o.entity_id',
-            ['sales_person_id', 'job_value', 'subtotal']
+            ['sales_person_id', 'original_quoted_price', 'subtotal']
         );
 
         $this->setCollection($collection);
@@ -31,7 +31,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders extends Mage
     {
         $this->addColumnAfter('estimate_price', [
             'header'    => Mage::helper('customer')->__('Estimate Price'),
-            'index'     => 'job_value',
+            'index'     => 'original_quoted_price',
             'type'      => 'currency',
             'currency'  => 'order_currency_code',
         ], 'shipping_name');

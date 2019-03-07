@@ -12,11 +12,11 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Totals extends Mage_Admin
 
         if ($order->getJobValue()) {
             $this->_totals = [
-                    'job_value' => new Varien_Object(array(
-                        'code'      => 'job_value',
+                    'original_quoted_price' => new Varien_Object(array(
+                        'code'      => 'original_quoted_price',
                         'strong'    => false,
-                        'value'     => $order->getJobValue(),
-                        'base_value'=> $order->getJobValue(),
+                        'value'     => $order->getOriginalQuotedPrice(),
+                        'base_value'=> $order->getOriginalQuotedPrice(),
                         'label'     => $this->helper('sales')->__('Estimated Price'),
                         'area'      => ''
                     ))

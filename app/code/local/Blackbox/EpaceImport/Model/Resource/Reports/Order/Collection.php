@@ -74,7 +74,7 @@ class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Mage_
                 'lifetime' => "SUM({$expr})",
                 'average'  => "AVG({$expr})"
             ))
-            ->where('job_value IS NOT NULL');
+            ->where('original_quoted_price IS NOT NULL');
 
         return $this;
     }
@@ -110,7 +110,7 @@ class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Mage_
     protected function _getSalesProfitExpression()
     {
         $adapter = $this->getConnection();
-        return $adapter->getIfNullSql('main_table.job_value', 0) . ' - ' . $adapter->getIfNullSql('main_table.subtotal', 0);
+        return $adapter->getIfNullSql('main_table.original_quoted_price', 0) . ' - ' . $adapter->getIfNullSql('main_table.subtotal', 0);
     }
 
     protected function _getCategoryExpression()
