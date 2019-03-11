@@ -360,6 +360,7 @@ class EpaceMongo extends Mage_Shell_Abstract
             $this->importEntities('estimate_status');
             $this->importEntities('job_status');
             $this->importEntities('job_type');
+            $this->importEntities('invoice_extra_type');
         }
 
         if ($this->getArg('estimates')) {
