@@ -1,32 +1,43 @@
 <?xml version="1.0"?>
 <config>
     <menu>
-         <notification translate="title" module="blackbox_notification">
-             <title>Notification</title>
-             <sort_order>666</sort_order>
-             <children>
-                 <rule translate="title" module="blackbox_notification">
-                     <title>Email Rules</title>
-                     <sort_order>5</sort_order>
-                     <action>notification/rule</action>
-                 </rule>
-                 <head_rule translate="title" module="blackbox_notification">
-                     <title>Message Rules</title>
-                     <sort_order>7</sort_order>
-                     <action>notification/head_rule</action>
-                 </head_rule>
-                 <log translate="title" module="blackbox_notification">
-                     <title>Log</title>
-                     <sort_order>10</sort_order>
-                     <action>notification/log</action>
-                 </log>
-             </children>
-         </notification>
-     </menu>
-     <acl>
+        <notification translate="title" module="blackbox_notification">
+            <title>Notification</title>
+            <sort_order>666</sort_order>
+            <children>
+                <rule translate="title" module="blackbox_notification">
+                    <title>Email Rules</title>
+                    <sort_order>5</sort_order>
+                    <action>notification/rule</action>
+                </rule>
+                <head_rule translate="title" module="blackbox_notification">
+                    <title>Message Rules</title>
+                    <sort_order>7</sort_order>
+                    <action>notification/head_rule</action>
+                </head_rule>
+                <log translate="title" module="blackbox_notification">
+                    <title>Log</title>
+                    <sort_order>10</sort_order>
+                    <action>notification/log</action>
+                </log>
+            </children>
+        </notification>
+    </menu>
+    <acl>
         <resources>
             <admin>
                 <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <notification translate="title" module="blackbox_notification">
+                                        <title>Notification</title>
+                                    </notification>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
                     <notification translate="title" module="blackbox_notification">
                         <title>Notifications</title>
                         <sort_order>666</sort_order>
@@ -45,5 +56,5 @@
                 </children>
             </admin>
         </resources>
-     </acl>
+    </acl>
 </config>
