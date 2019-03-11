@@ -32,6 +32,10 @@ class Blackbox_EpaceImport_Model_Cron
 
     public function updateEpaceEntities(Mage_Cron_Model_Schedule $schedule)
     {
+        if (ini_get('max_execution_time') < 1200) {
+            ini_set('max_execution_time', 1200);
+        }
+
         if (!Mage::getStoreConfigFlag(self::XML_PATH_ENABLE)) {
             return;
         }
