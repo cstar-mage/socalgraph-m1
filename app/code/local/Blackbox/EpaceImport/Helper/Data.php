@@ -551,7 +551,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $discount = $invoice->getReceivable()->getDiscountApplied();
         } else {
             foreach ($invoice->getExtras() as $extra) {
-                if ($extra->getType()->getExtraCategory() == Blackbox_Epace_Model_Epace_Invoice_Extra_Type::EXTRA_CATEGORY_TYPE_DISCOUNT) {
+                if ($extra->getType() && $extra->getType()->getExtraCategory() == Blackbox_Epace_Model_Epace_Invoice_Extra_Type::EXTRA_CATEGORY_TYPE_DISCOUNT) {
                     $discount += (float)$extra->getPrice();
                 }
             }
