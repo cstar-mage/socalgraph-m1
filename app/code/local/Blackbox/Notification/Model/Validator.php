@@ -70,9 +70,14 @@ class Blackbox_Notification_Model_Validator extends Blackbox_Notification_Model_
 
     public function processSalesEmail($object, $params, $type, $customerEmail)
     {
+        $result = false;
         foreach ($this->validators as $validator) {
-            $validator->processSalesEmail($object, $params, $type, $customerEmail);
+            if ($validator->processSalesEmail($object, $params, $type, $customerEmail) && $validator instanceof Blackbox_Notification_Model_Email_Validator) {
+                $result = true;
+            }
         }
+
+        return $result;
     }
 
     public function processEditOrder(Mage_Sales_Model_Order $order, Mage_Sales_Model_Order_Status_History $history)
