@@ -31,8 +31,4 @@
             </block>
         </reference>
     </sales_order_tracking>
-
-    <sales_email_order_totals>
-        <block type="sales/order_totals" name="order_totals" template="blackbox/cinemacloud/sales/email/order/totals.phtml" />
-    </sales_email_order_totals>
 </layout>

@@ -10,4 +10,12 @@
             <action method="setTemplate"><template>blackbox/cinemacloud/login.phtml</template></action>
         </reference>
     </customer_account_login>
+
+    <sales_email_order_totals>
+        <block type="sales/order_totals" name="order_totals" template="blackbox/cinemacloud/sales/email/order/totals.phtml" />
+    </sales_email_order_totals>
+
+    <sales_email_order_invoice_summary>
+        <block type="core/template" name="invoice_summary" template="blackbox/cinemacloud/sales/email/order/invoice/summary.phtml" />
+    </sales_email_order_invoice_summary>
 </layout>

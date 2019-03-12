@@ -1,0 +1,12 @@
+<?php
+/** @var Mage_Core_Block_Template $this */
+/** @var Mage_Sales_Model_Order $order */
+$order = $this->getOrder();
+if (!$order) {
+    return;
+}
+
+$orderDate = date('d M, Y', strtotime($order->getCreatedAt()));
+$orderTotal = $this->getOrder()->getOrderCurrency()->formatPrecision($this->getOrder()->getGrandTotal(), 2, false, false);
+?>
+<p>Shipping Address: <?php echo $this->escapeHtml($order->getSHippingAddress()->format('oneline')) ?><br>Order #: <?php echo $this->escapeHtml($order->getIncrementId()) ?><br>Order Date: <?php echo $orderDate ?><br>Order Total: <?php echo $orderTotal ?></p>
