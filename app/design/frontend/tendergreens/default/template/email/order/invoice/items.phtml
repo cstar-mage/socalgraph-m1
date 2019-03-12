@@ -41,7 +41,7 @@
                     <tr>
                         <td width="110" valign="top">
                             <?php if ($_item->getOrderItem()->getProduct()): ?>
-                            <img src="data:image/jpg;base64,<?php echo base64_encode(file_get_contents(Mage::helper('catalog/image')->init($_item->getOrderItem()->getProduct(), 'thumbnail'))) ?>" width="79" height="116" border="0" hspace="0" vspace="0">
+                            <img src="<?php echo Mage::helper('catalog/image')->init($_item->getOrderItem()->getProduct(), 'thumbnail') ?>" width="79" height="116" border="0" hspace="0" vspace="0">
                             <?php endif; ?>
                         </td>
                         <td width="610">
