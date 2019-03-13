@@ -114,39 +114,6 @@ class Blackbox_RolesPermissions_Model_Admin_Observer extends Mage_Admin_Model_Ob
 
     protected function _getAdminUser($customer)
     {
-        if (!$customer || !$customer->getId()) {
-            return null;
-        }
-
-        $admin = Mage::getModel('admin/user')->getCollection()
-            ->addFieldToFilter('customer_id', $customer->getId())
-            ->getFirstItem();
-
-        if (!$admin || !$admin->getId()) {
-            $admin = $this->_createAdminUser($customer);
-            Mage::getSingleton('admin/session')->setAcl(Mage::getResourceModel('admin/acl')->loadAcl());
-        }
-
-        return $admin;
-    }
-
-    protected function _createAdminUser($customer)
-    {
-        $user = Mage::getModel('admin/user')
-            ->setData(array(
-                'username'  => 'customer_admin_' . $customer->getId(),
-                'firstname' => $customer->getFirstname(),
-                'lastname'    => $customer->getLastname(),
-                'email'     => $customer->getEmail(),
-                'password'  => 'qwerty',
-                'is_active' => 1,
-                'customer_id' => $customer->getId()
-            ))->save();
-
-        $user->setRoleIds(array(1))  //Administrator role id is 1 ,Here you can assign other roles ids
-        ->setRoleUserId($user->getUserId())
-            ->saveRelations();
-
-        return $user;
+        return Mage::helper('rolespermissions')->getAdminUser($customer);
     }
 }

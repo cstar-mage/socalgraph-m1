@@ -27,7 +27,7 @@ class Blackbox_CinemaCloud_Model_Observer
                 $this->logoutWithoutChangeSession();
             }
             //$this->redirectToLogin($controller);
-        } else if ($customerSession->isLoggedIn()) {
+        } else if ($customerSession->isLoggedIn() && !$controller->getFlag('', 'no_cc_admin_redirect')) {
             $this->redirectToAdminDashboard($controller);
         }
     }

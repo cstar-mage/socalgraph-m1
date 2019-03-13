@@ -56,6 +56,13 @@
                     <!--<frontName>login</frontName>-->
                 <!--</args>-->
             <!--</cinemacloud>-->
+            <redirect>
+                <use>cinemacloud</use>
+                <args>
+                    <module>Blackbox_CinemaCloud_Redirect</module>
+                    <frontName>redirect</frontName>
+                </args>
+            </redirect>
             <api>
                 <use>cinemacloud</use>
             </api>
