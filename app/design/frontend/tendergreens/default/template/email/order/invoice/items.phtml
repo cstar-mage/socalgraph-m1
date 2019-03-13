@@ -49,7 +49,7 @@
                                 <tr>
                                     <td width="550" valign="top">
                                         <div class="t6"><?php echo $_item->getName()?></div>
-                                        <div class="t7">Quantity: <?php echo $_item->getQty() ?></div>
+                                        <div class="t7">Quantity: <?php echo (int)$_item->getQty() ?></div>
                                     </td>
                                     <td width="60" class="t8" valign="top"><?php echo $_order->formatPrice($_item->getPrice()) ?></td>
                                 </tr>
