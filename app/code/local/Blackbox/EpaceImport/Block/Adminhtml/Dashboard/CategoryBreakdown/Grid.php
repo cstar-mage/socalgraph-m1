@@ -76,4 +76,11 @@ class Blackbox_EpaceImport_Block_Adminhtml_Dashboard_CategoryBreakdown_Grid exte
 
         return parent::_prepareColumns();
     }
+
+    public function getRowUrl($item)
+    {
+        return $this->getUrl('adminhtml/sales_order/index', [
+            'filter' => base64_encode('job_type=' . $item->getJobType())
+        ]);
+    }
 }
