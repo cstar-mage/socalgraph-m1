@@ -77,6 +77,9 @@
     </adminhtml_epace_receivable_view>
 
     <adminhtml_dashboard_index>
+        <reference name="root">
+            <block type="epacei/adminhtml_dashboard_import_messages" name="import_messages" />
+        </reference>
         <reference name="dashboard">
             <action method="setTemplate"><template>blackbox/epace_import/dashboard/index.phtml</template></action>
             <block type="epacei/adminhtml_dashboard_salesRepsSales_grid" name="salesRepsSales"></block>

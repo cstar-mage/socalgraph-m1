@@ -318,29 +318,49 @@ class EpaceMongo extends Mage_Shell_Abstract
             EpaceMongoDebug::$debug = true;
         }
 
-        $host = $this->getArg('host');
-        $this->manager = new MongoDB\Driver\Manager($host);
+        $this->saveStatus('running');
 
-        $this->database = $this->getArg('database');
-        if (!$this->database) {
-            throw new \Exception('No database specified.');
+        try {
+            $host = $this->getArg('host');
+            $this->manager = new MongoDB\Driver\Manager($host);
+
+            $this->database = $this->getArg('database');
+            if (!$this->database) {
+                throw new \Exception('No database specified.');
+            }
+
+            if ($this->getArg('bulkWriteLimit')) {
+                MongoEpaceCollection::$bulkWriteLimit = (int)$this->getArg('bulkWriteLimit');
+            }
+
+            if ($this->getArg('fixDates')) {
+                $this->fixDates();
+                return;
+            }
+
+            if ($this->getArg('resave')) {
+                $this->resaveEntities();
+                return;
+            }
+
+            $this->importToMongo();
+
+            $this->saveStatus('success');
+        } catch (\Exception $e) {
+            Mage::logException($e);
+            $this->saveStatus('error', 'Exception in ' . $e->getFile() . ':' . $e->getLine() . '. Message: ' . $e->getMessage());
         }
+    }
 
-        if ($this->getArg('bulkWriteLimit')) {
-            MongoEpaceCollection::$bulkWriteLimit = (int)$this->getArg('bulkWriteLimit');
+    protected function saveStatus($status, $message = '')
+    {
+        if ($this->getArg('key')) {
+            Mage::getConfig()->saveConfig('/epace_import/mongo/' . $this->getArg('key'), json_encode([
+                'time' => time(),
+                'status' => $status,
+                'message' => $message
+            ]));
         }
-
-        if ($this->getArg('fixDates')) {
-            $this->fixDates();
-            return;
-        }
-
-        if ($this->getArg('resave')) {
-            $this->resaveEntities();
-            return;
-        }
-
-        $this->importToMongo();
     }
 
     public function importToMongo()
