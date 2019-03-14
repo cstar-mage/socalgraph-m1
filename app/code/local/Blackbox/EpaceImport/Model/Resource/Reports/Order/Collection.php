@@ -98,7 +98,7 @@ class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Mage_
             ->columns([
                 'job_type',
                 'total' => "SUM({$expr})",
-                'count' => 'SUM(entity_id)'
+                'count' => 'COUNT(entity_id)'
             ])
             ->where('job_type is not null')
             ->group('job_type')
