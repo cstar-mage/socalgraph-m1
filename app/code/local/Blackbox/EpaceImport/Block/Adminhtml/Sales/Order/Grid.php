@@ -17,16 +17,10 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                     'change_order_total',
                     'estimate_id',
                     'job_type',
-                    'original_quoted_price'
+                    'original_quoted_price',
                 ])
-            ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id', 'job_type'])
-            ->joinLeft([
-                'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), [
-                    'estimate_id' => 'entity_id',
-                    'estimate_price' => 'base_grand_total',
-                    'estimate_currency_code',
-                ])
-            ], 'o.estimate_id = e.estimate_id', ['estimate_price' => 'COALESCE(e.estimate_price, o.original_quoted_price, 0)', 'estimate_currency_code'])->columns(['delta' => 'o.amount_to_invoice - COALESCE(e.estimate_price, o.original_quoted_price, 0)'])
+            ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id', 'job_type', 'estimate_price' => 'original_quoted_price'])
+            ->columns(['delta' => 'o.amount_to_invoice - COALESCE(o.original_quoted_price, 0)'])
             ->joinLeft([
                 's' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/shipment'), [
                     'order_id',

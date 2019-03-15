@@ -10,22 +10,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Totals extends Mage_Admin
             return $this;
         }
 
-        if ($order->getEstimateId()) {
-            $estimate = Mage::getModel('epacei/estimate')->load($order->getEstimateId());
-            if ($estimate->getId()) {
-                $estimatePrice = $estimate->getGrandTotal();
-            } else {
-                $estimatePrice = 0;
-            }
-        } else {
-            $estimatePrice = $order->getOriginalQuotedPrice();
-        }
         $this->_totals = [
                 'estimate_price' => new Varien_Object(array(
                     'code'      => 'estimate_price',
                     'strong'    => false,
-                    'value'     => $estimatePrice,
-                    'base_value'=> $estimatePrice,
+                    'value'     => $order->getOriginalQuotedPrice(),
+                    'base_value'=> $order->getOriginalQuotedPrice(),
                     'label'     => $this->helper('sales')->__('Estimated Price'),
                     'area'      => ''
                 ))

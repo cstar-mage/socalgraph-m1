@@ -20,12 +20,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders extends Mage
         $collection->getSelect()->join(
             ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'sales_person_id', 'original_quoted_price', 'subtotal', 'estimate_id'])],
             'main_table.entity_id = o.entity_id',
-            ['sales_person_id', 'original_quoted_price', 'subtotal', 'estimate_id']
-        )->joinLeft(
-            [
-                'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), ['entity_id', 'grand_total'])
-            ], 'o.estimate_id = e.entity_id',
-            ['estimate_price' => 'COALESCE(e.grand_total, o.original_quoted_price)']
+            ['sales_person_id', 'estimate_price' => 'original_quoted_price', 'subtotal', 'estimate_id']
         );
         $collection->setIsCustomerMode(true);
 
