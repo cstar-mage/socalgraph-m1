@@ -605,6 +605,16 @@ class EpaceMongo extends Mage_Shell_Abstract
             if ($estimate->getCustomer()) {
                 $this->getCollectionAdapter('customer')->insertOrUpdate($estimate->getCustomer());
             }
+
+            if (!$estimate->getEntryDate() || !$estimate->getEntryTime()) {
+                $this->writeln('[DEBUG] Estimate entry date or time is empty. ' . print_r($estimate->getData(), true));
+            } else {
+                $yearAgo = strtotime('-1 year');
+                if (strtotime($estimate->getEntryDate()) + strtotime($estimate->getEntryTime()) < $yearAgo) {
+                    $this->writeln('[DEBUG] Estimate entry datetime is earlier then a year. ' . print_r($estimate->getData(), true));
+                }
+            }
+
             $this->getCollectionAdapter('estimate')->insertOrUpdate($estimate, $forceUpdate);
 
             $this->processedEstimates[] = $estimate->getId();
@@ -751,6 +761,15 @@ class EpaceMongo extends Mage_Shell_Abstract
             }
         } finally {
             $this->tabs--;
+        }
+
+        if (!$job->getDateSetup() || !$job->getTimeSetUp()) {
+            $this->writeln('[DEBUG] Job setup date or time is empty. ' . print_r($job->getData(), true));
+        } else {
+            $yearAgo = strtotime('-1 year');
+            if (strtotime($job->getDateSetup()) + strtotime($job->getTimeSetUp()) < $yearAgo) {
+                $this->writeln('[DEBUG] Job setup datetime is earlier then a year. ' . print_r($job->getData(), true));
+            }
         }
 
         $this->getCollectionAdapter('job')->insertOrUpdate($job, $forceUpdate);
