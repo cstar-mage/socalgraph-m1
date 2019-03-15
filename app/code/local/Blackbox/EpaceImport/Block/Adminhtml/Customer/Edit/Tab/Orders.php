@@ -27,6 +27,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders extends Mage
             ], 'o.estimate_id = e.entity_id',
             ['estimate_price' => 'COALESCE(e.grand_total, o.original_quoted_price)']
         );
+        $collection->setIsCustomerMode(true);
 
         $this->setCollection($collection);
         return Mage_Adminhtml_Block_Widget_Grid::_prepareCollection();

@@ -33,6 +33,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                     'shipments' => 'GROUP_CONCAT(epace_shipment_id SEPARATOR \', \')'
                 ])->group('order_id')
             ], 'main_table.entity_id = s.order_id', ['shipments']);
+        $collection->setIsCustomerMode(true);
 
 
         $this->setCollection($collection);
