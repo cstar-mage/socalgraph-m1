@@ -288,6 +288,10 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
                 $value = strtotime($value);
             }
             return new MongoDB\BSON\UTCDateTime($value * 1000);
+        } if ($type == 'string') {
+            return (string)$value;
+        } else if ($type == 'int') {
+            return (int)$value;
         } else {
             return $value;
         }
