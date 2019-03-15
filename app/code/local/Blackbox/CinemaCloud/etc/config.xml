@@ -69,6 +69,16 @@
             <customer>
                 <use>cinemacloud</use>
             </customer>
+            <wizkunde_websso>
+                <use>cinemacloud</use>
+            </wizkunde_websso>
+            <cc_sso>
+                <use>cinemacloud</use>
+                <args>
+                    <module>Blackbox_CinemaCloud_Sso</module>
+                    <frontName>sso</frontName>
+                </args>
+            </cc_sso>
         </routers>
     </frontend>
     <default>
