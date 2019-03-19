@@ -266,16 +266,81 @@ Supported layout update handles (special):
         <update handle="customer_account"/>
         <reference name="root">
             <action method="setHeaderTitle" translate="title" module="customer">
-                <title>Edit Account Info</title>
+                <title>My Account</title>
             </action>
+            <action method="setContentWrapperClasses"><value>service_content</value></action>
+        </reference>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/scripts.js</name></action>
         </reference>
         <reference name="my.account.wrapper">
             <block type="customer/form_edit" name="customer_edit" template="customer/form/edit.phtml"/>
         </reference>
 
+        <reference name="content">
+            <block type="page/html_wrapper" name="my.account.address_book">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="customer/address_book" name="address_book" template="customer/address/book_services.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+            <block type="page/html_wrapper" name="my.account.newsletter">
+                <action method="setElementClass">
+                    <value>content_group</value>
+                </action>
+                <block type="customer/newsletter" name="customer_newsletter">
+                    <block type="page/html_wrapper" name="customer.newsletter.form.before" as="form_before" translate="label">
+                        <label>Newsletter Subscription Form Before</label>
+                    </block>
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+            <block type="page/html_wrapper" name="my.account.downloadable">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="downloadable/customer_products_list" name="downloadable_customer_products_list" template="downloadable/customer/products/list_short.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+            <block type="page/html_wrapper" name="my.account.order_history">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="sales/order_history" name="customer_account_dashboard_top" as="top" template="sales/order/history_short.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+        </reference>
+
         <reference name="left">
             <action method="unsetChild">
                 <name>left.permanent.callout</name>
+            </action>
+        </reference>
+
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/services.css</stylesheet></action>
+        </reference>
+
+        <reference name="breadcrumbs">
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>home</name>
+                <params>
+                    <label>Home</label>
+                    <title>Home</title>
+                    <link>/</link>
+                </params>
+            </action>
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>my_account</name>
+                <params>
+                    <label>My Account</label>
+                    <title>My Account</title>
+                    <!--<link>{{baseSecureUrl}}checkout/onepage/</link>-->
+                </params>
             </action>
         </reference>
     </customer_account_edit>
@@ -302,7 +367,7 @@ Supported layout update handles (special):
             <block type="page/html_wrapper" name="my.account.wrapper" translate="label">
                 <label>My Account Wrapper</label>
                 <action method="setElementClass">
-                    <value>my-account</value>
+                    <value>content_group my-account</value>
                 </action>
             </block>
         </reference>

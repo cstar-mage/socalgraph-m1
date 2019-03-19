@@ -24,84 +24,56 @@
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
-<div class="page-title">
-    <h2><?php echo $this->__('Account Information') ?></h2>
-</div>
+<h2><?php echo $this->__('Account Information') ?></h2>
 <?php echo $this->getMessagesBlock()->toHtml() ?>
-<form action="<?php echo $this->getUrl('customer/account/editPost') ?>" method="post" autocomplete="off" id="form-validate" class="scaffold-form" enctype="multipart/form-data">
-    <div class="fieldset">
-        <?php echo $this->getBlockHtml('formkey')?>
-        <h2 class="legend"><?php echo $this->__('Account Information') ?></h2>
-        <p class="required"><?php echo $this->__('* Required Fields') ?></p>
-        <ul class="form-list">
-            <li class="fields">
-                <?php echo $this->getLayout()->createBlock('customer/widget_name')->setObject($this->getCustomer())->toHtml() ?>
-            </li>
-            <li>
-                <label for="email"><?php echo $this->__('Email Address') ?></label>
-                <div class="input-box email-disabled">
-                    <input disabled="disabled" type="email" autocapitalize="off" autocorrect="off" spellcheck="false" name="email" id="email" value="<?php echo $this->escapeHtml($this->getCustomer()->getEmail()) ?>" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Email Address')) ?>" class="input-text required-entry validate-email" />
-                </div>
-            </li>
-            <li>
-                <label for="telephone"><?php echo $this->__('Telephone') ?></label>
-                <div class="input-box">
-                    <input type="text" name="telephone" id="telephone" value="<?php echo $this->escapeHtml($this->getCustomer()->getTelephone()) ?>" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Telephone')) ?>" class="input-text required-entry" />
-                </div>
-            </li>
-        <?php $_dob = $this->getLayout()->createBlock('customer/widget_dob') ?>
-        <?php if ($_dob->isEnabled()): ?>
-            <li><?php echo $_dob->setDate($this->getCustomer()->getDob())->toHtml() ?></li>
-        <?php endif ?>
-        <?php $_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat') ?>
-        <?php if ($_taxvat->isEnabled()): ?>
-            <li><?php echo $_taxvat->setTaxvat($this->getCustomer()->getTaxvat())->toHtml() ?></li>
-        <?php endif ?>
-        <?php $_gender = $this->getLayout()->createBlock('customer/widget_gender') ?>
-        <?php if ($_gender->isEnabled()): ?>
-            <li><?php echo $_gender->setGender($this->getCustomer()->getGender())->toHtml() ?></li>
-        <?php endif ?>
-            <li>
-                <label for="current_password" class="required"><em>*</em><?php echo Mage::helper('core')->quoteEscape($this->__('Current Password')) ?></label>
-                <div class="input-box">
-                    <!-- This is a dummy hidden field to trick firefox from auto filling the password -->
-                    <input type="text" class="input-text no-display" name="dummy" id="dummy" />
-                    <input type="password" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Current Password')) ?>" class="input-text required-entry" name="current_password" id="current_password" />
-                </div>
-            </li>
-            <li class="control">
-                <input type="checkbox" name="change_password" id="change_password" value="1" onclick="setPasswordForm(this.checked)" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Change Password')) ?>"<?php if($this->getCustomer()->getChangePassword()==1): ?> checked="checked"<?php endif; ?> class="checkbox" /><label for="change_password"><?php echo $this->__('Change Password') ?></label>
-            </li>
-        </ul>
+<form action="<?php echo $this->getUrl('customer/account/editPost') ?>" method="post" autocomplete="off" id="account-edit-form-validate" class="scaffold-form" enctype="multipart/form-data">
+    <?php echo $this->getBlockHtml('formkey')?>
+    <div class="row">
+        <?php //echo $this->getLayout()->createBlock('customer/widget_name')->setObject($this->getCustomer())->toHtml() ?>
+        <div class="col-md-6 col-sm-12">
+            <label class="service_content_group_title"><?=$this->__('FIRST NAME') ?> <span>*</span></label>
+            <input class="service_content_group_input required-entry" id="firstname" name="firstname" type="text" value="<?php echo $this->escapeHtml($this->getCustomer()->getFirstname()) ?>" />
+        </div>
+        <div class="col-md-6 col-sm-12">
+            <label class="service_content_group_title"><?=$this->__('SECOND NAME') ?> <span>*</span></label>
+            <input class="service_content_group_input required-entry" id="lastname" name="lastname" type="text" value="<?php echo $this->escapeHtml($this->getCustomer()->getLastname()) ?>" />
+        </div>
     </div>
-    <div class="fieldset anim" style="display:none;">
-        <h2 class="legend"><?php echo $this->__('Change Password') ?></h2>
-        <ul class="form-list">
-            <li class="fields">
-                <div class="field">
-                    <label for="password" class="required"><em>*</em><?php echo $this->__('New Password') ?></label>
-                    <div class="input-box">
-                        <input type="password" title="<?php echo Mage::helper('core')->quoteEscape($this->__('New Password')) ?>" class="input-text required-entry validate-password" name="password" id="password" />
-                    </div>
-                </div>
-                <div class="field">
-                    <label for="confirmation" class="required"><em>*</em><?php echo $this->__('Confirm New Password') ?></label>
-                    <div class="input-box">
-                        <input type="password" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Confirm New Password')) ?>" class="input-text required-entry validate-cpassword" name="confirmation" id="confirmation" />
-                    </div>
-                </div>
-            </li>
-        </ul>
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <label class="service_content_group_title"><?=$this->__('E-mail') ?> <span>*</span></label>
+            <input class="service_content_group_input required-entry" type="text" disabled="disabled" name="emaild" id="email" value="<?php echo $this->escapeHtml($this->getCustomer()->getEmail()) ?>" />
+        </div>
     </div>
-    <div class="buttons-set">
-        <button type="submit" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Save')) ?>" class="button"><span><span><?php echo $this->__('Save') ?></span></span></button>
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <label class="service_content_group_title"><?=$this->__('Password') ?> <span>*</span></label><!-- This is a dummy hidden field to trick firefox from auto filling the password -->
+            <input type="text" class="input-text no-display" name="dummy" id="dummy" />
+            <input class="service_content_group_input required-entry" type="password" name="current_password" id="current_password" />
+        </div>
+    </div>
+    <div class="row">
+        <input type="checkbox" name="change_password" id="change_password" value="1" onclick="setPasswordForm(this.checked)" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Change Password')) ?>"<?php if($this->getCustomer()->getChangePassword()==1): ?> checked="checked"<?php endif; ?> class="checkbox" /><label for="change_password"><?php echo $this->__('Change Password') ?></label>
+    </div>
+    <div class="row" style="display:none;">
+        <div class="col-md-6 col-sm-12">
+            <label class="service_content_group_title"><?=$this->__('New Password') ?> <span>*</span></label>
+            <input class="service_content_group_input required-entry validate-password" type="password" name="password" id="password" value="" />
+        </div>
+        <div class="col-md-6 col-sm-12">
+            <label class="service_content_group_title"><?=$this->__('Repeat password') ?> <span>*</span></label>
+            <input class="service_content_group_input required-entry validate-cpassword" type="password" name="confirmation" id="confirmation" value="" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12"><button type="submit" class="button button_white"><?=$this->__('SAVE') ?></button></div>
     </div>
 </form>
 <script type="text/javascript">
 //<![CDATA[
-    var dataForm = new VarienForm('form-validate', true);
+    var dataForm = new VarienForm('account-edit-form-validate', true);
     function setPasswordForm(arg){
-        $('password').up('.fieldset')[arg ? 'show': 'hide']();
+        $('password').up('.row')[arg ? 'show': 'hide']();
     }
 
     <?php if($this->getCustomer()->getChangePassword()): ?>

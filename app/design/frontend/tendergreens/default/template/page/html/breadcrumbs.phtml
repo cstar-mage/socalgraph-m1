@@ -25,22 +25,17 @@
  */
 ?>
 <?php if($crumbs && is_array($crumbs)): ?>
-<div class="breadcrumbs top-text">
-    <ul>
+    <ul class="breadcrumbs">
         <?php foreach($crumbs as $_crumbName=>$_crumbInfo): ?>
             <li class="<?php echo $_crumbName ?>">
-            <?php if($_crumbInfo['link']): ?>
-                <a href="<?php echo $_crumbInfo['link'] ?>" title="<?php echo $this->escapeHtml($_crumbInfo['title']) ?>"><p><?php echo $this->escapeHtml($_crumbInfo['label']) ?></p></a>
-            <?php elseif($_crumbInfo['last']): ?>
-                <p><?php echo $this->escapeHtml($_crumbInfo['label']) ?></p>
-            <?php else: ?>
-                <?php echo $this->escapeHtml($_crumbInfo['label']) ?>
-            <?php endif; ?>
-            <?php if(!$_crumbInfo['last']): ?>
-                <div class="red_dot"></div>
-            <?php endif; ?>
+                <?php if($_crumbInfo['link']): ?>
+                    <a href="<?php echo $_crumbInfo['link'] ?>" title="<?php echo $this->escapeHtml($_crumbInfo['title']) ?>"><?php echo $this->escapeHtml($_crumbInfo['label']) ?></a>
+                <?php elseif($_crumbInfo['last']): ?>
+                    <?php echo $this->escapeHtml($_crumbInfo['label']) ?>
+                <?php else: ?>
+                    <?php echo $this->escapeHtml($_crumbInfo['label']) ?>
+                <?php endif; ?>
             </li>
         <?php endforeach; ?>
     </ul>
-</div>
 <?php endif; ?>

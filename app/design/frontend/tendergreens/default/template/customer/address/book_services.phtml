@@ -1,0 +1,127 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Temlate for Mage_Customer_Block_Address_Book block
+ * @var Blackbox_CustomerStores_Block_Customer_Address_Book $this
+ */
+?>
+<h2><?php echo $this->__('Address Book') ?></h2>
+<?php if (!$this->getNoMessages()) {
+ echo $this->getMessagesBlock()->toHtml();
+} ?>
+<div class="service_content_collapse_list">
+    <div class="service_content_collapse"><a class="service_content_collapse_opener" data-toggle="collapse" href="#addressbook" aria-expanded="true"><i></i><?php echo $this->__('Default billing address') ?></a>
+        <div class="collapse show" id="addressbook">
+            <div class="service_content_collapse_inner">
+                <?php if($_pAddsses = Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling()): ?>
+                    <address>
+                        <?php echo $this->getAddressHtml(Mage::getSingleton('customer/session')->getCustomer()->getAddressById($_pAddsses)) ?>
+                    </address>
+                <?php else: ?>
+                    <form method="post" action="<?=Mage::getUrl('customer/address/formPost', array('_secure'=>true, 'id'=> $_pAddsses))?>" id="address-form-validate">
+                        <?php echo $this->getBlockHtml('formkey')?>
+                        <input type="hidden" name="success_url" value="<?=$this->getUrl('*/*/*', ['_current' => true])?>" />
+                        <input type="hidden" name="error_url" value="<?=$this->getUrl('*/*/*', ['_current' => true])?>" />
+                        <div class="row">
+                            <div class="col-md-6"><label class="service_content_group_title"><?php echo $this->__('FIRST NAME') ?> <span>*</span></label>
+                                <input class="service_content_group_input required-entry" id="address_firstname" name="firstname" type="text" value="" />
+                            </div>
+                            <div class="col-md-6"><label class="service_content_group_title"><?php echo $this->__('LAST NAME') ?> <span>*</span></label>
+                                <input class="service_content_group_input required-entry" id="address_lastname" name="lastname" type="text" value="" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6"><label class="service_content_group_title"><?php echo $this->__('COUNTRY') ?> <span>*</span></label>
+                                <?php echo $this->getLayout()->createBlock('directory/data')->getCountryHtmlSelect() ?>
+                            </div>
+                            <div class="col-md-6"><label class="service_content_group_title"><?php echo $this->__('STATE/PROVINCE') ?> <span>*</span></label>
+                                <select id="region_id" name="region_id" class="validate-select" style="display:none;">
+                                    <option value=""><?php echo $this->__('Please select region, state or province') ?></option>
+                                </select>
+                                <input type="text" id="region" name="region" value="" class="service_content_group_input input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('region') ?>" />
+                            </div>
+                        </div>
+                        <?php $_streetValidationClass = $this->helper('customer/address')->getAttributeValidationClass('street'); ?>
+                        <div class="row">
+                            <div class="col-md-12"><label class="service_content_group_title"><?php echo $this->__('ADDRESS') ?> <span>*</span></label>
+                                <input class="service_content_group_input required-entry <?php echo $_streetValidationClass ?>" type="text" name="street[]" id="street_1" value="" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6"><label class="service_content_group_title"><?php echo $this->__('CITY') ?> <span>*</span></label>
+                                <input class="service_content_group_input <?php echo $this->helper('customer/address')->getAttributeValidationClass('city') ?>" type="text" name="city" id="city" value="" />
+                            </div>
+                            <div class="col-md-6"><label class="service_content_group_title"><?php echo $this->__('ZIP CODE') ?> <span>*</span></label>
+                                <input class="service_content_group_input validate-zip-international <?php echo $this->helper('customer/address')->getAttributeValidationClass('postcode') ?>" type="text" name="postcode" id="zip" value="" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6"><label class="service_content_group_title"><?php echo $this->__('PHONE') ?> <span>*</span></label>
+                                <input class="service_content_group_input required-entry" type="text" name="telephone" id="telephone" value="" />
+                            </div>
+                        </div>
+<!--                        <div class="row">-->
+<!--                            <div class="col-md-6"><label class="service_content_group_title">--><?php //echo $this->__('E-MAIL') ?><!-- <span>*</span></label>-->
+<!--                                <input class="service_content_group_input required-entry" type="text" value="" />-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <div class="row">
+                            <input type="hidden" name="default_billing" value="1" />
+                            <div class="col-md-12"><button class="button button_white" type="submit"><?php echo $this->__('SAVE AND CHANGE') ?></button></div>
+                        </div>
+                    </form>
+                    <script type="text/javascript">
+                        //<![CDATA[
+                        var dataForm = new VarienForm('address-form-validate', true);
+                        new RegionUpdater('country', 'region', 'region_id', <?php echo $this->helper('directory')->getRegionJson() ?>, undefined, 'zip');
+                        //]]>
+                    </script>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <div class="service_content_collapse"><a class="service_content_collapse_opener" data-toggle="collapse" href="#billingaddress"><i></i><?php echo $this->__('ADD BILLING ADDRESS') ?></a>
+        <div class="collapse" id="billingaddress">
+            <div class="service_content_collapse_inner">
+                <div class="title13"><?php echo $this->__('DEFAULT SHIPING ADDRESS') ?></div>
+                <?php if($_pAddsses = Mage::getSingleton('customer/session')->getCustomer()->getDefaultShipping()): ?>
+                    <address>
+                        <?php echo $this->getAddressHtml(Mage::getSingleton('customer/session')->getCustomer()->getAddressById($_pAddsses)) ?>
+                    </address>
+                <?php else: ?>
+                    <p class="fz14"><?php echo $this->__('You have no default shipping address in your address book') ?></p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <div class="service_content_collapse"><a class="service_content_collapse_opener" data-toggle="collapse" href="#shippingadress"><i></i><?php echo $this->__('ADD BILLING ADDRESS') ?></a>
+        <div class="collapse" id="shippingadress">
+            <div class="service_content_collapse_inner"><a class="button button_white" href="<?php echo $this->getAddAddressUrl() ?>"><?php echo $this->__('ADD NEW ADDRESS') ?></a></div>
+        </div>
+    </div>
+</div>

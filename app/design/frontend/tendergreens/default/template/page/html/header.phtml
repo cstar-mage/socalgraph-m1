@@ -27,118 +27,16 @@
  * @var Mage_Page_Block_Html_Header $this
  */
 ?>
-
-<header id="header" class="header">
-    <div class="page-header-container">
-
-
-        <div class="tg-menu">
-            <div class="hamburger-menu">
-                <div class="bar"></div>
-            </div>
-
-            <!-- Search -->
-            <div class="tg-search">
-                <div class="search-icon" id="search-icon">
-                    <img src="<?php echo $this->getSkinUrl('images/Search-icon.png'); ?>" alt="">
-                </div>
-                <div id="header-search" class="skip-content hide">
-                    <?php echo $this->getChildHtml('topSearch') ?>
-                </div>
-            </div>
-
-            <div id="tg-menu" class="tg-menu-active hide">
-                <ul class="menu-links">
-                    <li><a href="<?php echo Mage::getModel("catalog/category")->load(8)->getUrl();?>">Menus</a></li>
-                    <li><a href="<?php echo Mage::getModel("catalog/category")->load(3)->getUrl();?>">Signage</a></li>
-                    <li><a href="<?php echo Mage::getModel("catalog/category")->load(9)->getUrl();?>">Marketing & Promos</a></li>
-                    <li><a href="<?php echo Mage::getModel("catalog/category")->load(10)->getUrl();?>">Catering</a></li>
-                    <li><a href="<?php echo Mage::getModel("catalog/category")->load(11)->getUrl();?>">Stationary</a></li>
-                    <li><a href="<?php echo Mage::getModel("catalog/category")->load(12)->getUrl();?>">Kits</a></li>
-                    <li><a href="/location">Locations</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="tg-logo">
-            <a class="logo" href="<?php echo $this->getUrl('') ?>">
-                <img src="<?php echo $this->getLogoSrc() ?>" alt="<?php echo $this->getLogoAlt() ?>" class="large"/>
-                <img src="<?php echo $this->getLogoSrcSmall() ?>" alt="<?php echo $this->getLogoAlt() ?>"
-                     class="small"/>
-            </a>
-        </div>
-
-        <div class="tg-header-right">
-            <div class="tg-header-right-container">
-                <?php echo $this->getChildHtml('notification_head') ?>
-                <!-- Cart -->
-
-                <div class="header-minicart">
-                    <?php echo $this->getChildHtml('minicart_head'); ?>
-                </div>
-                <!-- login -->
-
-                <div class="tg-login" id="tg-login">
-                    <?php if (!Mage::getSingleton('customer/session')->isLoggedIn()): ?>
-                        <a href="<?php echo $this->getBaseUrl(); ?>customer/account/login/">
-                            <img class="login-ico" src="<?php echo $this->getSkinUrl('images/Login.png'); ?>" alt="">
-                            <span class="label"><?php echo $this->__('Login'); ?></span>
-                        </a>
-                    <? else: ?>
-
-
-                        <ul id="">
-                            <li>
-                                <a href="#" class="dropdown-toggle-acc">
-                                    <img class="login-ico" src="<?php echo $this->getSkinUrl('images/account.png'); ?>"
-                                         alt="">
-                                </a>
-                                <ul class="dropdown-menu-acc hide">
-                                    <li>
-                                        <a href="<?php echo $this->getBaseUrl(); ?>customer/account/">
-                                            <span class="label"><?php echo $this->__('My account'); ?></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="<?php echo $this->getBaseUrl(); ?>customer/account/logout/">
-                                            <span class="label"><?php echo $this->__('Logout'); ?></span>
-                                        </a>
-                                    </li>
-                                    <?php if(Mage::helper('rolespermissions')->hasAccessToAdminDashboard()): ?>
-                                        <li>
-                                            <a href="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml");?>">
-                                                <span class="label">Administration</span>
-                                            </a>
-                                        </li>
-                                    <?php endif; ?>
-                                </ul>
-                            </li>
-                        </ul>
-                    <?php endif ?>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="tg-circle"></div>
-    <div class="abandon-cart">
-        <img class="abandon-cart-img" src="<?php echo $this->getSkinUrl('images/abandon.png'); ?>" alt="">
-        <div class="abandon-cart-content">
-            <div class="abandon-cart-close">✖</div>
-            <h4><?php echo $this->__('Abandon cart')?></h4>
-            <p><?php echo $this->__('Are you sure want to abandon shopping cart?')?></p>
-            <button class="abandon-cart-btn abandon-cart-btn-yes"><?php echo $this->__('Yes')?></button>
-            <button class="abandon-cart-btn abandon-cart-btn-no"><?php echo $this->__('No')?></button>
-        </div>
-        <div class="abandon-cart-triangle"></div>
-    </div>
-    <div class="remove-item-from-cart">
-        <img class="remove-item-from-cart-img" src="<?php echo $this->getSkinUrl('images/abandon.png'); ?>" alt="">
-        <div class="remove-item-from-cart-content">
-            <div class="remove-item-from-cart-close">✖</div>
-            <h4><?php echo $this->__('Remove item')?></h4>
-            <p><?php echo $this->__('Are you sure want to remove item from shopping cart?')?></p>
-            <button class="remove-item-from-cart-btn remove-item-from-cart-btn-yes"><?php echo $this->__('Yes')?></button>
-            <button class="remove-item-from-cart-btn remove-item-from-cart-btn-no"><?php echo $this->__('No')?></button>
-        </div>
+<header>
+    <div class="header">
+        <div class="header_left"><a class="header_logo" href="<?=$this->getUrl()?>"></a><a class="header_left_menu" href="#"><i></i><span>Menu</span></a></div>
+        <ul class="header_menu">
+            <li class="active"><a href="#">About</a></li>
+            <li class="withsubmenu"><a href="#">Printing Services</a></li>
+            <li><a href="#">Technologys</a></li>
+            <li><a href="#">Logistic</a></li>
+            <li><a href="#">Contact Us</a></li>
+        </ul>
+        <div class="header_right"><a class="header_lock" href="#"></a><a class="header_phone" href="tel:3107361388">310 736 1388</a></div>
     </div>
 </header>
