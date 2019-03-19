@@ -264,55 +264,11 @@ Supported layout update handles (special):
     <customer_account_edit translate="label">
         <label>Customer Account Edit Form</label>
         <update handle="customer_account"/>
-        <reference name="root">
-            <action method="setHeaderTitle" translate="title" module="customer">
-                <title>My Account</title>
-            </action>
-            <action method="setContentWrapperClasses"><value>service_content</value></action>
-        </reference>
         <reference name="head">
             <action method="addItem"><type>skin_js</type><name>js/scripts.js</name></action>
         </reference>
         <reference name="my.account.wrapper">
             <block type="customer/form_edit" name="customer_edit" template="customer/form/edit.phtml"/>
-        </reference>
-
-        <reference name="content">
-            <block type="page/html_wrapper" name="my.account.address_book">
-                <action method="setElementClass">
-                    <value>content_group content_group_nopaddingbottom</value>
-                </action>
-                <block type="customer/address_book" name="address_book" template="customer/address/book_services.phtml">
-                    <action method="setNoMessages"><value>1</value></action>
-                </block>
-            </block>
-            <block type="page/html_wrapper" name="my.account.newsletter">
-                <action method="setElementClass">
-                    <value>content_group</value>
-                </action>
-                <block type="customer/newsletter" name="customer_newsletter">
-                    <block type="page/html_wrapper" name="customer.newsletter.form.before" as="form_before" translate="label">
-                        <label>Newsletter Subscription Form Before</label>
-                    </block>
-                    <action method="setNoMessages"><value>1</value></action>
-                </block>
-            </block>
-            <block type="page/html_wrapper" name="my.account.downloadable">
-                <action method="setElementClass">
-                    <value>content_group content_group_nopaddingbottom</value>
-                </action>
-                <block type="downloadable/customer_products_list" name="downloadable_customer_products_list" template="downloadable/customer/products/list_short.phtml">
-                    <action method="setNoMessages"><value>1</value></action>
-                </block>
-            </block>
-            <block type="page/html_wrapper" name="my.account.order_history">
-                <action method="setElementClass">
-                    <value>content_group content_group_nopaddingbottom</value>
-                </action>
-                <block type="sales/order_history" name="customer_account_dashboard_top" as="top" template="sales/order/history_short.phtml">
-                    <action method="setNoMessages"><value>1</value></action>
-                </block>
-            </block>
         </reference>
 
         <reference name="left">
@@ -323,25 +279,6 @@ Supported layout update handles (special):
 
         <reference name="head">
             <action method="addCss"><stylesheet>css/services.css</stylesheet></action>
-        </reference>
-
-        <reference name="breadcrumbs">
-            <action method="addCrumb"> <!--add breadcrumb-->
-                <name>home</name>
-                <params>
-                    <label>Home</label>
-                    <title>Home</title>
-                    <link>/</link>
-                </params>
-            </action>
-            <action method="addCrumb"> <!--add breadcrumb-->
-                <name>my_account</name>
-                <params>
-                    <label>My Account</label>
-                    <title>My Account</title>
-                    <!--<link>{{baseSecureUrl}}checkout/onepage/</link>-->
-                </params>
-            </action>
         </reference>
     </customer_account_edit>
 
@@ -361,6 +298,10 @@ Supported layout update handles (special):
             <action method="addBodyClass">
                 <class>customer-account</class>
             </action>
+            <action method="setHeaderTitle" translate="title" module="customer">
+                <title>My Account</title>
+            </action>
+            <action method="setContentWrapperClasses"><value>service_content</value></action>
         </reference>
 
         <reference name="content">
@@ -408,6 +349,25 @@ Supported layout update handles (special):
             <remove name="tags_popular"/>
 
         </reference>
+
+        <reference name="breadcrumbs">
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>home</name>
+                <params>
+                    <label>Home</label>
+                    <title>Home</title>
+                    <link>/</link>
+                </params>
+            </action>
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>my_account</name>
+                <params>
+                    <label>My Account</label>
+                    <title>My Account</title>
+                    <!--<link>{{baseSecureUrl}}checkout/onepage/</link>-->
+                </params>
+            </action>
+        </reference>
     </customer_account>
 
     <!--
@@ -423,19 +383,59 @@ Supported layout update handles (special):
                 <template>page/2columns-left.phtml</template>
             </action>
         </reference>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/scripts.js</name></action>
+        </reference>
         <reference name="my.account.wrapper">
-            <block type="customer/account_dashboard" name="customer_account_dashboard"
-                   template="customer/account/dashboard.phtml">
-                <block type="customer/account_dashboard_hello" name="customer_account_dashboard_hello" as="hello"
-                       template="customer/account/dashboard/hello.phtml"/>
-                <block type="core/template" name="customer_account_dashboard_top" as="top"/>
-                <block type="customer/account_dashboard_info" name="customer_account_dashboard_info" as="info"
-                       template="customer/account/dashboard/info.phtml"/>
-                <block type="customer/account_dashboard_newsletter" name="customer_account_dashboard_newsletter"
-                       as="newsletter" template="customer/account/dashboard/newsletter.phtml"/>
-                <block type="customer/account_dashboard_address" name="customer_account_dashboard_address" as="address"
-                       template="customer/account/dashboard/address.phtml"/>
+            <block type="customer/form_edit" name="customer_edit" template="customer/form/edit.phtml"/>
+        </reference>
+
+        <reference name="content">
+            <block type="page/html_wrapper" name="my.account.address_book">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="customer/address_book" name="address_book" template="customer/address/book_service1.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
             </block>
+            <block type="page/html_wrapper" name="my.account.newsletter">
+                <action method="setElementClass">
+                    <value>content_group</value>
+                </action>
+                <block type="customer/newsletter" name="customer_newsletter">
+                    <block type="page/html_wrapper" name="customer.newsletter.form.before" as="form_before" translate="label">
+                        <label>Newsletter Subscription Form Before</label>
+                    </block>
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+            <block type="page/html_wrapper" name="my.account.downloadable">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="downloadable/customer_products_list" name="downloadable_customer_products_list" template="downloadable/customer/products/list_short.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+            <block type="page/html_wrapper" name="my.account.order_history">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="sales/order_history" name="order_history" as="order_history" template="sales/order/history_short.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+        </reference>
+
+        <reference name="left">
+            <action method="unsetChild">
+                <name>left.permanent.callout</name>
+            </action>
+        </reference>
+
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/services.css</stylesheet></action>
         </reference>
 
     </customer_account_index>
@@ -449,24 +449,24 @@ Supported layout update handles (special):
         <!-- Mage_Customer -->
         <update handle="customer_account"/>
         <reference name="head">
-            <action method="addJs"><script>blackbox/addressbook.js</script></action>
+            <action method="addItem"><type>skin_js</type><name>js/scripts.js</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/jquery-ui.min.js</name></action>
         </reference>
-        <reference name="my.account.wrapper">
+        <reference name="content">
             <block type="customer/address_book" name="address_book" template="customer/address/book.phtml"/>
-            <block type="core/template" name="grid.customer.wrapper" as="grid.customer.wrapper" template="blackbox/addressbook/address/grid-customer-wrapper.phtml">
-                <block type="blackbox_checkout/address_grid" name="customer_account_dashboard_address" as="grid-customer"
-                       template="blackbox/addressbook/address/grid-customer.phtml">
-                    <action method="setUrl"><url>customer/address/searchAddressGrid</url></action>
+            <block type="cinemacloud/customer_address_grid" name="customer.additional.addresses" as="additional" template="customer/address/additional/grid.phtml">
+                <action method="setTitle"><title>Additional Address Entries</title></action>
+                <block type="page/html_pager" template="customer/address/grid/pager.phtml" name="additional.pager" as="pager">
+                    <action method="setFrameLength"><value>3</value></action>
                 </block>
             </block>
         </reference>
-        <reference name="root">
-            <block type="blackbox_checkout/address_modal" name="addressbook.modal" as="addressbook.modal" output="toHtml">
-                <action method="setMultiple"><value>1</value></action>
-                <block type="blackbox_checkout/address_grid" name="addressbook.grid" as="grid">
-                    <action method="setUrl"><url>customer/address/searchAddressGridModal</url></action>
-                </block>
-            </block>
+
+        <reference name="head">
+            <action method="removeItem"><type>skin_css</type><name>css/main.css</name></action>
+            <action method="addCss"><stylesheet>css/services.css</stylesheet></action>
+            <action method="addCss"><stylesheet>css/jquery-ui.css</stylesheet></action>
+            <action method="addCss"><stylesheet>css/main.css</stylesheet></action>
         </reference>
     </customer_address_index>
 
