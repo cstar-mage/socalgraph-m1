@@ -8,7 +8,6 @@ class Blackbox_CinemaCloud_Block_Customer_Address_Grid extends Mage_Core_Block_T
     protected $_searchAttributes = array(
         'firstname',
         'lastname',
-        'name',
         'street',
         'city',
         'postcode',
@@ -103,14 +102,12 @@ class Blackbox_CinemaCloud_Block_Customer_Address_Grid extends Mage_Core_Block_T
     {
         $search = $this->getSearchValue();
         if ($search) {
-            $fields = array();
             $conditions = array();
             foreach ($this->getSearchAttributes() as $attribute) {
-                $fields[] = $attribute;
-                $conditions[] = array('like' => '%%' . $search . '%%');
+                $conditions[] = ['attribute' => $attribute, 'like' => '%%' . $search . '%%'];
             }
 
-            $this->getItems()->addFieldToFilter($fields, $conditions);
+            $this->getItems()->addAttributeToFilter($conditions);
         }
     }
 
