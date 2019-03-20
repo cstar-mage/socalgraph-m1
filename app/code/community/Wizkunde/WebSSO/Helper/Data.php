@@ -77,9 +77,10 @@ class Wizkunde_WebSSO_Helper_Data
             throw new Zend_Exception('Login could not be completed because the mapping for the identity field "email" was not made');
         }
 
-        $this->customer = Mage::getModel('customer/customer')->getCollection()
-            ->addAttributeToFilter('email', $identity)
-            ->getFirstItem();
+//        $this->customer = Mage::getModel('customer/customer')->getCollection()
+//            ->addAttributeToFilter('email', $identity)
+//            ->getFirstItem();
+        $this->customer = Mage::getModel('customer/customer')->setWebsiteId(Mage::app()->getWebsite()->getId())->loadByEmail($identity);
 
         /**
          * This is called after loggin in with the IDP but before logging into magento
