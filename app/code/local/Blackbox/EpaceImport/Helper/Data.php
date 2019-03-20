@@ -172,7 +172,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'estimate_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'store_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'store_name' => $this->getStore()->getName(),
-            'created_at' => strtotime($estimate->getEntryDate()) + strtotime($estimate->getEntryTime()),
+            'created_at' => $this->getTimestamp($estimate->getEntryDate(), $estimate->getEntryTime()),
             'total_item_count' => count($magentoEstimate->getAllItems()),
         ]);
         $magentoEstimate->addData($aggregatedFields);
@@ -416,7 +416,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'shipping_method' => $shippingMethod->getCarrier() . '_' . $shippingMethod->getMethod(),
             'store_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'store_name' => $this->getStore()->getName(),
-            'created_at' => strtotime($job->getDateSetup()) + strtotime($job->getTimeSetUp()),
+            'created_at' => $this->getTimestamp($job->getDateSetup(), $job->getTimeSetUp()),
             'total_item_count' => count($job->getParts()),
             'shipping_incl_tax' => $shippingInclTax,
             'base_shipping_incl_tax' => $shippingInclTax,
@@ -619,7 +619,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'base_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'increment_id' => 'EPACEINVOICE_' . $invoice->getId(),
-            'created_at' => strtotime($invoice->getDateSetup()) + strtotime($invoice->getTimeSetup()),
+            'created_at' => $this->getTimestamp($invoice->getDateSetup(), $invoice->getTimeSetup()),
             'hidden_tax_amount' => 0,
             'base_hidden_tax_amount' => 0,
             'shipping_hidden_tax_amount' => 0,
@@ -723,7 +723,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'customer_lastname' => $receivable->getContactLastName(),
             'customer_email' => $customer->getEmail(),
             'customer_group_id' => $customer->getGroupId(),
-            'created_at' => strtotime($receivable->getDateSetup()) + strtotime($receivable->getTimeSetup()),
+            'created_at' => $this->getTimestamp($receivable->getDateSetup(), $receivable->getTimeSetup()),
             'hidden_tax_amount' => 0,
             'base_hidden_tax_amount' => 0,
             'shipping_hidden_tax_amount' => 0,
@@ -853,7 +853,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                     'description' => $carton->getTrackingLink(),
                     'title' => $title,
                     'carrier_code' => $shippingMethod->getCarrier(),
-                    'created_at' => strtotime($carton->getActualDate()) + strtotime($carton->getActualTime())
+                    'created_at' => $this->getTimestamp($carton->getActualDate(), $carton->getActualTime()),
                 ]);
                 $orderShipment->addTrack($track);
             }
@@ -938,7 +938,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'billing_address_id' => $billingAddressId,
             //'shipment_status' => '',
             'increment_id' => 'EPACESHIPMENT_' . $jobShipment->getId(),
-            'created_at' => strtotime($jobShipment->getDate()) + strtotime($jobShipment->getTime()),
+            'created_at' => $this->getTimestamp($jobShipment->getDate(), $jobShipment->getTime()),
             'packages' => null,
             'shipping_label' => null,
             'epace_shipment_id' => $jobShipment->getId()
@@ -1320,5 +1320,18 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         if (is_callable($this->output)) {
             call_user_func($this->output, $message);
         }
+    }
+
+    protected function getTimestamp($dateString, $timeString)
+    {
+        if ($dateString == $timeString) {
+            return strtotime($dateString);
+        }
+        $time = strtotime($timeString);
+        if ($time > 3600 * 24 * 10) {
+            return $time;
+        }
+
+        return strtotime($dateString) + $time;
     }
 }
