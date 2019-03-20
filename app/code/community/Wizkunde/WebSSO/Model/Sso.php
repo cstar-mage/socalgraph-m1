@@ -60,6 +60,9 @@ class Wizkunde_WebSSO_Model_Sso
         $idpData = Mage::helper('websso/data')->getIdpData();
 
         $bindingType = ($requestType == 'slo') ? $idpData->getSloBinding() : $idpData->getSsoBinding();
+        if ($bindingType == 2) {
+            return;
+        }
 
         switch($bindingType) {
             case self::BINDING_REDIRECT:

@@ -150,7 +150,7 @@ class Wizkunde_WebSSO_Block_Adminhtml_Idp_Edit_Form extends Mage_Adminhtml_Block
             'class'     => 'required-entry',
             'label'     => Mage::helper('websso')->__('Single Logout Binding'),
             'title'     => Mage::helper('websso')->__('Single Logout Binding'),
-            'values'    => array('0' => 'Redirect', '1' => 'Post'),
+            'values'    => array('0' => 'Redirect', '1' => 'Post', '2' => 'None'),
             'disabled'  => false,
             'readonly'  => false,
             'required'  => true,
