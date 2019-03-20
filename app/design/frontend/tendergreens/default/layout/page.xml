@@ -271,7 +271,7 @@
                 <!--</block>-->
             <!--</block>-->
         </block>
-        <block type="page/html_footer" name="tg_footer" as="tg-footer" template="page/html/tg-footer.phtml"/>
+        <block type="page/html_footer" name="footer" as="footer" template="page/html/footer.phtml"/>
 
     </block>
     </default>
