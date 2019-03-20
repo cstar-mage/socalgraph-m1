@@ -37,16 +37,16 @@
             <?php endforeach; ?>
         </div>
     </form>
-</div>
-<script type="text/javascript">
-    //<![CDATA[
-    if (typeof deleteAddress != "function") {
-        function deleteAddress(addressId) {
-            if (confirm('<?php echo Mage::helper('core')->jsQuoteEscape($this->__('Are you sure you want to delete this address?')) ?>')) {
-                window.location = '<?php echo $this->getDeleteUrl() ?>id/' + addressId;
+    <script type="text/javascript">
+        //<![CDATA[
+        if (typeof deleteAddress != "function") {
+            function deleteAddress(addressId) {
+                if (confirm('<?php echo Mage::helper('core')->jsQuoteEscape($this->__('Are you sure you want to delete this address?')) ?>')) {
+                    window.location = '<?php echo $this->getDeleteUrl() ?>id/' + addressId;
+                }
+                return false;
             }
-            return false;
         }
-    }
-    //]]>
-</script>
+        //]]>
+    </script>
+</div>
