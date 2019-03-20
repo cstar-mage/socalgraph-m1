@@ -460,6 +460,10 @@ Supported layout update handles (special):
                     <action method="setFrameLength"><value>3</value></action>
                 </block>
             </block>
+            <block type="wishlist/customer_sidebar" name="wishlist_service2" template="wishlist/service2.phtml">
+                <block type="wishlist/customer_wishlist_item_column_remove" name="customer.wishlist.item.remove" as="remove" template="wishlist/item/column/remove.phtml"></block>
+                <block type="wishlist/customer_wishlist_item_column_cart" name="customer.wishlist.item.cart" as="cart" template="wishlist/item/column/cart.phtml"></block>
+            </block>
         </reference>
 
         <reference name="head">

@@ -69,6 +69,20 @@
             <customer>
                 <use>cinemacloud</use>
             </customer>
+            <wishlist>
+                <use>cinemacloud</use>
+                <args>
+                    <modules>
+                        <Blackbox_CinemaCloud before="Mage_Wishlist">Blackbox_CinemaCloud_Wishlist</Blackbox_CinemaCloud>
+                    </modules>
+                </args>
+            </wishlist>
+            <catalog>
+                <use>cinemacloud</use>
+            </catalog>
+            <checkout>
+                <use>cinemacloud</use>
+            </checkout>
             <wizkunde_websso>
                 <use>cinemacloud</use>
             </wizkunde_websso>
