@@ -1283,12 +1283,12 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getWebsiteId()
     {
-        return Mage::app()->getWebsite()->getId();
+        return 1;
     }
 
     public function getStore()
     {
-        return Mage::app()->getStore();
+        return Mage::app()->getStore(1);
     }
 
     public function getSalesRepsOptions()
