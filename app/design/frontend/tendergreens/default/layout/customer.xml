@@ -464,6 +464,17 @@ Supported layout update handles (special):
                 <block type="wishlist/customer_wishlist_item_column_remove" name="customer.wishlist.item.remove" as="remove" template="wishlist/item/column/remove.phtml"></block>
                 <block type="wishlist/customer_wishlist_item_column_cart" name="customer.wishlist.item.cart" as="cart" template="wishlist/item/column/cart.phtml"></block>
             </block>
+            <block type="page/html_wrapper" name="my.account.downloads">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="downloadable/customer_products_list" name="downloads" template="downloadable/customer/products/list_service2.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                    <!--<block type="page/html_pager" template="customer/address/grid/pager.phtml" name="downloads.pager" as="pager">-->
+                        <!--<action method="setFrameLength"><value>3</value></action>-->
+                    <!--</block>-->
+                </block>
+            </block>
         </reference>
 
         <reference name="head">

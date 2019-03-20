@@ -1,0 +1,33 @@
+<?php /** @var Mage_Downloadable_Block_Customer_Products_List $this */ ?>
+<?php $_items = $this->getItems(); ?>
+<h2><?=$this->__('Downloads')?></h2>
+<div class="service_content_address_form">
+    <div class="service_content_rowbottom">
+        <?=$this->getChildHtml('pager'); ?>
+    </div>
+    <div class="service_content_download">
+        <div class="service_content_downloadtittle title13">ITEMS</div>
+        <div class="service_content_download_list">
+            <?php foreach ($_items as $_item): ?>
+                <div class="row">
+                    <div class="col-md-2 col-sm-2 col-6">
+                        <div class="fz13"> Date</div>
+                        <div class="fz13"><?php echo $this->formatDate($_item->getPurchased()->getCreatedAt()) ?></div>
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-6">
+                        <div class="fz13">Title</div>
+                        <div class="fz13"><?=$this->escapeHtml($_item->getLinkTitle())?></div>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-6">
+                        <div class="fz13">Status:</div>
+                        <div class="fz13"><?php echo Mage::helper('downloadable')->__(ucfirst($_item->getStatus())) ?></div>
+                    </div>
+                    <div class="col-md-2 col-sm-3 col-6">
+                        <div class="fz13">Remaining</div>
+                        <div class="fz13"><?php echo $this->getRemainingDownloads($_item) ?></div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>

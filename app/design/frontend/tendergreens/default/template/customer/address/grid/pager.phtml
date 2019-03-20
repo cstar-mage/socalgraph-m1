@@ -10,7 +10,7 @@
 </div>
 <?php endif; ?>
 <div class="service_content_rowbottom_right">
-    <?php if($this->getLastPageNum()>1): ?>
+    <?php if($this->getLastPageNum()>0): ?>
     <ul class="paginator">
         <?php if ($this->canShowFirst()): ?>
             <li><a href="<?php echo $this->getFirstPageUrl() ?>">1</a></li>
