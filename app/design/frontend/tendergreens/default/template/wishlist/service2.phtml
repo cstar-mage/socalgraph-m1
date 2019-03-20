@@ -1,0 +1,78 @@
+<?php /** @var Mage_Wishlist_Block_Customer_Sidebar $this */ ?>
+<?php
+/** @var Mage_Wishlist_Block_Customer_Wishlist_Item_Column_Remove $removeColumn */
+$removeColumn = $this->getChild('remove');
+/** @var Mage_Wishlist_Block_Customer_Wishlist_Item_Column_Cart $cartColumn */
+$cartColumn = $this->getChild('cart');
+?>
+<div class="content_group">
+    <h2><?php echo $this->__('My Favorite Products') ?></h2>
+    <form class="service_content_address_form" id="wishlist-view-form">
+        <div class="service_content_address_table">
+            <?php foreach ($this->getWishlistItems() as $item): ?>
+                <?php $product = $item->getProduct() ?>
+                <div class="service_content_address_tr service_content_favorite_tr">
+                    <div class="service_content_favorite_td">
+                        <div class="service_content_favorite_img">
+                            <div class="service_content_favorite__img" style="background-image: url(<?php echo $this->helper('catalog/image')->init($product, 'small_image')->resize(113, 113); ?>)"></div>
+                        </div>
+                    </div>
+                    <?php if ($item->canHaveQty() && $product->isVisibleInSiteVisibility()): ?>
+                        <input type="hidden" name="qty[<?php echo $item->getId() ?>]" value="<?php echo $cartColumn->getAddToCartQty($item) * 1 ?>" />
+                    <?php endif; ?>
+                    <div class="service_content_favorite_td service_content_favorite_title"><?php echo $this->escapeHtml($item->getProduct()->getName()) ?></div>
+                    <div class="service_content_favorite_td tar">
+                        <?php if ($product->isSaleable()): ?>
+                        <button class="button button_white" type="button" onclick="addWItemToCart(<?php echo $item->getId()?>);"><?=$this->__('ADD TO CART')?></button>
+                        <?php else: ?>
+                            <?php if ($product->getIsSalable()): ?>
+                                <p class="availability in-stock"><span><?php echo $this->__('In stock') ?></span></p>
+                            <?php else: ?>
+                                <p class="availability out-of-stock"><span><?php echo $this->__('Out of stock') ?></span></p>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                    <div class="service_content_favorite_td_remove"><a href="<?php echo $this->getItemRemoveUrl($item); ?>" onclick="return confirmRemoveWishlistItem();"><button type="button"></button></a></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="service_content_address_button">
+            <button class="button button_white" type="button" onclick="addAllWItemsToCart()"><?=$this->__('ADD ALL TO CART')?></button>
+        </div>
+    </form>
+    <form id="wishlist-allcart-form" action="<?php echo $this->getUrl('wishlist/index/allcart') ?>" method="post">
+        <?php echo $this->getBlockHtml('formkey') ?>
+        <div class="no-display">
+            <input type="hidden" name="wishlist_id" id="wishlist_id" value="<?php echo $this->getWishlistInstance()->getId() ?>" />
+            <input type="hidden" name="qty" id="qty" value="" />
+        </div>
+    </form>
+    <script type="text/javascript">
+        <?php echo $cartColumn->getJs() ?>
+        <?php echo $removeColumn->getJs() ?>
+    </script>
+    <script type="text/javascript">
+        //<![CDATA[
+        var wishlistForm = new Validation($('wishlist-view-form'));
+        var wishlistAllCartForm = new Validation($('wishlist-allcart-form'));
+
+        function calculateQty() {
+            var itemQtys = new Array();
+            $$('#wishlist-view-form .qty').each(
+                function (input, index) {
+                    var idxStr = input.name;
+                    var idx = idxStr.replace( /[^\d.]/g, '' );
+                    itemQtys[idx] = input.value;
+                }
+            );
+
+            $$('#qty')[0].value = JSON.stringify(itemQtys);
+        }
+
+        function addAllWItemsToCart() {
+            calculateQty();
+            wishlistAllCartForm.form.submit();
+        }
+        //]]>
+    </script>
+</div>

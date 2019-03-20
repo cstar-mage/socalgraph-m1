@@ -6,30 +6,29 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Totals extends Mage_Admin
     {
         parent::_initTotals();
         $order = $this->getOrder();
-        if ($order->getMarkup()) {
-            $this->_totals = [
-                'markup' => new Varien_Object(array(
-                    'code'      => 'markup',
+        if (!$order->getEpaceJobId()) {
+            return $this;
+        }
+
+        $this->_totals = [
+                'estimate_price' => new Varien_Object(array(
+                    'code'      => 'estimate_price',
                     'strong'    => false,
-                    'value'     => $order->getMarkup(),
-                    'base_value'=> $order->getBaseMarkup(),
-                    'label'     => $this->helper('sales')->__('Markup'),
+                    'value'     => $order->getOriginalQuotedPrice(),
+                    'base_value'=> $order->getOriginalQuotedPrice(),
+                    'label'     => $this->helper('sales')->__('Estimated Price'),
                     'area'      => ''
                 ))
             ] + $this->_totals;
-        }
-        if ($order->getJobValue()) {
-            $this->_totals = [
-                    'job_value' => new Varien_Object(array(
-                        'code'      => 'job_value',
-                        'strong'    => false,
-                        'value'     => $order->getJobValue(),
-                        'base_value'=> $order->getJobValue(),
-                        'label'     => $this->helper('sales')->__('Job Value'),
-                        'area'      => ''
-                    ))
-            ] + $this->_totals;
-        }
+
+        $this->_totals['subtotal']->setLabel($this->helper('sales')->__('Sold For'));
+
+        $this->_totals['shipping'] = new Varien_Object(array(
+            'code'      => 'shipping',
+            'value'     => $this->getSource()->getShippingInclTax(),
+            'base_value'=> $this->getSource()->getBaseShippingInclTax(),
+            'label' => $this->helper('sales')->__('Shipping & Handling + (40%)')
+        ));
 
         return $this;
     }

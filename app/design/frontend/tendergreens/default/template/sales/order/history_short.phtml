@@ -1,0 +1,59 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     rwd_default
+ * @copyright   Copyright (c) 2006-2018 Magento, Inc. (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php if (!$this->getNoMessages()) {
+    echo $this->getMessagesBlock()->toHtml();
+} ?>
+<?php $_orders = $this->getOrders(); ?>
+<h2><?php echo $this->__('My Orders') ?></h2>
+<div class="title13"><?php echo $this->__('Orders') ?></div>
+<?php if($_orders->getSize()): ?>
+    <div class="service_orders">
+        <?php foreach ($_orders as $_order): ?>
+            <div class="service_order">
+                <div class="service_orders__tr">
+                    <div class="service_orders_openclose"><span class="service_orders_open"></span><span class="service_orders_close"></span></div>
+                    <div class="service_orders_tr">
+                        <div class="service_orders_td"><span>Order: </span><span>#<?php echo $_order->getRealOrderId() ?></span></div>
+                        <div class="service_orders_td"><span>Date: </span><span><?php echo $this->formatDate($_order->getCreatedAtStoreDate()) ?></span></div>
+                        <div class="service_orders_td"><span>Status: </span><span><?php echo $_order->getStatusLabel()?></span></div>
+                        <?php $shippingAddress = $_order->getShippingAddress()?>
+                        <div class="service_orders_td"><span>Ship to: </span><span><?php echo $shippingAddress->getFirstname() . '.' . substr($shippingAddress->getLastname(), 0, 1) . '.' ?></span></div>
+                    </div>
+                    <div class="collapse">
+                        <div class="service_orders_content">
+                            <a class="button button_grey" href="<?php echo $this->getReorderUrl($_order) ?>">REORDER</a>
+                            <a class="button button_white" href="<?php echo $this->getViewUrl($_order) ?>">VIEW ORDER</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <div class="service_orders_showmore"><a class="title13" href="<?=$this->getUrl('sales/order/history')?>"><i></i>SHOW MORE</a></div>
+<?php else: ?>
+    <p><?php echo $this->__('You have placed no orders.'); ?></p>
+<?php endif ?>

@@ -1,0 +1,52 @@
+<?php
+/** @var Blackbox_CinemaCloud_Block_Customer_Address_Grid $this */
+?>
+<div class="content_group">
+    <h2><?php echo $this->getTitle()?></h2>
+    <form class="service_content_address_form" action="<?=$this->getUrl('*/*/*', ['_current' => true])?>" method="get">
+        <div class="service_content_address_input"><input name="<?=$this->getSearchVarName()?>" type="text" value="<?=$this->getSearchValue()?>"></div>
+        <div class="service_content_rowbottom">
+            <?php echo $this->getPagerHtml() ?>
+        </div>
+        <div class="service_content_address_table">
+            <div class="service_content_address_table_title title13">ADDRESS</div>
+            <?php /** @var Mage_Customer_Model_Address $item */ ?>
+            <?php foreach ($this->getItems() as $item): ?>
+            <div class="service_content_address_tr">
+                <div class="row">
+                    <div class="col-md-5 col-sm-5 col-10">
+                        <div class="custom__radio">
+                            <div class="fz13">Address:</div>
+                            <div class="fz13"><?=$this->escapeHtml($item->getStreetFull()) ?></div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-4">
+                        <div class="fz13">ZIP</div>
+                        <div class="fz13"><?=$this->escapeHtml($item->getPostcode())?></div>
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-4">
+                        <div class="fz13">State:</div>
+                        <div class="fz13"><?=$this->escapeHtml($item->getRegion())?></div>
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-6">
+                        <div class="fz13"><a href="<?php echo $this->getUrl('customer/address/edit', array('id'=>$item->getId())) ?>"><?php echo $this->__('Edit Address') ?></a></div>
+                        <div class="fz13"><a href="#" class="link-remove" onclick="return deleteAddress('<?php echo $item->getId() ?>');"><?php echo $this->__('Delete Address') ?></a></div>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </form>
+    <script type="text/javascript">
+        //<![CDATA[
+        if (typeof deleteAddress != "function") {
+            function deleteAddress(addressId) {
+                if (confirm('<?php echo Mage::helper('core')->jsQuoteEscape($this->__('Are you sure you want to delete this address?')) ?>')) {
+                    window.location = '<?php echo $this->getDeleteUrl() ?>id/' + addressId;
+                }
+                return false;
+            }
+        }
+        //]]>
+    </script>
+</div>

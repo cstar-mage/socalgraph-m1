@@ -361,6 +361,25 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $from = $this->getArg('from');
         $to = $this->getArg('to');
 
+        if ($this->getArg('mongo')) {
+            Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+        }
+
+        if ($this->getArg('salesPersons')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_SalesPerson_Collection $collection */
+            $collection = Mage::getResourceModel('efi/salesPerson_collection');
+            foreach ($collection->loadIds() as $id) {
+                /** @var Blackbox_Epace_Model_Epace_SalesPerson $salesPerson */
+                $salesPerson = Mage::getModel('efi/salesPerson')->load($id);
+                $customer = $this->helper->getCustomerFromSalesPerson($salesPerson);
+                $str = '';
+                if ($salesPerson->getEmail() && $customer->getEmail() != $salesPerson->getEmail()) {
+                    $str = ' Emails do not match: ' . $salesPerson->getEmail() . ' ' . $customer->getEmail();
+                }
+                $this->writeln($id . ' ' . $customer->getId() . $str);
+            }
+        }
+
         if ($this->getArg('estimates')) {
             /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
             $collection = Mage::getResourceModel('efi/estimate_collection');

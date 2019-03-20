@@ -26,12 +26,14 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
      */
     protected function _getCollectionClass()
     {
-        return 'epacei/estimate_grid_collection';
+        return 'epacei/estimate_collection';
     }
 
     protected function _prepareCollection()
     {
+        /** @var Blackbox_EpaceImport_Model_Resource_Estimate_Collection $collection */
         $collection = Mage::getResourceModel($this->_getCollectionClass());
+        $collection->getSelect()->columns(['customer_name' => 'CONCAT(COALESCE(customer_firstname, \'\'), \' \', COALESCE(customer_lastname, \'\'))']);
         $this->setCollection($collection);
         return parent::_prepareCollection();
     }
@@ -64,15 +66,22 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
             'width' => '100px',
         ));
 
-        $this->addColumn('base_grand_total', array(
-            'header' => Mage::helper('epacei')->__('G.T. (Base)'),
-            'index' => 'base_grand_total',
-            'type'  => 'currency',
-            'currency' => 'base_currency_code',
-        ));
+        $this->addColumn('company', [
+            'header' => Mage::helper('epacei')->__('Company'),
+            'index' => 'customer_name',
+            'width' => '70px',
+        ]);
+
+        $this->addColumn('salesRep', [
+            'header' => Mage::helper('epacei')->__('Sales Rep'),
+            'index' => 'sales_person_id',
+            'type'  => 'options',
+            'width' => '70px',
+            'options' => Mage::helper('epacei')->getSalesRepsOptions()
+        ]);
 
         $this->addColumn('grand_total', array(
-            'header' => Mage::helper('epacei')->__('G.T. (Purchased)'),
+            'header' => Mage::helper('epacei')->__('Grand Total'),
             'index' => 'grand_total',
             'type'  => 'currency',
             'currency' => 'estimate_currency_code',

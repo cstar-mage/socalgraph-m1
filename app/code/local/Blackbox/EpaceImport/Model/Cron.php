@@ -21,6 +21,16 @@ class Blackbox_EpaceImport_Model_Cron
      */
     protected $logEnabled;
 
+    /**
+     * @var Mage_Core_Model_Resource
+     */
+    protected $resource;
+
+    /**
+     * @var Varien_Db_Adapter_Interface
+     */
+    protected $connection;
+
     public function __construct()
     {
         $this->helper = Mage::helper('epacei');
@@ -28,10 +38,17 @@ class Blackbox_EpaceImport_Model_Cron
             $this->log($message);
         });
         $this->logEnabled = Mage::getStoreConfigFlag(self::XML_PATH_LOG);
+
+        $this->resource = Mage::getSingleton('core/resource');
+        $this->connection = $this->resource->getConnection('core_read');
     }
 
     public function updateEpaceEntities(Mage_Cron_Model_Schedule $schedule)
     {
+        if (ini_get('max_execution_time') < 1200) {
+            ini_set('max_execution_time', 1200);
+        }
+
         if (!Mage::getStoreConfigFlag(self::XML_PATH_ENABLE)) {
             return;
         }
@@ -68,7 +85,7 @@ class Blackbox_EpaceImport_Model_Cron
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
                 $this->updateInvoices($dateTime);
             }
-            if (true || Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
                 $this->updateShipments($dateTime);
             }
 
@@ -93,7 +110,6 @@ class Blackbox_EpaceImport_Model_Cron
 
     protected function importNewEstimates(\DateTime $from)
     {
-        $from = new \DateTime('-20 hours');
         /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $collection */
         $collection = Mage::getResourceModel('efi/estimate_collection');
         if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
@@ -218,7 +234,18 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $this->helper->importEstimate($estimate, $magentoEstimate);
+        $string = is_string($magentoEstimate->getCreatedAt()) && !is_numeric($magentoEstimate->getCreatedAt());
+        if ($string && strtotime('-10 years') > strtotime($magentoEstimate->getCreatedAt()) || !$string && strtotime('-10 years') > $magentoEstimate->getCreatedAt()) {
+            $this->log('[DEBUG] Estimate created_at ' . $magentoEstimate->getCreatedAt() . ' is earlier then 10 years ago');
+            $magentoEstimate->unsetData('created_at');
+        }
         $magentoEstimate->save();
+
+        $select = $this->connection->select()->from($this->resource->getTableName('epacei/estimate'), 'created_at')
+            ->where('entity_id = ?', $magentoEstimate->getId());
+        if ($this->connection->fetchOne($select) == '0000-00-00 00:00:00') {
+            $this->log('[DEBUG] Estimate created_at saved as 0000-00-00 00:00:00. ' . print_r($estimate->getData(), true) . PHP_EOL . print_r($magentoEstimate->getData()));
+        }
 
         if ($estimate->isConvertedToJob()) {
             $jobs = $estimate->getJobs();
@@ -253,7 +280,18 @@ class Blackbox_EpaceImport_Model_Cron
         }
 
         $this->helper->importJob($job, $order, $magentoEstimate);
+        $string = is_string($order->getCreatedAt()) && !is_numeric($order->getCreatedAt());
+        if ($string && strtotime('-10 years') > strtotime($order->getCreatedAt()) || !$string && strtotime('-10 years') > $order->getCreatedAt()) {
+            $this->log('[DEBUG] Order created_at ' . $order->getCreatedAt() . ' is earlier then 10 years ago');
+            $order->unsetData('created_at');
+        }
         $order->save();
+
+        $select = $this->connection->select()->from($this->resource->getTableName('sales/order'), 'created_at')
+            ->where('entity_id = ?', $order->getId());
+        if ($this->connection->fetchOne($select) == '0000-00-00 00:00:00') {
+            $this->log('[DEBUG] Order created_at saved as 0000-00-00 00:00:00. ' . print_r($job->getData(), true) . PHP_EOL . print_r($order->getData()));
+        }
 
         $i = 0;
         $count = count($job->getInvoices());
@@ -473,7 +511,7 @@ class Blackbox_EpaceImport_Model_Cron
         $newEstimate = $this->helper->importEstimate($epaceEstimate);
         $changes = $this->updateObject($estimate, $newEstimate, [
             'store_name',
-            'created_at',
+//            'created_at',
             'updated_at'
         ]);
         $this->logChanges('Estimate ' . $estimate->getId() . ' updates', $changes);
@@ -544,7 +582,7 @@ class Blackbox_EpaceImport_Model_Cron
         $ignoreFields = [
             'entity_id',
             'order_id',
-            'created_at',
+//            'created_at',
             'updated_at'
         ];
 
@@ -628,7 +666,7 @@ class Blackbox_EpaceImport_Model_Cron
         $newInvoice = $this->helper->importInvoice($epaceInvoice);
         $changes = $this->updateObject($invoice, $newInvoice, [
             'order_id',
-            'created_at',
+//            'created_at',
             'updated_at'
         ]);
         $this->logChanges('Invoice ' . $invoice->getId() . ' updates', $changes);
@@ -649,7 +687,7 @@ class Blackbox_EpaceImport_Model_Cron
     {
         $newReceivable = $this->helper->importReceivable($epaceReceivable, $invoice);
         $changes = $this->updateObject($receivable, $newReceivable, [
-            'created_at',
+//            'created_at',
             'updated_at',
         ]);
         $this->logChanges('Receivable ' . $receivable->getId() . ' updates', $changes);
@@ -668,7 +706,7 @@ class Blackbox_EpaceImport_Model_Cron
         $newShipment = $this->helper->importShipment($epaceShipment, $shipment->getOrder());
         $epaceShipment->dispose();
         $changes = $this->updateObject($shipment, $newShipment, [
-            'created_at',
+//            'created_at',
             'updated_at'
         ]);
         $this->logChanges('Shipment ' . $shipment->getId() . ' updates', $changes);
@@ -694,6 +732,7 @@ class Blackbox_EpaceImport_Model_Cron
      * @param Mage_Core_Model_Abstract $old
      * @param Mage_Core_Model_Abstract $new
      * @param array $ignoreFields
+     * @return array
      */
     protected function updateObject($old, $new, $ignoreFields = [])
     {

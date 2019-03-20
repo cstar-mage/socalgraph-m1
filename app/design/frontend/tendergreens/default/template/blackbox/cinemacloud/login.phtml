@@ -1,50 +1,76 @@
 <?php /** @var Mage_Adminhtml_Block_Template $this */ ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
-    <title>Cinema Works Login Page</title>
-    <link href="<?php echo $this->getSkinUrl('css/bootstrap-grid.css') ?>" rel="stylesheet">
+    <title>SCG</title>
+    <link href="<?php echo $this->getSkinUrl('css/bootstrap.css') ?>" rel="stylesheet">
+    <link hre.header_leftf="<?php echo $this->getSkinUrl('css/bootstrap-grid.css') ?>" rel="stylesheet">
     <link href="<?php echo $this->getSkinUrl('css/main.css') ?>" rel="stylesheet">
-    <link href="<?php echo $this->getSkinUrl('css/great_profile.css') ?>" rel="stylesheet">
+    <link href="<?php echo $this->getSkinUrl('css/mainpage.css') ?>" rel="stylesheet">
     <!--[if lt IE 9]>
     <script src="<?php echo $this->getSkinUrl('js/html5shiv.min.js') ?>" type="text/javascript"></script>
     <script src="<?php echo $this->getSkinUrl('js/respond.min.js') ?>" type="text/javascript"></script>
     <![endif]-->
 </head>
+
 <body>
-<section class="great_profile">
-    <div class="great_profile_img">
-        <div class="great_profile_image great_profile_img_big" style="background-image: url(<?php echo $this->getSkinUrl('images/CinemaWorks1_1.png') ?>)"></div>
-        <div class="great_profile_image great_profile_img_small" style="background-image: url(<?php echo $this->getSkinUrl('images/CinemaWorks1_2.png') ?>)"></div>
-    </div>
-    <div class="great_profile_login">
-        <div class="great_profile_login_img" style="background-image: url(<?php echo $this->getSkinUrl('images/CinemaWorks2_1.png')?>)"></div>
-        <div class="great_profile__login"><a class="great_profile_logo" href="/"></a>
-            <?php echo $this->getMessagesBlock()->toHtml() ?>
-            <form action="/customer/account/loginPost" method="post">
-                <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
-                <input type="text" name="login[username]" placeholder="Name">
-                <input type="password" name="login[password]" placeholder="Password">
-                <div class="tac great_profile_button">
-                    <button class="button button_grey">Login</button>
-                </div>
-            </form>
-            <div class="great_profile_login_text_login tac"><a href="/customer/account/forgotPassword">Forgot a password?</a></div>
+<section class="mainpage_mainsection">
+    <header>
+        <div class="header">
+            <div class="header_left"><a class="header_logo" href="index.html"></a><a class="header_left_menu" href="#"><i></i><span>Menu</span></a><a class="header_search" href="#"></a></div>
+            <div class="header_right"><a class="header_login" href="#"></a><a class="header_lock" href="#"></a></div>
         </div>
-        <div class="great_profile_login_img" style="background-image: url(<?php echo $this->getSkinUrl('images/CinemaWorks2_3.png') ?>)"></div>
-    </div>
-    <div class="great_profile_img">
-        <div class="great_profile_image great_profile_img_small" style="background-image: url(<?php echo $this->getSkinUrl('images/CinemaWorks3_1.png') ?>)"></div>
-        <div class="great_profile_image great_profile_img_big" style="background-image: url(<?php echo $this->getSkinUrl('images/CinemaWorks3_2.png') ?>)"></div>
+    </header>
+    <div class="wrapper">
+        <div class="mainpage_mainsection_content">
+            <form class="mainpage_mainsection_loginform" action="/customer/account/loginPost" method="post">
+                <div class="mainpage_mainsection_loginform_title">LOGIN</div>
+                <?php echo $this->getMessagesBlock()->toHtml() ?>
+                <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
+                <div class="mainpage_mainsection_loginform_group">
+                    <label class="mainpage_mainsection_loginform_group_title">EMAIL</label>
+                    <input type="text" name="login[username]">
+                </div>
+                <div class="mainpage_mainsection_loginform_group">
+                    <label class="mainpage_mainsection_loginform_group_title">PASSWORD</label>
+                    <input type="password" name="login[password]">
+                </div>
+                <div class="mainpage_mainsection_loginform_buttons">
+                    <button class="button button_white button_big">LOGIN</button>
+                    <a class="button button_white button_big" href="/sso/login">
+                        <i class="gmail"></i>
+                        <span class="withicon">GMAIL</span>
+                    </a>
+                </div>
+                <a class="mainpage_mainsection_loginform_forgot" href="/customer/account/forgotPassword">Forgot your password?</a>
+            </form>
+        </div>
     </div>
 </section>
+<section class="mainpage_images">
+    <div class="mainpage_image mainpage_image1"></div>
+    <div class="mainpage_image mainpage_image2"></div>
+    <div class="mainpage_image mainpage_image3"></div>
+</section>
+<section class="mainpage_trackorder">
+    <div class="wrapper">
+        <form class="mainpage_trackorder_form">
+            <div class="mainpage_trackorder_form_title">Track Your Order</div><input type="text" placeholder="Order #"><button class="button button_white">SEARCH <span>YOUR ORDER</span></button>
+        </form>
+    </div>
+</section>
+<footer>
+    <div class="wrapper">
+        <div class="footer_logo"></div>
+    </div>
+</footer>
 <script src="<?php echo $this->getSkinUrl('js/jquery.js') ?>" type="text/javascript"></script>
 <script src="<?php echo $this->getSkinUrl('js/bootstrap.min.js' )?>" type="text/javascript"></script>
-<script src="<?php echo $this->getSkinUrl('js/masonry.js' )?>" type="text/javascript"></script>
-<script src="<?php echo $this->getSkinUrl('js/circle-progress.min.js' )?>" type="text/javascript"></script>
 <script src="<?php echo $this->getSkinUrl('js/scripts.js' )?>" type="text/javascript"></script>
 </body>
+
 </html>

@@ -16,21 +16,18 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
                     'amount_to_invoice',
                     'change_order_total',
                     'estimate_id',
+                    'job_type',
+                    'original_quoted_price',
                 ])
-            ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id'])
-            ->joinLeft([
-                'e' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/estimate'), [
-                    'estimate_id' => 'entity_id',
-                    'estimate_price' => 'base_grand_total',
-                    'estimate_currency_code',
-                ])
-            ], 'o.estimate_id = e.estimate_id', ['estimate_price', 'estimate_currency_code'])->columns(['delta' => 'IF(estimate_price is not null, COALESCE(estimate_price, 0) - o.amount_to_invoice, o.amount_to_invoice)'])
+            ], 'main_table.entity_id = o.entity_id', ['epace_job_id', 'customer', 'sales_person_id', 'amount_to_invoice', 'change_order_total', 'estimate_id', 'job_type', 'estimate_price' => 'original_quoted_price'])
+            ->columns(['delta' => 'o.amount_to_invoice - COALESCE(o.original_quoted_price, 0)'])
             ->joinLeft([
                 's' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/shipment'), [
                     'order_id',
                     'shipments' => 'GROUP_CONCAT(epace_shipment_id SEPARATOR \', \')'
                 ])->group('order_id')
             ], 'main_table.entity_id = s.order_id', ['shipments']);
+        $collection->setIsCustomerMode(true);
 
 
         $this->setCollection($collection);
@@ -58,6 +55,14 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
             'width' => '80px',
             'type'  => 'text',
             'index' => 'shipments',
+        ));
+
+        $this->addColumn('job_type', array(
+            'header' => Mage::helper('sales')->__('Category'),
+            'index' => 'job_type',
+            'type'  => 'options',
+            'width' => '70px',
+            'options' => Mage::helper('epacei')->getJobTypes(),
         ));
 
         if (!Mage::app()->isSingleStoreMode()) {
@@ -110,7 +115,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
             'header' => Mage::helper('sales')->__('Estimate Price'),
             'index' => 'estimate_price',
             'type'  => 'currency',
-            'currency' => 'estimate_currency_code',
+            'currency' => 'order_currency_code',
         ));
 
         $this->addColumn('amount_to_invoice', array(

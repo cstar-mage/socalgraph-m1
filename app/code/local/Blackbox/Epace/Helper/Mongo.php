@@ -59,6 +59,18 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
 
     public function readObject($objectType, $params)
     {
+        $data = $this->_loadData($objectType, $params);
+        foreach ($data as &$value) {
+            if ($value instanceof \MongoDB\BSON\UTCDateTime) {
+                $value = $value->toDateTime()->format('Y-m-d\TH:i:s.0000\Z');
+            }
+        }
+
+        return $data;
+    }
+
+    protected function _loadData($objectType, $params)
+    {
         $objectType = ucfirst($objectType);
 
         $query = new MongoDB\Driver\Query($params);
@@ -67,7 +79,7 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
             return (array)$row;
         }
 
-        $this->throwException('Object ' . $objectType . ' not found.');
+        $this->throwException('Object ' . $objectType . ' not found.', null);
     }
 
     public function findObjects($objectType, $filter, $sort = null, $offset = null, $limit = null)
@@ -163,28 +175,39 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
     public function renderFilters($filters, Blackbox_Epace_Model_Epace_AbstractObject $resource)
     {
         $result = [];
-        $currentOp = null;
-        $currentGroup = [];
         if (count($filters) == 1) {
             $result = $this->_renderFilter($filters[0], $resource);
         } else {
+            $and = false;
+            $renderedFilters = [];
+            $fields = [];
             foreach ($filters as $filter) {
-                if ($currentOp && $currentOp != $filter['type']) {
-                    throw new \Exception('Different operators are currently not supported.');
-                }
-                if ($currentOp && $currentGroup != $filter['type'] && !empty($currentGroup)) {
-                    $result['$' . $currentOp] = $currentGroup;
-                    $currentGroup = [];
-                }
-                if ($filter['type'] != 'or' && $filter['type'] != 'and') {
+                if ($filter['type'] != 'and') {
+                    if ($filter['type'] == 'or') {
+                        throw new \Exception('OR filter not supported.');
+                    }
                     throw new \Exception('Unrecognized filter type.');
                 }
-                $currentOp = $filter['type'];
-                $currentGroup[] = $this->_renderFilter($filter, $resource);
+                $renderedFilter = $this->_renderFilter($filter, $resource);
+                if (!$and) {
+                    $field = array_keys($renderedFilter)[0];
+                    if (in_array($field, $fields)) {
+                        $and = true;
+                    } else {
+                        $fields[] = $field;
+                    }
+                }
+                $renderedFilters[] = $renderedFilter;
             }
 
-            if (!empty($currentGroup)) {
-                $result['$' . $currentOp] = $currentGroup;
+            if ($and) {
+                foreach ($renderedFilters as $renderedFilter) {
+                    $result['$and'][] = $renderedFilter;
+                }
+            } else {
+                foreach ($renderedFilters as $renderedFilter) {
+                    $result = array_merge($result, $renderedFilter);
+                }
             }
         }
 
@@ -265,6 +288,10 @@ class Blackbox_Epace_Helper_Mongo extends Mage_Core_Helper_Abstract
                 $value = strtotime($value);
             }
             return new MongoDB\BSON\UTCDateTime($value * 1000);
+        } if ($type == 'string') {
+            return (string)$value;
+        } else if ($type == 'int') {
+            return (int)$value;
         } else {
             return $value;
         }

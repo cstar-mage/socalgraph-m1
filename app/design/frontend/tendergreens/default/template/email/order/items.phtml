@@ -31,86 +31,84 @@
     <?php $_items = $_order->getAllItems(); ?>
     <?php $_itemCount = count($_items); ?>
 
-
     <tr>
-        <td>
-            <table style="border-bottom: 7px solid #ebebeb;" class="items" cellpadding="0" cellspacing="0" border="0">
-                <thead>
+        <td width="34"></td>
+        <td height="58">
+            <table border="0" cellpadding="0" cellspacing="0" style="margin:0;padding:0">
                 <tr>
-                    <th class="cell-name" style="background: #fff;
-    text-transform: capitalize;
-    border-top: 1px solid #ebebeb;
-border-right: 1px solid #ebebeb;
-    padding: 23px 15px;">
-                        <?php if ($_itemCount > 1): ?>
-                            <?php echo $this->__('Product'); ?>
-                        <?php else: ?>
-                            <?php echo $this->__('Product'); ?>
-                        <?php endif; ?>
-                    </th>
-                    <th class="cell-name align-center" style="background: #fff;
-    text-transform: capitalize;
-    border-top: 1px solid #ebebeb;
-border-right: 1px solid #ebebeb;
-    padding: 23px 15px;">
-                        <?php echo $this->__('Tracking'); ?>
-                    </th>
-                    <th class="cell-name align-center" style="background: #fff;
-    text-transform: capitalize;
-    border-top: 1px solid #ebebeb;
-border-right: 1px solid #ebebeb;
-    padding: 23px 15px;">
-                        <?php echo $this->__('Qty'); ?>
-                    </th>
-                    <th class="cell-name align-center" style="background: #fff;
-    text-transform: capitalize;
-    border-top: 1px solid #ebebeb;
-    padding: 23px 15px;">
-                        <?php echo $this->__('Price'); ?>
-                    </th>
+                    <td width="366" height="58" class="t4"><?php echo $this->__('Items in your order') ?></td>
+                    <td width="1" height="58" bgcolor="#eaeaea"></td>
+                    <td width="100" height="58" class="t4" align="center"><?php echo $this->__('Qty') ?></td>
+                    <td width="1" height="58" bgcolor="#eaeaea"></td>
+                    <td width="80" height="58" class="t4" align="center"><?php echo $this->__('Price') ?></td>
                 </tr>
-                </thead>
-                <?php $i = 0;
-                foreach ($_order->getAllItems() as $_item): ?>
-                    <?php if ($_item->getParentItem()) continue; else $i++; ?>
-                    <?php echo $this->getItemHtml($_item) ?>
-                <?php endforeach; ?>
-
-
-                <tr>
-                    <th colspan="2" class="cell-name" style="background: #fff;
-    text-transform: capitalize;
-    border-top: 1px solid #ebebeb;
-border-right: 1px solid #ebebeb;
-    padding: 23px 15px;">
-                        <?php echo $this->__('Links'); ?>
-                    </th>
-                    <th colspan="2" class="cell-name align-center" style="background: #fff;
-    text-transform: capitalize;
-    border-top: 1px solid #ebebeb;
-    padding: 23px 15px;">
-                        <?php echo $this->__('Image'); ?>
-                    </th>
-                </tr>
-                <?php $i = 0;
-                foreach ($_order->getAllItems() as $_item): ?>
-                    <?php if ($_item->getParentItem()) continue; else $i++; ?>
-                    <tr>
-                        <td colspan="2" class="cell-content product-info" style="      padding: 23px 15px;  vertical-align: middle; border-right: 1px solid #ebebeb; border-bottom: 1px solid #ebebeb;">
-                            <p class="product-name" style="    text-align: left; font-weight: normal; text-transform: capitalize; color:#000;"><?php echo $this->escapeHtml($_item->getName()) ?></p>
-                            <p class="sku"><?php echo $this->__('SKU'); ?>: <?php echo $this->escapeHtml($this->getSku($_item)) ?></p>
-                        </td>
-                        <td colspan="2" style="  border-bottom: 1px solid #ebebeb;  padding: 23px 15px; border-top: 1px solid #ebebeb; vertical-align: middle;">
-                            <a href="<?php echo Mage::getBaseUrl(); ?>(CMS-0374-1016)__1610_YTC_COMM_104ZR 19.pdf#"
-                               style="color:#eb3300;">Download</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
             </table>
         </td>
+        <td width="34"></td>
     </tr>
-
-
+    <tr>
+        <td colspan="3" height="1" bgcolor="#eaeaea"></td>
+    </tr>
+    <?php foreach ($_items as $_item): ?>
+        <?php if ($_item->getParentItem()) continue; ?>
+        <tr>
+            <td width="34"></td>
+            <td height="58">
+                <table border="0" cellpadding="0" cellspacing="0" style="margin:0;padding:0">
+                    <tr>
+                        <td width="364" class="t5" valign="top">
+                            <span><?php echo $this->escapeHtml($_item->getName()) ?><br><?php echo $this->__('SKU') ?>: <?php echo $this->escapeHtml($_item->getSku()) ?></span>
+                        </td>
+                        <td width="1" bgcolor="#eaeaea"></td>
+                        <td width="100" class="t5" align="center" valign="top"><span><?php echo $_item->getQtyOrdered() ?></span></td>
+                        <td width="1" height="58" bgcolor="#eaeaea"></td>
+                        <td width="80" class="t5" align="center" valign="top"><span><?php echo $_order->formatPrice($_item->getRowTotal()) ?></span></td>
+                    </tr>
+                </table>
+            </td>
+            <td width="34"></td>
+        </tr>
+        <tr>
+            <td colspan="3" height="1" bgcolor="#eaeaea"></td>
+        </tr>
+    <?php endforeach; ?>
+    <?php $links = false ?>
+    <?php foreach ($_items as $_item): ?>
+        <?php if (!$_item->getParentItem() && Mage::helper('product_file')->isFileExists($_item->getProductId())): ?>
+            <?php $links = true; ?>
+        <?php endif; ?>
+    <?php endforeach; ?>
+    <?php if ($links): ?>
+        <tr>
+            <td width="34"></td>
+            <td height="58" class="t4">Links</td>
+            <td width="34"></td>
+        </tr>
+        <tr>
+            <td colspan="3" height="1" bgcolor="#eaeaea"></td>
+        </tr>
+        <?php foreach($_items as $_item): ?>
+            <?php if ($_item->getParentItem() || !Mage::helper('product_file')->isFileExists($_item->getProductId())) continue; ?>
+            <tr>
+                <td width="34"></td>
+                <td height="58">
+                    <table border="0" cellpadding="0" cellspacing="0" style="margin:0;padding:0">
+                        <tr>
+                            <td width="354" class="t5">
+                                <?php echo $this->escapeHtml($_item->getName()) ?>
+                            </td>
+                            <td width="1" height="58" bgcolor="#eaeaea"></td>
+                            <td colspan="3" class="t5" width="181" align="center"><a href="<?php echo Mage::getUrl('downloadable/download/file', array('product_id' => $_item->getProductId()))?>" class="t5">Download</a></td>
+                        </tr>
+                    </table>
+                </td>
+                <td width="34"></td>
+            </tr>
+            <tr>
+                <td colspan="3" height="1" bgcolor="#eaeaea"></td>
+            </tr>
+        <?php endforeach; ?>
+    <?php endif; ?>
 <!--    <tr>-->
 <!--        <td>-->
 <!--            --><?php //echo $this->getChildHtml('order_totals') ?>

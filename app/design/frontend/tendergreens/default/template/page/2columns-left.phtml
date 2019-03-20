@@ -48,43 +48,27 @@
 </head>
 <body<?php echo $this->getBodyClass() ? ' class="' . $this->getBodyClass() . '"' : '' ?>>
 <?php echo $this->getChildHtml('after_body_start') ?>
-<div class="wrapper">
-    <?php echo $this->getChildHtml('global_notices') ?>
-    <div class="page">
-        <?php echo $this->getChildHtml('header') ?>
-        <div class="main-container col2-left-layout">
-            <div class="main">
-                <?php echo $this->getChildHtml('breadcrumbs') ?>
-                <?php // This left_first block will display above the main content on smaller viewports ?>
-                <section class="page-section">
-                    <div class="page-section-inner">
-                        <?php if (in_array('customer_account', $this->getLayout()->getUpdate()->getHandles())): ?>
-                            <div class="page-title">
-                            </div>
-                            <script>
-                                jQuery( document ).ready(function () {
-                                    jQuery( ".page-section-inner > .page-title" ).prepend(jQuery( ".col-main .page-title" ));
-                                });
-                            </script>
-                        <?php endif; ?>
-                        <?php if ($_leftContent = $this->getChildHtml('left_first')): ?>
-                            <div class="col-left sidebar col-left-first"><?php echo $_leftContent; ?></div>
-                        <?php endif; ?>
-
-                        <div class="col-main">
-                            <?php echo $this->getChildHtml('global_messages') ?>
-                            <?php echo $this->getChildHtml('content') ?>
-                        </div>
-                    </div>
-                </section>
+<?php echo $this->getChildHtml('global_notices') ?>
+<?php echo $this->getChildHtml('header') ?>
+<section>
+    <div class="wrapper">
+        <?php echo $this->getChildHtml('breadcrumbs') ?>
+        <h1><?php echo $this->getHeaderTitle() ?></h1>
+        <div class="main_content">
+            <?php if ($_leftContent = $this->getChildHtml('left_first')): ?>
+                <aside><?php echo $_leftContent; ?></aside>
+            <?php endif; ?>
+            <div class="content <?php echo $this->getContentWrapperClasses() ?>">
+                <?php echo $this->getChildHtml('global_messages') ?>
+                <?php echo $this->getChildHtml('content'); ?>
             </div>
         </div>
-        <?php echo $this->getChildHtml('footer_before') ?>
-        <?php echo $this->getChildHtml('footer') ?>
-        <?php echo $this->getChildHtml('global_cookie_notice') ?>
-        <?php echo $this->getChildHtml('before_body_end') ?>
     </div>
-</div>
+    <?php echo $this->getChildHtml('footer_before') ?>
+    <?php echo $this->getChildHtml('footer') ?>
+    <?php echo $this->getChildHtml('global_cookie_notice') ?>
+    <?php echo $this->getChildHtml('before_body_end') ?>
+</section>
 <?php echo $this->getAbsoluteFooter() ?>
 </body>
 </html>
