@@ -25,6 +25,11 @@
             <cinemacloud>
                 <class>Blackbox_CinemaCloud_Model</class>
             </cinemacloud>
+            <core>
+                <rewrite>
+                    <layout>Blackbox_CinemaCloud_Model_Core_Layout</layout>
+                </rewrite>
+            </core>
         </models>
         <events>
             <controller_front_init_routers>
@@ -73,6 +78,11 @@
             </api>
             <customer>
                 <use>cinemacloud</use>
+                <args>
+                    <modules>
+                        <Blackbox_CinemaCloud before="Mage_Customer">Blackbox_CinemaCloud_Customer</Blackbox_CinemaCloud>
+                    </modules>
+                </args>
             </customer>
             <wishlist>
                 <use>cinemacloud</use>

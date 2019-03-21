@@ -321,15 +321,20 @@ Supported layout update handles (special):
                     <path>customer/account/</path>
                     <label>Account Dashboard</label>
                 </action>
-                <action method="addLink" translate="label" module="customer">
-                    <name>account_edit</name>
-                    <path>customer/account/edit/</path>
-                    <label>Account Information</label>
-                </action>
+                <!--<action method="addLink" translate="label" module="customer">-->
+                    <!--<name>account_edit</name>-->
+                    <!--<path>customer/account/edit/</path>-->
+                    <!--<label>Account Information</label>-->
+                <!--</action>-->
                 <action method="addLink" translate="label" module="customer">
                     <name>address_book</name>
                     <path>customer/address/</path>
                     <label>Address Book</label>
+                </action>
+                <action method="addLink" translate="label" module="customer" ifhelper="cinemacloud::isCustomerSalesRep">
+                    <name>salesrep_dashboard</name>
+                    <path>customer/salesRep/</path>
+                    <label>Sales Rep Dashboard</label>
                 </action>
                 <action method="addLink" translate="label" module="customer">
                     <name>support_ticket</name>
