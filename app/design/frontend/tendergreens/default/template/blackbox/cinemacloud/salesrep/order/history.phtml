@@ -11,7 +11,7 @@
     </div>
     <script>
         var orderinfoAjax = null;
-        jQuery('.orderinfo_opener').click(function(e) {
+        jQuery('.service_content_dashboard_ordersinformations').on('click', '.orderinfo_opener', function(e) {
             var orderId = jQuery(this).data('order-id');
             var orderinfo = jQuery('.orderinfo');
 
@@ -25,7 +25,7 @@
             }
 
             orderinfoAjax = jQuery.ajax({
-                url: '/customer/saleRrep/ajaxOrderInfoHtml',
+                url: '/customer/salesRep/ajaxOrderInfoHtml',
                 type: 'get',
                 data: {
                     order_id: orderId
