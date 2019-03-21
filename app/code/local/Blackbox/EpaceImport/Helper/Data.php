@@ -944,45 +944,45 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $billingAddressId = $order->getBillingAddressId();
         }
 
-        $shippingPrice = 0;
-        $shippingCost = 0;
-        if ($shippingAddressId && ($shippingMethod->getCarrier() == 'ups' || $shippingMethod->getCarrier() == 'fedex')) {
-            $shippingAddress = null;
-            foreach ($order->getAddressesCollection() as $address) {
-                if ($address->getId() == $shippingAddressId) {
-                    $shippingAddress = $address;
-                }
-            }
-            if ($shippingAddress) {
-                $carrier = $this->getCarrier($shippingMethod->getCarrier());
-                if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups || $carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
-                    /** @var Mage_Shipping_Model_Rate_Request $request */
-                    $request = Mage::getModel('shipping/rate_request');
-                    $request->setLimitMethod($shippingMethod->getMethod());
-                    $request->setDestCountryId($shippingAddress->getCountryId());
-                    $request->setDestRegionId($shippingAddress->getRegionId());
-                    $request->setDestRegionCode($shippingAddress->getRegionCode());
-                    $request->setDestCity($shippingAddress->getCity());
-                    $request->setDestPostcode($shippingAddress->getPostcode());
-                    $request->setDestStreet($shippingAddress->getStreetFull());
-                    $request->setPackageWeight($jobShipment->getWeight());
-                    $request->setBaseCurrency($this->getStore()->getBaseCurrencyCode());
-
-                    $result = $carrier->collectRates($request);
-                    if (!$result->getError()) {
-                        var_dump($result->getAllRates());
-                        foreach ($result->getAllRates() as $rate) {
-                            if ($rate->getMethod() == $shippingMethod->getMethod()) {
-                                $shippingPrice = $rate->getPrice();
-                                $shippingCost = $rate->getCost();
-                            }
-                        }
-                    } else {
-                        var_dump($result->getError());
-                    }
-                }
-            }
-        }
+//        $shippingPrice = 0;
+//        $shippingCost = 0;
+//        if ($shippingAddressId && ($shippingMethod->getCarrier() == 'ups' || $shippingMethod->getCarrier() == 'fedex')) {
+//            $shippingAddress = null;
+//            foreach ($order->getAddressesCollection() as $address) {
+//                if ($address->getId() == $shippingAddressId) {
+//                    $shippingAddress = $address;
+//                }
+//            }
+//            if ($shippingAddress) {
+//                $carrier = $this->getCarrier($shippingMethod->getCarrier());
+//                if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups || $carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
+//                    /** @var Mage_Shipping_Model_Rate_Request $request */
+//                    $request = Mage::getModel('shipping/rate_request');
+//                    $request->setLimitMethod($shippingMethod->getMethod());
+//                    $request->setDestCountryId($shippingAddress->getCountryId());
+//                    $request->setDestRegionId($shippingAddress->getRegionId());
+//                    $request->setDestRegionCode($shippingAddress->getRegionCode());
+//                    $request->setDestCity($shippingAddress->getCity());
+//                    $request->setDestPostcode($shippingAddress->getPostcode());
+//                    $request->setDestStreet($shippingAddress->getStreetFull());
+//                    $request->setPackageWeight($jobShipment->getWeight());
+//                    $request->setBaseCurrency($this->getStore()->getBaseCurrencyCode());
+//
+//                    $result = $carrier->collectRates($request);
+//                    if (!$result->getError()) {
+//                        var_dump($result->getAllRates());
+//                        foreach ($result->getAllRates() as $rate) {
+//                            if ($rate->getMethod() == $shippingMethod->getMethod()) {
+//                                $shippingPrice = $rate->getPrice();
+//                                $shippingCost = $rate->getCost();
+//                            }
+//                        }
+//                    } else {
+//                        var_dump($result->getError());
+//                    }
+//                }
+//            }
+//        }
 
         $orderShipment->setData([
             'store_id' => $this->getStore()->getId(),
@@ -1000,12 +1000,12 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'packages' => null,
             'shipping_label' => null,
             'epace_shipment_id' => $jobShipment->getId(),
-            'carrier' => $shippingMethod->getCarrier(),
-            'carrier_title' => $shippingMethod->getCarrierTitle(),
-            'method' => $shippingMethod->getMethod(),
-            'method_title' => $shippingMethod->getTitle(),
-            'price' => $shippingPrice,
-            'cost' => $shippingCost
+//            'carrier' => $shippingMethod->getCarrier(),
+//            'carrier_title' => $shippingMethod->getCarrierTitle(),
+//            'method' => $shippingMethod->getMethod(),
+//            'method_title' => $shippingMethod->getTitle(),
+//            'price' => $shippingPrice,
+//            'cost' => $shippingCost
         ]);
 
         return $orderShipment;
