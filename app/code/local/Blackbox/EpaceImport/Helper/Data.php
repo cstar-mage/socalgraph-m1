@@ -13,9 +13,19 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
     protected $salesPersonCustomerMap = [];
 
     /**
+     * @var Mage_Customer_Model_Customer[]
+     */
+    protected $csrCustomerMap = [];
+
+    /**
      * @var int
      */
     protected $wholesaleGroupId = null;
+
+    /**
+     * @var int
+     */
+    protected $csrGroupId = null;
 
     /**
      * @var Mage_Catalog_Model_Product
@@ -146,6 +156,11 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $customer = Mage::getModel('customer/customer');
         }
         $salesPersonCustomer = $this->getCustomerFromSalesPerson($estimate->getSalesPerson());
+        if ($estimate->getCSR()) {
+            $csrCustomer = $this->getCustomerFromCSR($estimate->getCSR());
+        } else {
+            $csrCustomer = null;
+        }
 
         $magentoEstimate->addData([
             'epace_estimate_id' => $estimate->getId(),
@@ -154,6 +169,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'store_id' => $this->getStore()->getId(),
             'customer_id' => $customer->getId(),
             'sales_person_id' => $salesPersonCustomer->getId(),
+            'csr_id' => $csrCustomer ? $csrCustomer->getId() : null,
             'base_to_global_rate' => 1,
             'base_to_estimate_rate' => 1,
             'store_to_base_rate' => 1,
@@ -330,6 +346,11 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
         $customer = $this->getCustomerFromCustomer($job->getCustomer());
         $salesPersonCustomer = $this->getCustomerFromSalesPerson($job->getSalesPerson());
+        if ($job->getCSR()) {
+            $csrCustomer = $this->getCustomerFromCSR($job->getCSR());
+        } else {
+            $csrCustomer = null;
+        }
 
         $subTotal = $job->getAmountToInvoice();
 
@@ -367,6 +388,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'store_id' => $this->getStore()->getId(),
             'customer_id' => $customer->getId(),
             'sales_person_id' => $salesPersonCustomer->getId(),
+            'csr_id' => $csrCustomer ? $csrCustomer->getId() : null,
             'base_discount_amount' => $discountAmount,
             'base_grand_total' => $grandTotal,
             'base_shipping_amount' => $shippingAmount,
@@ -769,7 +791,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             }
         };
 
-        $shippingMethod = null;
+        $shippingMethod = $this->getShippingMethod($jobShipment->getShipVia());
 
         foreach ($jobShipment->getCartons() as $carton) {
             foreach ($carton->getContents() as $content) {
@@ -834,10 +856,6 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             }
 
             if ($carton->getTrackingNumber()) {
-                if (!$shippingMethod) {
-                    $shippingMethod = $this->getShippingMethod($jobShipment->getShipVia());
-                }
-
                 /** @var Mage_Sales_Model_Order_Shipment_Track $track */
                 $track = Mage::getModel('sales/order_shipment_track');
                 if ($shippingMethod->getCarrier() == 'epace_shipping') {
@@ -926,6 +944,46 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $billingAddressId = $order->getBillingAddressId();
         }
 
+        $shippingPrice = 0;
+        $shippingCost = 0;
+        if ($shippingAddressId && ($shippingMethod->getCarrier() == 'ups' || $shippingMethod->getCarrier() == 'fedex')) {
+            $shippingAddress = null;
+            foreach ($order->getAddressesCollection() as $address) {
+                if ($address->getId() == $shippingAddressId) {
+                    $shippingAddress = $address;
+                }
+            }
+            if ($shippingAddress) {
+                $carrier = $this->getCarrier($shippingMethod->getCarrier());
+                if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups || $carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
+                    /** @var Mage_Shipping_Model_Rate_Request $request */
+                    $request = Mage::getModel('shipping/rate_request');
+                    $request->setLimitMethod($shippingMethod->getMethod());
+                    $request->setDestCountryId($shippingAddress->getCountryId());
+                    $request->setDestRegionId($shippingAddress->getRegionId());
+                    $request->setDestRegionCode($shippingAddress->getRegionCode());
+                    $request->setDestCity($shippingAddress->getCity());
+                    $request->setDestPostcode($shippingAddress->getPostcode());
+                    $request->setDestStreet($shippingAddress->getStreetFull());
+                    $request->setPackageWeight($jobShipment->getWeight());
+                    $request->setBaseCurrency($this->getStore()->getBaseCurrencyCode());
+
+                    $result = $carrier->collectRates($request);
+                    if (!$result->getError()) {
+                        var_dump($result->getAllRates());
+                        foreach ($result->getAllRates() as $rate) {
+                            if ($rate->getMethod() == $shippingMethod->getMethod()) {
+                                $shippingPrice = $rate->getPrice();
+                                $shippingCost = $rate->getCost();
+                            }
+                        }
+                    } else {
+                        var_dump($result->getError());
+                    }
+                }
+            }
+        }
+
         $orderShipment->setData([
             'store_id' => $this->getStore()->getId(),
             'total_weight' => $jobShipment->getWeight(),
@@ -941,7 +999,13 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'created_at' => $this->getTimestamp($jobShipment->getDate(), $jobShipment->getTime()),
             'packages' => null,
             'shipping_label' => null,
-            'epace_shipment_id' => $jobShipment->getId()
+            'epace_shipment_id' => $jobShipment->getId(),
+            'carrier' => $shippingMethod->getCarrier(),
+            'carrier_title' => $shippingMethod->getCarrierTitle(),
+            'method' => $shippingMethod->getMethod(),
+            'method_title' => $shippingMethod->getTitle(),
+            'price' => $shippingPrice,
+            'cost' => $shippingCost
         ]);
 
         return $orderShipment;
@@ -1183,6 +1247,35 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->salesPersonCustomerMap[$salesPerson->getId()] = $customer;
     }
 
+    public function getCustomerFromCSR(Blackbox_Epace_Model_Epace_CSR $csr)
+    {
+        if (isset($this->csrCustomerMap[$csr->getId()])) {
+            return $this->csrCustomerMap[$csr->getId()];
+        }
+
+        $email = $csr->getEmail();
+        if (!$email) {
+            $email = 'csr' . $csr->getId() .'epace@socalgraph.com';
+        }
+
+        $customer = Mage::getModel('customer/customer')->setWebsiteId($this->getWebsiteId())->loadByEmail($email);
+        if (!$customer->getId()) {
+            $name = explode(' ', $csr->getName(), 2);
+            $customer
+                ->setWebsiteId($this->getWebsiteId())
+                ->setStore($this->getStore())
+                ->setFirstname($name[0])
+                ->setLastname($name[1])
+                ->setEmail($email)
+                ->setPassword('password')
+                ->setGroupId($this->getCSRCustomerGroupId());
+            $customer->save();
+            $this->writeln('Created customer ' . $customer->getId() . ' from CSR ' . $csr->getId());
+        }
+
+        return $this->csrCustomerMap[$csr->getId()] = $customer;
+    }
+
     public function getWholesaleCustomerGroupId()
     {
         if (is_null($this->wholesaleGroupId)) {
@@ -1198,6 +1291,21 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         return $this->wholesaleGroupId;
     }
 
+    public function getCSRCustomerGroupId()
+    {
+        if (is_null($this->csrGroupId)) {
+            $groupCollection = Mage::getResourceModel('customer/group_collection')
+                ->addFieldToFilter('customer_group_code', 'CSR');
+            /** @var Mage_Customer_Model_Group $group */
+            $group = $groupCollection->getFirstItem();
+            if (!$group->getId()) {
+                $group->setCode('CSR')->setTaxClassId(3)->save();
+            }
+            $this->csrGroupId = $group->getId();
+        }
+        return $this->csrGroupId;
+    }
+
     /**
      * @param Blackbox_Epace_Model_Epace_Ship_Via $shipVia
      * @return Mage_Shipping_Model_Rate_Result_Method
@@ -1205,31 +1313,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
     public function getShippingMethod(Blackbox_Epace_Model_Epace_Ship_Via $shipVia)
     {
         if (is_null($this->carriers)) {
-            $this->carriers = Mage::getSingleton('shipping/config')->getActiveCarriers();
-
-            $fedexFound = false;
-            $upsFound = false;
-            $found = 0;
-            foreach ($this->carriers as $carrier) {
-                if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
-                    $fedexFound = true;
-                    if (++$found == 2) {
-                        break;
-                    }
-                } else if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups) {
-                    $upsFound = true;
-                    if (++$found == 2) {
-                        break;
-                    }
-                }
-            }
-
-            if (!$fedexFound) {
-                $this->carriers[] = Mage::getModel('usa/shipping_carrier_fedex');
-            }
-            if (!$upsFound) {
-                $this->carriers[] = Mage::getModel('usa/shipping_carrier_ups');
-            }
+            $this->_loadCarriers();
         }
 
         /** @var Blackbox_EpaceImport_Helper_Data $helper */
@@ -1279,6 +1363,50 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return $carrier->getEmptyRate();
+    }
+
+    public function getCarrier($code)
+    {
+        if (is_null($this->carriers)) {
+            $this->_loadCarriers();
+        }
+
+        foreach ($this->carriers as $carrier) {
+            if ($carrier->getCarrierCode() == $code) {
+                return $carrier;
+            }
+        }
+
+        return null;
+    }
+
+    protected function _loadCarriers()
+    {
+        $this->carriers = Mage::getSingleton('shipping/config')->getActiveCarriers();
+
+        $fedexFound = false;
+        $upsFound = false;
+        $found = 0;
+        foreach ($this->carriers as $carrier) {
+            if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
+                $fedexFound = true;
+                if (++$found == 2) {
+                    break;
+                }
+            } else if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups) {
+                $upsFound = true;
+                if (++$found == 2) {
+                    break;
+                }
+            }
+        }
+
+        if (!$fedexFound) {
+            $this->carriers[] = Mage::getModel('usa/shipping_carrier_fedex');
+        }
+        if (!$upsFound) {
+            $this->carriers[] = Mage::getModel('usa/shipping_carrier_ups');
+        }
     }
 
     public function getWebsiteId()
