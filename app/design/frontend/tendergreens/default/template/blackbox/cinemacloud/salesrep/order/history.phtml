@@ -25,7 +25,7 @@
             }
 
             orderinfoAjax = jQuery.ajax({
-                url: '/customer/salesrep/ajaxOrderInfoHtml',
+                url: '/customer/saleRrep/ajaxOrderInfoHtml',
                 type: 'get',
                 data: {
                     order_id: orderId
@@ -55,7 +55,7 @@
             var circle = jQuery('.showmore_circle').show();
 
             showmoreAjax = jQuery.ajax({
-                url: '/customer/salesrep/orderShowMoreHtml',
+                url: '/customer/salesRep/orderShowMoreHtml',
                 type: 'get',
                 data: params,
                 success: function (html) {
