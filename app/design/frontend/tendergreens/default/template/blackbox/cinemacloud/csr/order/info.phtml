@@ -1,0 +1,144 @@
+<?php /** @var Mage_Sales_Block_Order_Info $this */ ?>
+<?php $order = $this->getOrder() ?>
+<div class="jobinformation" data-order-id="<?=$order->getId()?>">
+    <div class="jobinformation_title flex flexcenter flexbetween">
+        <div class="jobinformation_l">
+            <h2><?php echo $this->__('Job Information') ?></h2>
+        </div>
+        <div class="jobinformation_r flex flexcenter">
+            <a class="title13" href="<?=$this->getReorderUrl($order)?>">REORDER JOB</a>
+            <a class="title13 jobinformation_print" href="#">Print RECEIPT</a>
+        </div>
+        <div class="service_orders_openclose">
+            <div class="jobinformation_opener"></div>
+        </div>
+    </div>
+    <div class="jobinformation_content">
+        <div class="jobinformation_content_title jobinformation_content_title-mobile">
+            <div class="service_content_group_title">ORDER</div>
+            <div class="jobinformation_content_number">#<?php echo $this->escapeHtml($order->getRealOrderId()) ?></div>
+        </div>
+        <div class="jobinformation_table_order">
+            <table>
+                <tr>
+                    <td class="notablet">
+                        <div class="jobinformation_content_title">
+                            <div class="title13">ORDER</div>
+                            <div class="jobinformation_content_number">#<?php echo $this->escapeHtml($order->getRealOrderId()) ?></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="title13">Shipping</div>
+                        <div class="fz13">Address:</div>
+                        <div class="fz13"><?php echo $this->escapeHtml($order->getShippingAddress()->format('oneline')) ?></div>
+                    </td>
+                    <td>
+                        <div class="jobinformation_table_borderleft jobinformation_table_paddingleft">
+                            <div class="title13">Billing</div>
+                            <div class="fz13">Address:</div>
+                            <div class="fz13"><?php echo $this->escapeHtml($order->getBillingAddress()->format('oneline')) ?></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="notablet">
+                        <div class="title13">PurcHASE ORDER</div>
+                    </td>
+                    <td>
+                        <div class="fz13">Name:</div>
+                        <div class="fz13"><?php echo $this->escapeHtml($order->getCustomerName()) ?></div>
+                    </td>
+                    <td>
+                        <div class="jobinformation_table_paddingleft">
+                            <div class="fz13">Shipping method:</div>
+                            <div class="fz13"><?php echo $this->escapeHtml($order->getShippingDescription()) ?></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="notablet"></td>
+                    <td></td>
+                    <td>
+                        <div class="jobinformation_table_paddingleft">
+                            <div class="fz13">Payment Method</div>
+                            <div class="fz13"><?php echo $this->escapeHtml($order->getPayment()->getMethodInstance()->getTitle()) ?></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="jobinformation_table_product">
+            <table>
+                <thead>
+                <tr>
+                    <th>PRODUCT</th>
+                    <th class="tac">SKU</th>
+                    <th class="tac">PRICE</th>
+                    <th class="tac">QTY</th>
+                    <th class="tar">SUBTOTAL</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($order->getAllVisibleItems() as $item): ?>
+                <tr>
+                    <td class="jobinformation_table_product_title"><?php echo $this->escapeHtml($item->getName()) ?></td>
+                    <td class="tac"><?php echo $this->escapeHtml($item->getSku())?></td>
+                    <td class="tac"><?php echo $order->formatPrice($item->getPrice()) ?></td>
+                    <td class="tac"><?php echo (int)$item->getQtyOrdered() ?></td>
+                    <td class="tar"><?php echo $order->formatPrice($item->getRowTotal()) ?></td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <table class="mobile">
+                <thead>
+                <tr>
+                    <th colspan="2">PRODUCT</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($order->getAllVisibleItems() as $item): ?>
+                <tr>
+                    <td><?php echo $this->escapeHtml($item->getName()) ?></td>
+                    <td>
+                        <div>SKU: <span><?php echo $this->escapeHtml($item->getSku()) ?></span></div>
+                        <div>PRICE: <span><?php echo $order->formatPrice($item->getPrice()) ?></span></div>
+                        <div>QTY: <span><?php echo (int)$item->getQty() ?></span></div>
+                        <div>SUBTOTAL: <span><?php echo $order->formatPrice($item->getRowTotal()) ?></span></div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <div class="jobinformation_product_total flex flexbetween">
+            <div class="jobinformation_product_total_l">
+                <a class="button button_white" href="#">MAKE A PAYMENT</a>
+                <a class="button button_white" href="#">ATTACH P.O.</a>
+            </div>
+            <div class="jobinformation_product_total_r">
+                <div class="jobinformation_product_total_table">
+                    <table>
+                        <tr>
+                            <td>NET SALES:</td>
+                            <td class="tar"><?php echo $order->formatPrice($order->getGrandTotal()) ?></td>
+                        </tr>
+                        <tr>
+                            <td>shipping & handling:</td>
+                            <td class="tar"><?php echo $order->formatPrice($order->getShippingAmount()) ?></td>
+                        </tr>
+                        <tr>
+                            <td>Total excl.Sales Tax:</td>
+                            <td class="tar"><?php echo $order->formatPrice($order->getGrandTotal() - $order->getTaxAmount() - $order->getShippingAmount() - $order->getShippingTaxAmount()) ?></td>
+                        </tr>
+                        <tr>
+                            <td>sales tax:</td>
+                            <td class="tar"><?php echo $order->formatPrice($order->getTaxAmount()) ?></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="jobinformation_product_backorder"><a class="title13" href="#">BACK TO ORDER</a></div>
+    </div>
+</div>

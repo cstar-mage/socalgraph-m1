@@ -1,0 +1,31 @@
+<?php foreach ($this->getOrders() as $_order): ?>
+    <div class="service_order">
+        <div class="service_orders__tr">
+            <div class="service_orders_openclose"><span class="service_orders_open"></span></div>
+            <div class="service_orders_tr">
+                <div class="service_orders_td"><span>Order: </span><span>#<?php echo $this->escapeHtml($_order->getRealOrderId()) ?></span></div>
+                <div class="service_orders_td"><span>Created At: </span><span><?php echo strtotime($_order->getCreatedAt()) !== false ? $this->formatDate($_order->getCreatedAtStoreDate()) : ''?></span></div>
+                <div class="service_orders_td"><span>Net Total</span><span><?php echo $_order->formatPrice($_order->getGrandTotal()) ?></span></div>
+                <div class="service_orders_td"><span>Status: </span><span><?php echo $this->escapeHtml($_order->getStatusLabel())?></span></div>
+            </div>
+            <div class="service_order_collapse">
+                <div class="service_orders_content">
+                    <div class="flex flexcenter service_orders__content">
+                        <div class="service_orders_content_l tal">
+                            <?php foreach ($_order->getAllVisibleItems() as $item): ?>
+                                <div class="fz14"><?php echo $this->escapeHtml($item->getName()) ?></div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="service_orders_content_r tar">
+                            <?php if ($this->helper('sales/reorder')->canReorder($_order)) : ?>
+                                <a class="button button_grey" href="<?php echo $this->getReorderUrl($_order) ?>">REORDER</a>
+                            <?php endif; ?>
+                            <a class="button button_grey orderinfo_opener" href="#" data-order-id="<?=$_order->getId()?>">ORDER INFO</a>
+                            <a class="button button_white" href="#">APPROVAL REQUEST</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>

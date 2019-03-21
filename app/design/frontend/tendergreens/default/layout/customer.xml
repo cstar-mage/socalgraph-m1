@@ -336,6 +336,11 @@ Supported layout update handles (special):
                     <path>customer/salesRep/</path>
                     <label>Sales Rep Dashboard</label>
                 </action>
+                <action method="addLink" translate="label" module="customer" ifhelper="cinemacloud::isCustomerCSR">
+                    <name>csr_dashboard</name>
+                    <path>customer/csr/</path>
+                    <label>CSR Dashboard</label>
+                </action>
                 <action method="addLink" translate="label" module="customer">
                     <name>support_ticket</name>
                     <path>support/ticket</path>
