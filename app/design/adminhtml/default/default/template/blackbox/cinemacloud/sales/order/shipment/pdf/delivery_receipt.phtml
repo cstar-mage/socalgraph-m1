@@ -13,7 +13,7 @@ foreach ($shipment->getOrder()->getAddressesCollection() as $address) {
     }
 }
 
-//Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
 /** @var Blackbox_Epace_Model_Epace_Job_Shipment $epaceShipment */
 $epaceShipment = Mage::getModel('efi/job_shipment')->load($shipment->getEpaceShipmentId());
 
