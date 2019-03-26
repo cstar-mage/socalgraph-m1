@@ -16,7 +16,7 @@ class Blackbox_RolesPermissions_Model_Admin_User extends Mage_Admin_Model_User
         if ($this->getCustomerId()) {
             return $this->getCustomer()->getLogin();
         }
-        parent::getUsername();
+        return parent::getUsername();
     }
 
     public function getFirstname()
@@ -24,7 +24,7 @@ class Blackbox_RolesPermissions_Model_Admin_User extends Mage_Admin_Model_User
         if ($this->getCustomerId()) {
             return $this->getCustomer()->getFirstname();
         }
-        parent::getFirstname();
+        return parent::getFirstname();
     }
 
     public function getLastname()
