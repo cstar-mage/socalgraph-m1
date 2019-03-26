@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<layout>
+    <pdf_sales_order_shipment_delivery_receipt>
+        <block type="core/template" name="pdf_content" template="blackbox/cinemacloud/sales/order/shipment/pdf/delivery_receipt.phtml"></block>
+    </pdf_sales_order_shipment_delivery_receipt>
+</layout>

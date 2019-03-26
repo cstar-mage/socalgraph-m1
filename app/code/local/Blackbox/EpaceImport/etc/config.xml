@@ -17,7 +17,6 @@
                     <sales_order_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid</sales_order_grid>
                     <sales_order_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_View</sales_order_view>
                     <sales_shipment_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Shipment_Grid</sales_shipment_grid>
-                    <sales_order_shipment_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Shipment_View</sales_order_shipment_view>
                     <sales_invoice_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Invoice_Grid</sales_invoice_grid>
                     <sales_order_invoice_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Invoice_View</sales_order_invoice_view>
                     <customer_edit_tab_orders>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders</customer_edit_tab_orders>

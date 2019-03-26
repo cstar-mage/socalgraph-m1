@@ -15,6 +15,11 @@
                     <html_pager>Blackbox_CinemaCloud_Block_Page_Html_Pager</html_pager>
                 </rewrite>
             </page>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_shipment_view>Blackbox_CinemaCloud_Block_Adminhtml_Sales_Order_Shipment_View</sales_order_shipment_view>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <helpers>
             <cinemacloud>
@@ -110,6 +115,26 @@
             </cc_sso>
         </routers>
     </frontend>
+    <adminhtml>
+        <layout>
+            <updates>
+                <cinemacloud>
+                    <file>blackbox/cinemacloud.xml</file>
+                </cinemacloud>
+            </updates>
+        </layout>
+    </adminhtml>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Blackbox_CinemaCloud>Blackbox_CinemaCloud_Adminhtml</Blackbox_CinemaCloud>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
     <default>
         <web>
             <routers>

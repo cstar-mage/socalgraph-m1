@@ -47,6 +47,10 @@ if (file_exists($compilerConfig)) {
 $mageFilename = MAGENTO_ROOT . '/app/Mage.php';
 $maintenanceFile = 'maintenance.flag';
 
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
 if (!file_exists($mageFilename)) {
     if (is_dir('downloader')) {
         header("Location: downloader");
