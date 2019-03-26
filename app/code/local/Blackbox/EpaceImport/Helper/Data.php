@@ -552,7 +552,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
     {
         if (!$order) {
             $order = Mage::getModel('sales/order')->load($invoice->getData('job'), 'epace_job_id');
-            if (!$order) {
+            if (!$order->getId()) {
                 throw new \Exception('Unable to find order for invoice. Invoice id: ' . $invoice->getId() . '. Job: ' . $invoice->getJobId());
             }
         }
