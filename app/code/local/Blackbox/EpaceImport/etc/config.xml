@@ -66,6 +66,11 @@
                     <order_shipment>Blackbox_EpaceImport_Model_Sales_Order_Shipment</order_shipment>
                 </rewrite>
             </sales>
+            <usa>
+                <rewrite>
+                    <shipping_carrier_ups>Blackbox_EpaceImport_Model_Usa_Shipping_Carrier_Ups</shipping_carrier_ups>
+                </rewrite>
+            </usa>
         </models>
         <resources>
             <epace_import_setup>
