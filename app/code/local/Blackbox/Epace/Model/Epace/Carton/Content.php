@@ -135,6 +135,30 @@ class Blackbox_Epace_Model_Epace_Carton_Content extends Blackbox_Epace_Model_Epa
         return $this->_getObject('jobComponent', 'jobComponent', 'efi/job_component');
     }
 
+    public function getAssociatedJob()
+    {
+        if ($this->getJob()) {
+            return $this->getJob();
+        } else if ($this->getJobPartJob()) {
+            return $this->getJobPartJob();
+        } else if ($this->getJobProduct()) {
+            return $this->getJobProduct()->getJob();
+        } else if ($this->getJobMaterial()) {
+            return $this->getJobMaterial()->getJob();
+        } else if ($this->getJobPartPressForm()) {
+            return $this->getJobPartPressForm()->getJob();
+        } else if ($this->getJobComponent()) {
+            return $this->getJobComponent()->getJob();
+        } else if ($this->getJobPartItem()) {
+            return $this->getJobPartItem()->getJob();
+        } else if ($this->getProof()) {
+            return $this->getProof()->getJob();
+        } else if ($this->getCarton() && $this->getCarton()->getShipment()) {
+            return $this->getCarton()->getShipment()->getJob();
+        }
+        return false;
+    }
+
     /**
      * @param Blackbox_Epace_Model_Epace_Job_Component $jobComponent
      * @return $this

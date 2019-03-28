@@ -19,165 +19,120 @@ $epaceShipment = Mage::getModel('efi/job_shipment')->load($shipment->getEpaceShi
 
 $salesPersonCustomer = Mage::getModel('customer/customer')->load($shipment->getSalesPersonId());
 $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->getCsrId());
+
+$i = 0;
+$first = true;
+/** @var Blackbox_Epace_Model_Epace_Carton[][] $rows */
+$rows = [];
+foreach ($epaceShipment->getCartons() as $carton) {
+    $rows[$i][] = $carton;
+    $first = !$first;
+    if ($first) {
+        $i++;
+    }
+}
+
+$count = count($epaceShipment->getCartons());
+$qty = 0;
+foreach ($epaceShipment->getCartons() as $carton) {
+    $qty += $carton->getTotalQuantity();
+}
 ?>
 <html>
-<body style="font-family: helvetica;">
-<htmlpageheader name="header">
-    <div style="position: absolute; left: 25pt; top: 28pt;">
-        <img src="<?php echo $this->htmlEscape(dirname(__FILE__) . '/img/logo.jpg') ?>" width="147.5pt" height="62pt">
-        <div style="margin-top: 15pt">
-            <strong>
-                <div style="font-size: 10pt;"><strong>Ship To:</strong></div>
-                <?php $address = $shipment->getShippingAddress() ?>
-                <div style="font-size: 12pt; line-height: 119%;">
-                    <strong>
-                        <?= $address->getCompany() ?><br>
-                        <?= $address->getStreetFull() ?><br>
-                        <?= $address->getCity() . ', ' . ($address->getRegionId() ?: $address->getRegion()) . ' ' . $address->getPostcode() ?><br>
-                        <?php if (trim($address->getName())): ?>ATTN:<?= $address->getName() ?><?php endif; ?>
-                    </strong>
-                </div>
-            </strong>
-        </div>
-        <div style="margin-top: 50pt">
-            <div style="font-size: 10pt;"><strong>Ship From:</strong></div>
-            <?php if ($shipFromAddress): ?>
-                <div style="font-size: 12pt; line-height: 109%;">
-                    <strong>
-                        <?= $this->escapeHtml($address->getCompany()) ?><br>
-                        <?= $this->escapeHtml($address->getStreetFull()) ?><br>
-                        <?= $this->escapeHtml($address->getCity() . ' ' . ($address->getRegionId() ?: $address->getRegion()) . ' ' . $address->getPostcode()) ?><br>
-                        <?php if (trim($address->getTelephone())): ?><?=$this->escapeHtml($address->getTelephone())?><br><?php endif; ?>
-                        <?php if (trim($address->getName())): ?><?=$this->escapeHtml($address->getName())?><br><?php endif; ?>
-                    </strong>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    <div style="position: absolute; left: 228.8pt; top: 13pt; text-align: center;">
-        <div style="font-size: 18pt; line-height: 190%">
-            <strong>Delivery Receipt</strong>
-        </div>
-        <div style="font-size: 12pt; line-height: 120%">
-            Southern California Graphics<br>
-            8432 Steller Drive<br>
-            Culver City, CA 90232<br>
-            Phone (310) 559-3600<br>
-            Fax (310) 558-3127
-        </div>
-    </div>
-    <div style="position: absolute; top: 140pt; right: 20pt">
-        <?php
-        $rows = [
-            'Customer' => $customer->getName(),
-            'Job Number' => $shipment->getOrder()->getEpaceJobId(),
-            'Shipment Number' => $shipment->getEpaceShipmentId(),
-            'Shipment Date' => date('m/d/Y', strtotime($shipment->getCreatedAt())),
-            'Ship Via' => $epaceShipment->getId() ? $epaceShipment->getShipVia()->getDescription() : $shipment->getOrder()->getShippingDescription(),
-            'Customer PO' => $epaceShipment->getId() ? $epaceShipment->getJob()->getPoNum() : null,
-            'Salesperson' => $salesPersonCustomer->getName(),
-            'CSR' => $csrCustomer->getName()
-        ];
-        ?>
-        <table style="line-height: 130%;">
-            <tbody>
-            <?php foreach ($rows as $key => $value): ?>
-                <tr>
-                    <td style="font-size: 8pt; text-align: right;"><strong><?= $this->escapeHtml($key) ?>:</strong></td>
-                    <td style="font-size: 11pt;"><strong><?= $this->escapeHtml($value) ?></strong></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-</htmlpageheader>
-<sethtmlpageheader name="header" value="on" show-this-page="1" />
-
-<htmlpagefooter  name="footer">
-    <table width="100%" style="vertical-align: bottom; border-top: 2pt solid black;">
-        <tr>
-            <td width="50%" style="text-align: left; font-size: 7pt;">S8/10/16:ol-delivery-receipt-v2.rpt</td>
-            <td width="50%" style="text-align: right; font-size: 7pt;">Pace Systems Group, Inc.</td>
-        </tr>
-    </table>
-</htmlpagefooter>
-<sethtmlpagefooter name="footer" value="on" />
-
-<div style="margin-left: -7pt; border-top: 1pt solid black; border-bottom: 1pt solid black; line-height: 200%; width: 100%; padding-bottom: 4.5pt; padding-left: 5.9pt;">
-    <span style="font-size: 10pt;">Job Description:</span> <strong style="font-size: 12pt;"><?=$this->escapeHtml($shipment->getOrder()->getEpaceJobDescription())?></strong>
-</div>
-<div style="margin-top: 15pt; margin-left: -5pt;">
-    <table style="width: 100%">
-        <thead>
-        <tr style="font-weight: bold; border-bottom: 1pt solid black;">
-            <td style="text-align: right; width: 20%; font-weight: bold; border-bottom: 1pt solid black;">No. of Cartons</td>
-            <td style="text-align: right; width: 20%; font-weight: bold; border-bottom: 1pt solid black;">Carton Qty</td>
-            <td style="text-align: right; width: 20%; font-weight: bold; border-bottom: 1pt solid black;">Total Qty</td>
-            <td style="text-align: left; width: 40%; font-weight: bold; border-bottom: 1pt solid black;">Notes</td>
-        </tr>
-        </thead>
-        <tfoot>
-        <?php
-        $totalCount = 0;
-        foreach ($epaceShipment->getCartons() as $carton) {
-            $totalCount += $carton->getCount();
+<head>
+    <style>
+        .row {
+            height: 50%;
         }
-        ?>
-        <tr>
-            <td style="text-align: right; width: 20%; border-top: 1pt solid black;"><?=$totalCount?></td>
-            <td style="text-align: right; width: 20%;"></td>
-            <td style="text-align: right; width: 20%; border-top: 1pt solid black;"><?=$epaceShipment->getQuantity()?></td>
-            <td style="text-align: left; width: 40%;">Total Shipped</td>
-        </tr>
-        </tfoot>
-        <tbody>
-        <?php foreach ($epaceShipment->getCartons() as $carton): ?>
-            <tr style="font-weight: bold;">
-                <td style="text-align: right; width: 20%;"><?=$carton->getCount()?></td>
-                <td style="text-align: right; width: 20%;"><?=$carton->getQuantity()?></td>
-                <td style="text-align: right; width: 20%;"><?=$carton->getTotalQuantity()?></td>
-                <td style="text-align: left; width: 40%;"><?=$this->escapeHtml($carton->getNote())?></td>
-            </tr>
-            <?php foreach ($carton->getContents() as $content): ?>
-            <tr>
-                <td style="text-align: right; width: 20%;"></td>
-                <td style="text-align: right; width: 20%;"></td>
-                <td style="text-align: right; width: 20%;"><?=$content->getQuantity()   ?></td>
-                <td style="text-align: left; width: 40%;">
-                    <?php if ($content->getJobComponent()): ?>
-                        Component:<?=$this->escapeHtml($content->getJobComponent()->getDescription())?>
-                    <?php else: ?>
-                        <?=$this->escapeHtml($content->getContent())?>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-    <div><span style="font-size: 10pt;">Notes:</span> <strong style="font-size: 11pt;"><?=$this->escapeHtml($epaceShipment->getNotes())?></strong></div>
-</div>
-<div style="margin-top: 25pt; width: 100%;">
-    <div style="font-size: 8pt;">
-        <div>Shipped By: <?=$this->escapeHtml($epaceShipment->getShipperName())?></div>
-        <div>The above items have been received in good condition.</div>
+        .carton {
+            float: left;
+            width: 45%;
+        }
+        .table-row {
+            width: 100%;
+            margin-bottom: 2pt;
+        }
+        .table-row-cell-50 {
+            float: left;
+            width: 50%;
+        }
+        .table-row-cell-20 {
+            float: left;
+            width: 20%;
+        }
+        .table-row-cell-80 {
+            float: left;
+            width: 80%;
+        }
+        .big-label {
+            font-size: 16pt;
+        }
+        .med-label {
+            font-size: 10pt;
+        }
+        .small-label {
+            font-size: 9pt;
+        }
+        .very-small-label {
+            font-size: 8pt;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body style="font-family: helvetica;">
+
+<?php $i = 0; $first = false; ?>
+<?php foreach ($rows as $row): ?>
+<?php $first = true ?>
+<div class="row">
+    <?php foreach ($row as $carton): ?>
+    <div class="carton"<?php if (!$first): ?> style="margin-left: 30px;" <?php endif; ?>>
+        <div class="table-row big-label">
+            <div class="table-row-cell-50">Carton:</div>
+            <div class="table-row-cell-50"><?=++$i?> of <?=$count?></div>
+        </div>
+        <div class="table-row big-label">
+            <div class="table-row-cell-50">Quantity:</div>
+            <div class="table-row-cell-50"><?=$carton->getTotalQuantity()?> of <?=$qty?></div>
+        </div>
+        <div class="table-row med-label">
+            <div class="table-row-cell-50 small-label">Ship To</div>
+            <div class="table-row-cell-50"><?=date('m/d/y', strtotime($epaceShipment->getPromiseDate()))?></div>
+        </div>
+        <div class="table-row med-label bold"><?=$this->escapeHtml($epaceShipment->getName())?></div>
+        <div class="table-row med-label bold"><?=$this->escapeHtml($epaceShipment->getAddress1())?></div>
+        <div class="table-row med-label bold"><?=$this->escapeHtml($epaceShipment->getCity() . ', ' . $epaceShipment->getState() . ' ' . $epaceShipment->getZip())?></div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">Contact:</div>
+            <div class="table-row-cell-80 bold"><?=$epaceShipment->getContactFirstName() . ' ' . $epaceShipment->getContactLastName()?></div>
+        </div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">Contents</div>
+            <div class="table-row-cell-80 bold">
+                <?php foreach ($carton->getContents() as $content): ?>
+                <div><?=$this->escapeHtml($content->getAssociatedJob()->getDescription())?></div>
+                <div><?=$this->escapeHtml($content->getAssociatedJob()->getDescription2())?></div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <div class="table-row">
+            <div class="table-row-cell-20 very-small-label">Job Number</div>
+            <div class="table-row-cell-80 bold" style="font-size: 11pt;"><?=$this->escapeHtml($epaceShipment->getJob()->getId())?></div>
+        </div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">PO Number</div>
+            <div class="table-row-cell-80 bold"><?=$this->escapeHtml($epaceShipment->getJob()->getPoNum())?></div>
+        </div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">Notes</div>
+            <div class="table-row-cell-80 bold"><?=$this->escapeHtml($carton->getNote())?></div>
+        </div>
     </div>
-    <table style="width: 100%;">
-        <tr>
-            <td width="20%" style="font-size: 9pt;">RECEIVED:</td>
-            <td width="40%" style="font-size: 8pt;">By: ________________</td>
-            <td width="40%" style="font-size: 9pt;">Date: ______________________</td>
-        </tr>
-        <tr>
-            <td width="20%"></td>
-            <td width="40%" style="font-size: 8pt;">NAME: ____________________</td>
-            <td width="40%"></td>
-        </tr>
-    </table>
-    <div style="font-size: 7pt;">
-        <div style="float: left; width: 20%; page-break-inside: avoid">Only the items identified as FSC are Certified</div>
-        <div style="float: right; width: 15%; margin-right: 40pt; page-break-inside: avoid">Forest Stewardship Council Chain-of-Custody Certified FSC# SCS-COC-001023</div>
-    </div>
+    <?php $first = false; ?>
+    <?php endforeach; ?>
 </div>
+<?php endforeach; ?>
 </body>
 </html>
