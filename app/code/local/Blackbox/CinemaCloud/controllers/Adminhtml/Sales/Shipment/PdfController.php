@@ -53,9 +53,8 @@ class Blackbox_CinemaCloud_Adminhtml_Sales_Shipment_PdfController extends Mage_A
         ]);
         $mpdf->setAutoBottomMargin = 'stretch';
         $mpdf->WriteHTML($html);
-//        $pdf = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
-//
-//        $this->_prepareDownloadResponse('Shipping Labels ' . $shipment->getIncrementId() . '.pdf', $pdf, 'application/pdf');
-        $mpdf->Output();
+        $pdf = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+
+        $this->_prepareDownloadResponse('Shipping Labels ' . $shipment->getIncrementId() . '.pdf', $pdf, 'application/pdf');
     }
 }
