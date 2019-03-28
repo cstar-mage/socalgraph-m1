@@ -1120,8 +1120,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             ->addFieldToFilter('code', $contact->getState());
         if ($region = $regionCollection->getFirstItem()) {
             $regionName = $region->getDefaultName();
+            $regionId = $region->getId();
         } else {
             $regionName = $contact->getState();
+            $regionId = null;
         }
 
         if ($contact->getCustomer()) {
@@ -1142,6 +1144,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'sales_person_id' => $salesPersonCustomerId,
             'address_type' => $type,
             'fax' => '',
+            'region_id' => $regionId,
             'region' => $regionName,
             'postcode' => $contact->getZip(),
             'lastname' => $contact->getLastName(),

@@ -79,6 +79,7 @@ class TestEpaceShippingRates extends Mage_Shell_Abstract
                     $carrier = $this->helper->getCarrier($shippingMethod->getCarrier());
 
                     if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups) {
+
                         /** @var Mage_Shipping_Model_Rate_Request $request */
                         $request = Mage::getModel('shipping/rate_request');
                         $request->setOrigCountryId($addressFrom->getCountryId());
@@ -96,7 +97,7 @@ class TestEpaceShippingRates extends Mage_Shell_Abstract
                         $request->setDestStreet($shippingAddress->getStreetFull());
 
                         $request->setPackageWeight($jobShipment->getWeight());
-                        $request->setBaseCurrency($this->helper->getStore()->getBaseCurrencyCode());
+                        $request->setBaseCurrency($this->helper->getStore()->getBaseCurrency());
 
                         $result = $carrier->collectRates($request);
                         if (!$result->getError()) {
