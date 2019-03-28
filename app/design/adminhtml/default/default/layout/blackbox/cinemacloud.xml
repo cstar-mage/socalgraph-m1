@@ -3,4 +3,8 @@
     <pdf_sales_order_shipment_delivery_receipt>
         <block type="core/template" name="pdf_content" template="blackbox/cinemacloud/sales/order/shipment/pdf/delivery_receipt.phtml"></block>
     </pdf_sales_order_shipment_delivery_receipt>
+
+    <pdf_sales_order_shipment_shipping_labels>
+        <block type="core/template" name="pdf_content" template="blackbox/cinemacloud/sales/order/shipment/pdf/shipping_labels.phtml"></block>
+    </pdf_sales_order_shipment_shipping_labels>
 </layout>

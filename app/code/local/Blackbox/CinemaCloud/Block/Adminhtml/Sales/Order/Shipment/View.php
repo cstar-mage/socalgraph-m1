@@ -18,6 +18,13 @@ class Blackbox_CinemaCloud_Block_Adminhtml_Sales_Order_Shipment_View extends Mag
                     'onclick'   => 'setLocation(\''.$this->getDeliveryReceiptUrl().'\')'
                 )
             );
+
+            $this->_addButton('shippingLabels', array(
+                    'label'     => Mage::helper('sales')->__('Shipping Labels'),
+                    'class'     => 'save',
+                    'onclick'   => 'setLocation(\''.$this->getShippingLabelsUrl().'\')'
+                )
+            );
         }
     }
 
@@ -31,6 +38,13 @@ class Blackbox_CinemaCloud_Block_Adminhtml_Sales_Order_Shipment_View extends Mag
     protected function getDeliveryReceiptUrl()
     {
         return $this->getUrl('*/sales_shipment_pdf/deliveryReceipt', array(
+            'shipment_id' => $this->getShipment()->getId()
+        ));
+    }
+
+    protected function getShippingLabelsUrl()
+    {
+        return $this->getUrl('*/sales_shipment_pdf/shippingLabels', array(
             'shipment_id' => $this->getShipment()->getId()
         ));
     }
