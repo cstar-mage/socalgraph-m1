@@ -16,9 +16,11 @@ class Blackbox_CinemaCloud_Adminhtml_Sales_Shipment_PdfController extends Mage_A
 
         $this->loadLayout('pdf_sales_order_shipment_delivery_receipt');
         $html = $this->getLayout()->getBlock('pdf_content')->toHtml();
+
+        $height = 792;
         $mpdf = new \Mpdf\Mpdf([
             'mode' => 'c',
-            'format' => [612 / \Mpdf\Mpdf::SCALE, 792 / \Mpdf\Mpdf::SCALE],
+            'format' => [612 / \Mpdf\Mpdf::SCALE, $height / \Mpdf\Mpdf::SCALE],
             'margin_left' => 25 / \Mpdf\Mpdf::SCALE,
             'margin_right' => 25 / \Mpdf\Mpdf::SCALE,
             'margin_top' => 318.3 / \Mpdf\Mpdf::SCALE,
@@ -26,6 +28,15 @@ class Blackbox_CinemaCloud_Adminhtml_Sales_Shipment_PdfController extends Mage_A
         ]);
         $mpdf->setAutoBottomMargin = 'stretch';
         $mpdf->WriteHTML($html);
+
+        $curY = $mpdf->y * \Mpdf\Mpdf::SCALE;
+        if ($curY > $height - 163) {
+            $mpdf->AddPage();
+        }
+
+        $block = $this->getLayout()->getBlock('pdf_end');
+        $mpdf->WriteHTML($block->toHtml());
+
         $pdf = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
 
         $this->_prepareDownloadResponse('Delivery Receipt ' . $shipment->getIncrementId() . '.pdf', $pdf, 'application/pdf');
