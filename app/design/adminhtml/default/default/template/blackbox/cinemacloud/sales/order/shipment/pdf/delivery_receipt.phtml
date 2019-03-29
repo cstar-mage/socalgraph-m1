@@ -159,8 +159,12 @@ $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->
                 <td class="cell"></td>
                 <td class="cell"><?=$content->getQuantity()   ?></td>
                 <td style="text-align: left;">
-                    <?php if ($content->getJobComponent()): ?>
+                    <?php if ($content->getJobMaterial()): ?>
+                        Material: <?=$this->escapeHtml($content->getJobMaterial()->getDescription())?>
+                    <?php elseif ($content->getJobComponent()): ?>
                         Component:<?=$this->escapeHtml($content->getJobComponent()->getDescription())?>
+                    <?php elseif ($content->getJobProduct()): ?>
+                        Product: <?=$this->escapeHtml($content->getJobProduct()->getDescription())?>
                     <?php elseif ($content->getJob()): ?>
                         Job: <?=$this->escapeHtml($content->getJob()->getDescription())?>
                     <?php else: ?>

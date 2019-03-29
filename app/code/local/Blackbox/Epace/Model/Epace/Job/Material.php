@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @method string getDescription()
+ *
+ * Class Blackbox_Epace_Model_Epace_Job_Material
+ */
 class Blackbox_Epace_Model_Epace_Job_Material extends Blackbox_Epace_Model_Epace_Job_Part_AbstractChild
 {
     protected function _construct()

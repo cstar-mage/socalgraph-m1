@@ -37,9 +37,10 @@ class Blackbox_CinemaCloud_Adminhtml_Sales_Shipment_PdfController extends Mage_A
         $block = $this->getLayout()->getBlock('pdf_end');
         $mpdf->WriteHTML($block->toHtml());
 
-        $pdf = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+        //$pdf = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
 
-        $this->_prepareDownloadResponse('Delivery Receipt ' . $shipment->getIncrementId() . '.pdf', $pdf, 'application/pdf');
+        //$this->_prepareDownloadResponse('Delivery Receipt ' . $shipment->getIncrementId() . '.pdf', $pdf, 'application/pdf');
+        $mpdf->Output('Delivery Receipt ' . $shipment->getEpaceShipmentId() . '.pdf', \Mpdf\Output\Destination::INLINE);
     }
 
     public function shippingLabelsAction()
@@ -64,8 +65,9 @@ class Blackbox_CinemaCloud_Adminhtml_Sales_Shipment_PdfController extends Mage_A
         ]);
         $mpdf->setAutoBottomMargin = 'stretch';
         $mpdf->WriteHTML($html);
-        $pdf = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+//        $pdf = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
 
-        $this->_prepareDownloadResponse('Shipping Labels ' . $shipment->getIncrementId() . '.pdf', $pdf, 'application/pdf');
+//        $this->_prepareDownloadResponse('Shipping Labels ' . $shipment->getIncrementId() . '.pdf', $pdf, 'application/pdf');
+        $mpdf->Output('Shipping Labels ' . $shipment->getEpaceShipmentId() . '.pdf', \Mpdf\Output\Destination::INLINE);
     }
 }
