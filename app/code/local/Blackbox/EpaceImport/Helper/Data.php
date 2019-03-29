@@ -463,6 +463,9 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         $billingAddressAdded = false;
         foreach ($job->getJobContacts() as $jobContact) {
             $contactId = $jobContact->getContactId();
+            if (!$jobContact->getContact()) {
+                continue;
+            }
             if (!isset($contacts[$contactId])) {
                 $contacts[$contactId] = [
                     'jobContact' => $jobContact,
