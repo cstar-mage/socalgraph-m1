@@ -1017,6 +1017,116 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         return $orderShipment;
     }
 
+    /**
+     * @param Mage_Shipping_Model_Carrier_Abstract $carrier
+     * @param $method
+     * @param $weight
+     * @param Mage_Sales_Model_Order_Address $origAddress
+     * @param Mage_Sales_Model_Order_Address $destAddress
+     * @return bool|array
+     */
+    public function getShippingPrice(Mage_Shipping_Model_Carrier_Abstract $carrier, $method, $weight, Mage_Sales_Model_Order_Address $origAddress, Mage_Sales_Model_Order_Address $destAddress)
+    {
+        if ($carrier instanceof Mage_Usa_Model_Shipping_Carrier_Ups || $carrier instanceof Mage_Usa_Model_Shipping_Carrier_Fedex) {
+            /** @var Mage_Shipping_Model_Rate_Request $request */
+            $request = Mage::getModel('shipping/rate_request');
+
+            $request->setOrigCountryId($origAddress->getCountryId());
+            $request->setOrigRegionId($origAddress->getRegionId());
+            $request->setOrigCity($origAddress->getCity());
+            $request->setOrigPostcode($origAddress->getPostcode());
+
+            $request->setLimitMethod($method);
+
+            $request->setDestCountryId($destAddress->getCountryId());
+            $request->setDestRegionId($destAddress->getRegionId());
+            $request->setDestRegionCode($destAddress->getRegionCode());
+            $request->setDestCity($destAddress->getCity());
+            $request->setDestPostcode($destAddress->getPostcode());
+            $request->setDestStreet($destAddress->getStreetFull());
+
+            $request->setPackageWeight($weight);
+            $request->setBaseCurrency($this->getStore()->getBaseCurrency());
+
+            $result = $carrier->collectRates($request);
+            if (!$result->getError()) {
+                foreach ($result->getAllRates() as $rate) {
+                    if ($rate->getMethod() == $method) {
+                        return [
+                            'price' => $rate->getPrice(),
+                            'cost' => $rate->getCost()
+                        ];
+                    }
+                }
+            } else {
+                $msg = null;
+                foreach ($result->getAllRates() as $rate) {
+                    if ($rate->getErrorMessage()) {
+                        $msg = $rate->getErrorMessage();
+                        break;
+                    }
+                }
+                if (!$msg) {
+                    $msg = 'Unable to load carrier rates.';
+                }
+                Mage::throwException($msg);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order_Shipment $shipment
+     * @param Mage_Sales_Model_Order_Address|null $origAddress
+     * @param Mage_Sales_Model_Order_Address|null $destAddress
+     * @return array|bool
+     */
+    public function getShipmentPrice(Mage_Sales_Model_Order_Shipment $shipment, Mage_Sales_Model_Order_Address $origAddress = null, Mage_Sales_Model_Order_Address $destAddress = null)
+    {
+        if ($shipment->getCarrier() != 'ups') {
+            return false;
+        }
+
+        $carrier = $this->getCarrier($shipment->getCarrier());
+        if (!$carrier instanceof Mage_Shipping_Model_Carrier_Abstract) {
+            return false;
+        }
+
+        if (!$origAddress) {
+            $order = $shipment->getOrder();
+            $origAddressEpaceJobContactId = $order->getEpaceShipToJobContact();
+
+            foreach ($order->getAddressesCollection() as $address) {
+                if ($address->getEpaceJobContactId() == $origAddressEpaceJobContactId) {
+                    $origAddress = $address;
+                    break;
+                }
+            }
+
+            if (!$origAddress) {
+                return false;
+            }
+        }
+
+        if (!$destAddress) {
+            $order = $shipment->getOrder();
+            $destAddressId = $shipment->getShippingAddressId();
+            foreach ($order->getAddressesCollection() as $address) {
+                if ($address->getId() == $destAddressId) {
+                    $destAddress = $address;
+                    break;
+                }
+            }
+        }
+
+        if (!$destAddress) {
+            return false;
+        }
+
+        return $this->getShippingPrice($carrier, $shipment->getMethod(), $shipment->getTotalWeight(), $origAddress, $destAddress);
+    }
+
     public function calculatePartsPriceFromEstimate(Blackbox_Epace_Model_Epace_Job $job)
     {
         if (!$job->isSourceEstimate()) {
