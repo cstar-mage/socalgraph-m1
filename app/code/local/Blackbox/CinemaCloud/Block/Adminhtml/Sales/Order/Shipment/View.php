@@ -15,14 +15,14 @@ class Blackbox_CinemaCloud_Block_Adminhtml_Sales_Order_Shipment_View extends Mag
             $this->_addButton('deliveryReceipt', array(
                     'label'     => Mage::helper('sales')->__('Delivery Receipt'),
                     'class'     => 'save',
-                    'onclick'   => 'setLocation(\''.$this->getDeliveryReceiptUrl().'\')'
+                    'onclick'   => 'popWin(\''.$this->getDeliveryReceiptUrl().'\', null, \'modal=yes,width=\' + (parseInt(window.innerWidth)) + \',height=\' + (parseInt(window.innerHeight)) + \',toolbar=0,menubar=0,location=0,status=0\')'
                 )
             );
 
             $this->_addButton('shippingLabels', array(
                     'label'     => Mage::helper('sales')->__('Shipping Labels'),
                     'class'     => 'save',
-                    'onclick'   => 'setLocation(\''.$this->getShippingLabelsUrl().'\')'
+                    'onclick'   => 'popWin(\''.$this->getShippingLabelsUrl().'\', null, \'modal=yes,width=\' + (parseInt(window.innerWidth)) + \',height=\' + (parseInt(window.innerHeight)) + \',toolbar=0,menubar=0,location=0,status=0\')'
                 )
             );
         }
