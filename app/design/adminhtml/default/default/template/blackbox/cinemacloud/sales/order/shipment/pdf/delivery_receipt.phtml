@@ -21,6 +21,21 @@ $salesPersonCustomer = Mage::getModel('customer/customer')->load($shipment->getS
 $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->getCsrId());
 ?>
 <html>
+<head>
+    <style>
+        .cell {
+            text-align: right;
+            width: 15.5%;
+        }
+        .bold, .bold-row td {
+            font-weight: bold;
+        }
+        thead td {
+            font-size: 10pt;
+            line-height: 200%;
+        }
+    </style>
+</head>
 <body style="font-family: helvetica;">
 <htmlpageheader name="header">
     <div style="position: absolute; left: 25pt; top: 28pt;">
@@ -110,10 +125,10 @@ $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->
     <table style="width: 100%">
         <thead>
         <tr style="font-weight: bold; border-bottom: 1pt solid black;">
-            <td style="text-align: right; width: 20%; font-weight: bold; border-bottom: 1pt solid black;">No. of Cartons</td>
-            <td style="text-align: right; width: 20%; font-weight: bold; border-bottom: 1pt solid black;">Carton Qty</td>
-            <td style="text-align: right; width: 20%; font-weight: bold; border-bottom: 1pt solid black;">Total Qty</td>
-            <td style="text-align: left; width: 40%; font-weight: bold; border-bottom: 1pt solid black;">Notes</td>
+            <td class="cell" style="font-weight: bold; border-bottom: 1pt solid black;">No. of Cartons</td>
+            <td class="cell" style="font-weight: bold; border-bottom: 1pt solid black;">Carton Qty</td>
+            <td class="cell" style="font-weight: bold; border-bottom: 1pt solid black;">Total Qty</td>
+            <td style="text-align: left; font-weight: bold; border-bottom: 1pt solid black;">Notes</td>
         </tr>
         </thead>
         <tfoot>
@@ -123,29 +138,31 @@ $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->
             $totalCount += $carton->getCount();
         }
         ?>
-        <tr>
-            <td style="text-align: right; width: 20%; border-top: 1pt solid black;"><?=$totalCount?></td>
-            <td style="text-align: right; width: 20%;"></td>
-            <td style="text-align: right; width: 20%; border-top: 1pt solid black;"><?=$epaceShipment->getQuantity()?></td>
-            <td style="text-align: left; width: 40%;">Total Shipped</td>
+        <tr class="bold-row">
+            <td class="cell" style="border-top: 1pt solid black;"><?=$totalCount?></td>
+            <td class="cell"></td>
+            <td class="cell" style="border-top: 1pt solid black;"><?=$epaceShipment->getQuantity()?></td>
+            <td style="text-align: left;">Total Shipped</td>
         </tr>
         </tfoot>
         <tbody>
         <?php foreach ($epaceShipment->getCartons() as $carton): ?>
-            <tr style="font-weight: bold;">
-                <td style="text-align: right; width: 20%;"><?=$carton->getCount()?></td>
-                <td style="text-align: right; width: 20%;"><?=$carton->getQuantity()?></td>
-                <td style="text-align: right; width: 20%;"><?=$carton->getTotalQuantity()?></td>
-                <td style="text-align: left; width: 40%;"><?=$this->escapeHtml($carton->getNote())?></td>
+            <tr class="bold-row">
+                <td class="cell" style="font-weight: bold;"><?=$carton->getCount()?></td>
+                <td class="cell"><?=$carton->getQuantity()?></td>
+                <td class="cell"><?=$carton->getTotalQuantity()?></td>
+                <td  style="text-align: left;"><?=$this->escapeHtml($carton->getNote())?></td>
             </tr>
             <?php foreach ($carton->getContents() as $content): ?>
             <tr>
-                <td style="text-align: right; width: 20%;"></td>
-                <td style="text-align: right; width: 20%;"></td>
-                <td style="text-align: right; width: 20%;"><?=$content->getQuantity()   ?></td>
-                <td style="text-align: left; width: 40%;">
+                <td class="cell"></td>
+                <td class="cell"></td>
+                <td class="cell"><?=$content->getQuantity()   ?></td>
+                <td style="text-align: left;">
                     <?php if ($content->getJobComponent()): ?>
                         Component:<?=$this->escapeHtml($content->getJobComponent()->getDescription())?>
+                    <?php elseif ($content->getJob()): ?>
+                        Job: <?=$this->escapeHtml($content->getJob()->getDescription())?>
                     <?php else: ?>
                         <?=$this->escapeHtml($content->getContent())?>
                     <?php endif; ?>
@@ -155,29 +172,14 @@ $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->
         <?php endforeach; ?>
         </tbody>
     </table>
-    <div><span style="font-size: 10pt;">Notes:</span> <strong style="font-size: 11pt;"><?=$this->escapeHtml($epaceShipment->getNotes())?></strong></div>
-</div>
-<div style="margin-top: 25pt; width: 100%;">
-    <div style="font-size: 8pt;">
-        <div>Shipped By: <?=$this->escapeHtml($epaceShipment->getShipperName())?></div>
-        <div>The above items have been received in good condition.</div>
-    </div>
-    <table style="width: 100%;">
+    <table>
+        <tbody>
         <tr>
-            <td width="20%" style="font-size: 9pt;">RECEIVED:</td>
-            <td width="40%" style="font-size: 8pt;">By: ________________</td>
-            <td width="40%" style="font-size: 9pt;">Date: ______________________</td>
+            <td style="font-size: 10pt; vertical-align: top;">Notes:</td>
+            <td class="bold" style="font-size: 11pt; vertical-align: top;"><?=preg_replace('/\\r?\\n/', '<br>', $this->escapeHtml($epaceShipment->getNotes()))?></td>
         </tr>
-        <tr>
-            <td width="20%"></td>
-            <td width="40%" style="font-size: 8pt;">NAME: ____________________</td>
-            <td width="40%"></td>
-        </tr>
+        </tbody>
     </table>
-    <div style="font-size: 7pt;">
-        <div style="float: left; width: 20%; page-break-inside: avoid">Only the items identified as FSC are Certified</div>
-        <div style="float: right; width: 15%; margin-right: 40pt; page-break-inside: avoid">Forest Stewardship Council Chain-of-Custody Certified FSC# SCS-COC-001023</div>
-    </div>
 </div>
 </body>
 </html>

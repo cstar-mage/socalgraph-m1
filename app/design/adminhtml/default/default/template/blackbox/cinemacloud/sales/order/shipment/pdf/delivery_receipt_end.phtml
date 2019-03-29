@@ -1,0 +1,31 @@
+<?php
+/** @var Mage_Core_Block_Template $this */
+/** @var Mage_Sales_Model_Order_Shipment $shipment */
+$shipment = Mage::registry('current_shipment');
+
+Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+/** @var Blackbox_Epace_Model_Epace_Job_Shipment $epaceShipment */
+$epaceShipment = Mage::getModel('efi/job_shipment')->load($shipment->getEpaceShipmentId());
+?>
+<div style="width: 100%; position: absolute; left: 25pt; bottom: 50pt;">
+    <div style="font-size: 8pt;">
+        <div>Shipped By: <?=$this->escapeHtml($epaceShipment->getShipperName())?></div>
+        <div>The above items have been received in good condition.</div>
+    </div>
+    <table style="width: 100%; line-height: 200%; margin-top: 10pt;">
+        <tr>
+            <td width="20%" style="font-size: 9pt;">RECEIVED:</td>
+            <td width="40%" style="font-size: 8pt;"> By: ____________________________</td>
+            <td width="40%" style="font-size: 9pt;">Date: ______________________</td>
+        </tr>
+        <tr>
+            <td width="20%"></td>
+            <td width="40%" style="font-size: 8pt;">NAME:: ____________________________</td>
+            <td width="40%"></td>
+        </tr>
+    </table>
+    <div style="font-size: 7pt;">
+        <div style="float: left; width: 20%;">Only the items identified as FSC are Certified</div>
+        <div style="float: right; width: 15%; margin-right: 20%;">Forest Stewardship Council Chain-of-Custody Certified FSC# SCS-COC-001023</div>
+    </div>
+</div>
