@@ -358,6 +358,7 @@ class EpaceMongo extends Mage_Shell_Abstract
 
             $this->saveStatus('success');
         } catch (\Exception $e) {
+            $this->writeln($e->getMessage());
             Mage::logException($e);
             $this->saveStatus('error', 'Exception in ' . $e->getFile() . ':' . $e->getLine() . '. Message: ' . $e->getMessage());
         }
