@@ -5,7 +5,10 @@ require_once 'abstract.php';
 class EpaceMongoDebug
 {
     public static $debug = false;
+    public static $time = null;
 }
+
+EpaceMongoDebug::$time = time();
 
 class MongoEpaceCollection
 {
@@ -24,6 +27,8 @@ class MongoEpaceCollection
      */
     protected $api;
 
+    protected $debugInserts = [];
+
     /**
      * @var MongoDB\Driver\BulkWrite
      */
@@ -34,11 +39,14 @@ class MongoEpaceCollection
 
     protected $existingIds = [];
 
+    protected $type;
+
     public function __construct($epaceResource, $manager, $database)
     {
         $this->epaceResource = $epaceResource;
         $this->manager = $manager;
         $this->database = $database;
+        $this->type = Mage::helper('epace')->getTypeName($this->getCollectionName());
     }
 
     /**
@@ -195,6 +203,7 @@ class MongoEpaceCollection
             $data['_created_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
             $data['_updated_at'] = new MongoDB\BSON\UTCDateTime(time() * 1000);
             $this->bulkWrite->insert($data);
+            $this->debugInserts[$id] = $data;
             if (EpaceMongoDebug::$debug) {
                 echo $this->getCollectionName() . ' INSERT' . PHP_EOL;
             }
@@ -253,6 +262,42 @@ class MongoEpaceCollection
             }
 
             $this->currentBulkWriteIds = [];
+
+            foreach ($this->debugInserts as $id => $data) {
+                $entryDate = $data['entryDate'];
+                $entryTime = $data['entryTime'];
+                if ($entryDate instanceof \MongoDB\BSON\UTCDateTime && $entryTime instanceof \MongoDB\BSON\UTCDateTime) {
+                    $dateFormatted = $entryDate->toDateTime()->format('Y-m-d H:i:s');
+                    $timeFormatted = $entryTime->toDateTime()->format('Y-m-d H:i:s');
+                    Mage::log($this->getCollectionName() . ' ' . $id . ' ' . $dateFormatted . ' ' . $timeFormatted, null, EpaceMongoDebug::$time . '_mongoInsertBefore.log', true);
+                    if ($dateFormatted == $timeFormatted) {
+                        $object = Mage::getModel('efi/' . $this->type)->load($id);
+                        Mage::log($this->getCollectionName() . ' ' . $id . ' ' . print_r($object->getData(), true), null, EpaceMongoDebug::$time . '_mongoInsertBeforeMATCH.log', true);
+                    }
+
+                    $loadedData = $this->loadData($id);
+                    /** @var \MongoDB\BSON\UTCDateTime $loadedDate */
+                    $loadedDate = $loadedData['entryDate'];
+                    /** @var \MongoDB\BSON\UTCDateTime $loadedTime */
+                    $loadedTime = $loadedData['entryTime'];
+                    $loadedDateFormatted = $loadedDate->toDateTime()->format('Y-m-d H:i:s');
+                    $loadedTimeFormatted = $loadedTime->toDateTime()->format('Y-m-d H:i:s');
+                    Mage::log($this->getCollectionName() . ' ' . $id . ' ' . $loadedDateFormatted . ' ' . $loadedTimeFormatted, null, EpaceMongoDebug::$time . '_mongoInsertAfter.log', true);
+                    if ($loadedDateFormatted == $loadedTimeFormatted) {
+                        if (!isset($object)) {
+                            $object = Mage::getModel('efi/' . $this->type)->load($id);
+                        }
+                        Mage::log($this->getCollectionName() . ' ' . $id . ' ' . print_r($object->getData(), true), null, EpaceMongoDebug::$time . '_mongoInsertAfterMATCH.log', true);
+                    }
+                    if ($dateFormatted != $loadedDateFormatted || $timeFormatted != $loadedTimeFormatted) {
+                        if (!isset($object)) {
+                            $object = Mage::getModel('efi/' . $this->type)->load($id);
+                        }
+                        Mage::log($this->getCollectionName() . ' ' . $id . ' ' . print_r($object->getData(), true), null, EpaceMongoDebug::$time . '_mongoInsertNOTMATCH.log', true);
+                    }
+                }
+            }
+            $this->debugInserts = [];
         }
     }
 
