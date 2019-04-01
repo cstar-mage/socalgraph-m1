@@ -1,0 +1,35 @@
+<?php /** @var Blackbox_CinemaCLoud_Block_Csr_Order_History_Filter $this */ ?>
+<div class="service_content_address_input"><input name="q" type="text" value="<?= $this->htmlEscape($this->getQuery()) ?>"></div>
+<div class="row row830 filter">
+    <div class="col-md-3">
+        <label class="service_content_group_title">JOB STATUS</label>
+        <?php echo $this->getStatusSelectHtml('custom_select'); ?>
+    </div>
+    <div class="col-md-3">
+        <label class="service_content_group_title">SORT BY</label>
+        <?php echo $this->getSortSelectHtml('custom_select'); ?>
+    </div>
+    <div class="col-md-3">
+        <label class="service_content_group_title">PAYMENT STATUS</label>
+        <?php echo $this->getPaymentStatusSelectHtml('custom_select'); ?>
+    </div>
+    <?php if (false): ?>
+    <div class="col-md-3">
+        <label class="service_content_group_title">shipping STATUS</label>
+        <select class="custom_select">
+            <option>All</option>
+            <option>20</option>
+            <option>30</option>
+        </select>
+    </div>
+    <?php endif; ?>
+    <script type="text/javascript">
+        jQuery('.filter .custom_select').on('selectmenuchange', function () {
+            updateFilter(this);
+        });
+
+        function updateFilter(el) {
+            jQuery(el).closest('form').submit();
+        }
+    </script>
+</div>

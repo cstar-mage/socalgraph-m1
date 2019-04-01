@@ -1,0 +1,189 @@
+<?php
+/** @var Mage_Core_Block_Template $this */
+/** @var Mage_Sales_Model_Order_Shipment $shipment */
+$shipment = Mage::registry('current_shipment');
+$customer = Mage::getModel('customer/customer')->load($shipment->getCustomerId());
+
+$shipFromAddress = null;
+$shipToJobContact = $shipment->getOrder()->getEpaceShipToJobContact();
+foreach ($shipment->getOrder()->getAddressesCollection() as $address) {
+    if ($address->getEpaceJobContactId() == $shipToJobContact) {
+        $shipFromAddress = $address;
+        break;
+    }
+}
+
+Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+/** @var Blackbox_Epace_Model_Epace_Job_Shipment $epaceShipment */
+$epaceShipment = Mage::getModel('efi/job_shipment')->load($shipment->getEpaceShipmentId());
+
+$salesPersonCustomer = Mage::getModel('customer/customer')->load($shipment->getSalesPersonId());
+$csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->getCsrId());
+?>
+<html>
+<head>
+    <style>
+        .cell {
+            text-align: right;
+            width: 15.5%;
+        }
+        .bold, .bold-row td {
+            font-weight: bold;
+        }
+        thead td {
+            font-size: 10pt;
+            line-height: 200%;
+        }
+    </style>
+</head>
+<body style="font-family: helvetica;">
+<htmlpageheader name="header">
+    <div style="position: absolute; left: 25pt; top: 28pt;">
+        <img src="<?php echo $this->htmlEscape(dirname(__FILE__) . '/img/logo.jpg') ?>" width="147.5pt" height="62pt">
+        <div style="margin-top: 15pt">
+            <strong>
+                <div style="font-size: 10pt;"><strong>Ship To:</strong></div>
+                <?php $address = $shipment->getShippingAddress() ?>
+                <div style="font-size: 12pt; line-height: 119%;">
+                    <strong>
+                        <?= $address->getCompany() ?><br>
+                        <?= $address->getStreetFull() ?><br>
+                        <?= $address->getCity() . ', ' . ($address->getRegionId() ?: $address->getRegion()) . ' ' . $address->getPostcode() ?><br>
+                        <?php if (trim($address->getName())): ?>ATTN:<?= $address->getName() ?><?php endif; ?>
+                    </strong>
+                </div>
+            </strong>
+        </div>
+        <div style="margin-top: 50pt">
+            <div style="font-size: 10pt;"><strong>Ship From:</strong></div>
+            <?php if ($shipFromAddress): ?>
+                <div style="font-size: 12pt; line-height: 109%;">
+                    <strong>
+                        <?= $this->escapeHtml($address->getCompany()) ?><br>
+                        <?= $this->escapeHtml($address->getStreetFull()) ?><br>
+                        <?= $this->escapeHtml($address->getCity() . ' ' . ($address->getRegionId() ?: $address->getRegion()) . ' ' . $address->getPostcode()) ?><br>
+                        <?php if (trim($address->getTelephone())): ?><?=$this->escapeHtml($address->getTelephone())?><br><?php endif; ?>
+                        <?php if (trim($address->getName())): ?><?=$this->escapeHtml($address->getName())?><br><?php endif; ?>
+                    </strong>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <div style="position: absolute; left: 228.8pt; top: 13pt; text-align: center;">
+        <div style="font-size: 18pt; line-height: 190%">
+            <strong>Delivery Receipt</strong>
+        </div>
+        <div style="font-size: 12pt; line-height: 120%">
+            Southern California Graphics<br>
+            8432 Steller Drive<br>
+            Culver City, CA 90232<br>
+            Phone (310) 559-3600<br>
+            Fax (310) 558-3127
+        </div>
+    </div>
+    <div style="position: absolute; top: 140pt; right: 20pt">
+        <?php
+        $rows = [
+            'Customer' => $customer->getName(),
+            'Job Number' => $shipment->getOrder()->getEpaceJobId(),
+            'Shipment Number' => $shipment->getEpaceShipmentId(),
+            'Shipment Date' => date('m/d/Y', strtotime($shipment->getCreatedAt())),
+            'Ship Via' => $epaceShipment->getId() ? $epaceShipment->getShipVia()->getDescription() : $shipment->getOrder()->getShippingDescription(),
+            'Customer PO' => $epaceShipment->getId() ? $epaceShipment->getJob()->getPoNum() : null,
+            'Salesperson' => $salesPersonCustomer->getName(),
+            'CSR' => $csrCustomer->getName()
+        ];
+        ?>
+        <table style="line-height: 130%;">
+            <tbody>
+            <?php foreach ($rows as $key => $value): ?>
+                <tr>
+                    <td style="font-size: 8pt; text-align: right;"><strong><?= $this->escapeHtml($key) ?>:</strong></td>
+                    <td style="font-size: 11pt;"><strong><?= $this->escapeHtml($value) ?></strong></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</htmlpageheader>
+<sethtmlpageheader name="header" value="on" show-this-page="1" />
+
+<htmlpagefooter  name="footer">
+    <table width="100%" style="vertical-align: bottom; border-top: 2pt solid black;">
+        <tr>
+            <td width="50%" style="text-align: left; font-size: 7pt;">S8/10/16:ol-delivery-receipt-v2.rpt</td>
+            <td width="50%" style="text-align: right; font-size: 7pt;">Pace Systems Group, Inc.</td>
+        </tr>
+    </table>
+</htmlpagefooter>
+<sethtmlpagefooter name="footer" value="on" />
+
+<div style="margin-left: -7pt; border-top: 1pt solid black; border-bottom: 1pt solid black; line-height: 200%; width: 100%; padding-bottom: 4.5pt; padding-left: 5.9pt;">
+    <span style="font-size: 10pt;">Job Description:</span> <strong style="font-size: 12pt;"><?=$this->escapeHtml($shipment->getOrder()->getEpaceJobDescription())?></strong>
+</div>
+<div style="margin-top: 15pt; margin-left: -5pt;">
+    <table style="width: 100%">
+        <thead>
+        <tr style="font-weight: bold; border-bottom: 1pt solid black;">
+            <td class="cell" style="font-weight: bold; border-bottom: 1pt solid black;">No. of Cartons</td>
+            <td class="cell" style="font-weight: bold; border-bottom: 1pt solid black;">Carton Qty</td>
+            <td class="cell" style="font-weight: bold; border-bottom: 1pt solid black;">Total Qty</td>
+            <td style="text-align: left; font-weight: bold; border-bottom: 1pt solid black;">Notes</td>
+        </tr>
+        </thead>
+        <tfoot>
+        <?php
+        $totalCount = 0;
+        foreach ($epaceShipment->getCartons() as $carton) {
+            $totalCount += $carton->getCount();
+        }
+        ?>
+        <tr class="bold-row">
+            <td class="cell" style="border-top: 1pt solid black;"><?=$totalCount?></td>
+            <td class="cell"></td>
+            <td class="cell" style="border-top: 1pt solid black;"><?=$epaceShipment->getQuantity()?></td>
+            <td style="text-align: left;">Total Shipped</td>
+        </tr>
+        </tfoot>
+        <tbody>
+        <?php foreach ($epaceShipment->getCartons() as $carton): ?>
+            <tr class="bold-row">
+                <td class="cell" style="font-weight: bold;"><?=$carton->getCount()?></td>
+                <td class="cell"><?=$carton->getQuantity()?></td>
+                <td class="cell"><?=$carton->getTotalQuantity()?></td>
+                <td  style="text-align: left;"><?=$this->escapeHtml($carton->getNote())?></td>
+            </tr>
+            <?php foreach ($carton->getContents() as $content): ?>
+            <tr>
+                <td class="cell"></td>
+                <td class="cell"></td>
+                <td class="cell"><?=$content->getQuantity()   ?></td>
+                <td style="text-align: left;">
+                    <?php if ($content->getJobMaterial()): ?>
+                        Material: <?=$this->escapeHtml($content->getJobMaterial()->getDescription())?>
+                    <?php elseif ($content->getJobComponent()): ?>
+                        Component:<?=$this->escapeHtml($content->getJobComponent()->getDescription())?>
+                    <?php elseif ($content->getJobProduct()): ?>
+                        Product: <?=$this->escapeHtml($content->getJobProduct()->getDescription())?>
+                    <?php elseif ($content->getJob()): ?>
+                        Job: <?=$this->escapeHtml($content->getJob()->getDescription())?>
+                    <?php else: ?>
+                        <?=$this->escapeHtml($content->getContent())?>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <table>
+        <tbody>
+        <tr>
+            <td style="font-size: 10pt; vertical-align: top;">Notes:</td>
+            <td class="bold" style="font-size: 11pt; vertical-align: top;"><?=preg_replace('/\\r?\\n/', '<br>', $this->escapeHtml($epaceShipment->getNotes()))?></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

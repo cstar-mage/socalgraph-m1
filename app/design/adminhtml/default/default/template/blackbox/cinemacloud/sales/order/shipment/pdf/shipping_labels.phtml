@@ -1,0 +1,138 @@
+<?php
+/** @var Mage_Core_Block_Template $this */
+/** @var Mage_Sales_Model_Order_Shipment $shipment */
+$shipment = Mage::registry('current_shipment');
+$customer = Mage::getModel('customer/customer')->load($shipment->getCustomerId());
+
+$shipFromAddress = null;
+$shipToJobContact = $shipment->getOrder()->getEpaceShipToJobContact();
+foreach ($shipment->getOrder()->getAddressesCollection() as $address) {
+    if ($address->getEpaceJobContactId() == $shipToJobContact) {
+        $shipFromAddress = $address;
+        break;
+    }
+}
+
+Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+/** @var Blackbox_Epace_Model_Epace_Job_Shipment $epaceShipment */
+$epaceShipment = Mage::getModel('efi/job_shipment')->load($shipment->getEpaceShipmentId());
+
+$salesPersonCustomer = Mage::getModel('customer/customer')->load($shipment->getSalesPersonId());
+$csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->getCsrId());
+
+$i = 0;
+$first = true;
+/** @var Blackbox_Epace_Model_Epace_Carton[][] $rows */
+$rows = [];
+foreach ($epaceShipment->getCartons() as $carton) {
+    $rows[$i][] = $carton;
+    $first = !$first;
+    if ($first) {
+        $i++;
+    }
+}
+
+$count = count($epaceShipment->getCartons());
+$qty = 0;
+foreach ($epaceShipment->getCartons() as $carton) {
+    $qty += $carton->getTotalQuantity();
+}
+?>
+<html>
+<head>
+    <style>
+        .row {
+            height: 50%;
+        }
+        .carton {
+            float: left;
+            width: 45%;
+        }
+        .table-row {
+            width: 100%;
+            margin-bottom: 2pt;
+        }
+        .table-row-cell-50 {
+            float: left;
+            width: 50%;
+        }
+        .table-row-cell-20 {
+            float: left;
+            width: 20%;
+        }
+        .table-row-cell-80 {
+            float: left;
+            width: 80%;
+        }
+        .big-label {
+            font-size: 16pt;
+        }
+        .med-label {
+            font-size: 10pt;
+        }
+        .small-label {
+            font-size: 9pt;
+        }
+        .very-small-label {
+            font-size: 8pt;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body style="font-family: helvetica;">
+
+<?php $i = 0; $first = false; ?>
+<?php foreach ($rows as $row): ?>
+<?php $first = true ?>
+<div class="row">
+    <?php foreach ($row as $carton): ?>
+    <div class="carton"<?php if (!$first): ?> style="margin-left: 30px;" <?php endif; ?>>
+        <div class="table-row big-label">
+            <div class="table-row-cell-50">Carton:</div>
+            <div class="table-row-cell-50"><?=++$i?> of <?=$count?></div>
+        </div>
+        <div class="table-row big-label">
+            <div class="table-row-cell-50">Quantity:</div>
+            <div class="table-row-cell-50"><?=$carton->getTotalQuantity()?> of <?=$qty?></div>
+        </div>
+        <div class="table-row med-label">
+            <div class="table-row-cell-50 small-label">Ship To</div>
+            <div class="table-row-cell-50"><?=date('m/d/y', strtotime($epaceShipment->getPromiseDate()))?></div>
+        </div>
+        <div class="table-row med-label bold"><?=$this->escapeHtml($epaceShipment->getName())?></div>
+        <div class="table-row med-label bold"><?=$this->escapeHtml($epaceShipment->getAddress1())?></div>
+        <div class="table-row med-label bold"><?=$this->escapeHtml($epaceShipment->getCity() . ', ' . $epaceShipment->getState() . ' ' . $epaceShipment->getZip())?></div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">Contact:</div>
+            <div class="table-row-cell-80 bold"><?=$epaceShipment->getContactFirstName() . ' ' . $epaceShipment->getContactLastName()?></div>
+        </div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">Contents</div>
+            <div class="table-row-cell-80 bold">
+                <?php foreach ($carton->getContents() as $content): ?>
+                <div><?=$this->escapeHtml($content->getAssociatedJob()->getDescription())?></div>
+                <div><?=$this->escapeHtml($content->getAssociatedJob()->getDescription2())?></div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <div class="table-row">
+            <div class="table-row-cell-20 very-small-label">Job Number</div>
+            <div class="table-row-cell-80 bold" style="font-size: 11pt;"><?=$this->escapeHtml($epaceShipment->getJob()->getId())?></div>
+        </div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">PO Number</div>
+            <div class="table-row-cell-80 bold"><?=$this->escapeHtml($epaceShipment->getJob()->getPoNum())?></div>
+        </div>
+        <div class="table-row small-label">
+            <div class="table-row-cell-20 very-small-label">Notes</div>
+            <div class="table-row-cell-80 bold"><?=$this->escapeHtml($carton->getNote())?></div>
+        </div>
+    </div>
+    <?php $first = false; ?>
+    <?php endforeach; ?>
+</div>
+<?php endforeach; ?>
+</body>
+</html>

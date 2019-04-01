@@ -10,6 +10,16 @@
             <cinemacloud>
                 <class>Blackbox_CinemaCloud_Block</class>
             </cinemacloud>
+            <page>
+                <rewrite>
+                    <html_pager>Blackbox_CinemaCloud_Block_Page_Html_Pager</html_pager>
+                </rewrite>
+            </page>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_shipment_view>Blackbox_CinemaCloud_Block_Adminhtml_Sales_Order_Shipment_View</sales_order_shipment_view>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <helpers>
             <cinemacloud>
@@ -20,6 +30,11 @@
             <cinemacloud>
                 <class>Blackbox_CinemaCloud_Model</class>
             </cinemacloud>
+            <core>
+                <rewrite>
+                    <layout>Blackbox_CinemaCloud_Model_Core_Layout</layout>
+                </rewrite>
+            </core>
         </models>
         <events>
             <controller_front_init_routers>
@@ -68,6 +83,11 @@
             </api>
             <customer>
                 <use>cinemacloud</use>
+                <args>
+                    <modules>
+                        <Blackbox_CinemaCloud before="Mage_Customer">Blackbox_CinemaCloud_Customer</Blackbox_CinemaCloud>
+                    </modules>
+                </args>
             </customer>
             <wishlist>
                 <use>cinemacloud</use>
@@ -95,6 +115,26 @@
             </cc_sso>
         </routers>
     </frontend>
+    <adminhtml>
+        <layout>
+            <updates>
+                <cinemacloud>
+                    <file>blackbox/cinemacloud.xml</file>
+                </cinemacloud>
+            </updates>
+        </layout>
+    </adminhtml>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Blackbox_CinemaCloud>Blackbox_CinemaCloud_Adminhtml</Blackbox_CinemaCloud>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
     <default>
         <web>
             <routers>

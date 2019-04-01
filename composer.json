@@ -1,0 +1,7 @@
+{
+    "name": "cinemacloud/cinemacloud",
+    "type": "project",
+    "require": {
+        "mpdf/mpdf": "^8.0"
+    }
+}

@@ -44,7 +44,8 @@
             </ul><a class="header_notification" href="#"><span class="icon">2</span></a>
             <div class="header_user">
                 <div class="header_user_photo" style="background-image: url(<?php echo $this->getSkinUrl('images/account.png') ?>)"></div>
-                <div class="header_user_name">Sales Rep</div>
+                <?php $customer = Mage::getSingleton('customer/session')->getCustomer(); ?>
+                <div class="header_user_name"><?php echo $customer && $customer->getId() ? $this->escapeHtml($customer->getName()) : 'anon.' ?></div>
                 <div class="header_user_menuopener menuopener"><span></span><span></span><span></span></div>
             </div>
         </div>

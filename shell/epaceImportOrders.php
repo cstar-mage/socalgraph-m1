@@ -476,6 +476,58 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 $this->tabs--;
             }
         }
+
+        if ($this->getArg('invoices')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $collection */
+            $collection = Mage::getResourceModel('efi/invoice_collection');
+            if ($from) {
+                $collection->addFilter('invoiceDate', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('invoiceDate', ['lteq' => new DateTime($to)]);
+            }
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+            $i = 0;
+            $this->writeln('Found ' . $count . ' invoices.');
+            foreach ($ids as $id) {
+                $this->writeln('Invoice ' . ++$i . '/' . $count . ': ' . $id);
+                /** @var Blackbox_Epace_Model_Epace_Invoice $invoice */
+                $invoice = Mage::getModel('efi/invoice')->load($id);
+                try {
+                    $this->importInvoice(null, $invoice);
+                } catch (\Exception $e) {
+                    $this->writeln($e->getMessage());
+                }
+            }
+        }
+
+        if ($this->getArg('shipments')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $collection */
+            $collection = Mage::getResourceModel('efi/job_shipment_collection');
+            if ($from) {
+                $collection->addFilter('date', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('date', ['lteq' => new DateTime($to)]);
+            }
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+            $i = 0;
+            $this->writeln('Found ' . $count . ' shipments.');
+            foreach ($ids as $id) {
+                $this->writeln('Shipment ' . ++$i . '/' . $count . ': ' . $id);
+                /** @var Blackbox_Epace_Model_Epace_Job_Shipment $shipment */
+                $shipment = Mage::getModel('efi/job_shipment')->load($id);
+                try {
+                    $this->importShipment(null, $shipment);
+                } catch (\Exception $e) {
+                    $this->writeln($e->getMessage());
+                }
+            }
+        }
     }
 
     protected function importEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
@@ -565,7 +617,12 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         }
     }
 
-    protected function importShipment(Mage_Sales_Model_Order $order, Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment)
+    /**
+     * @param Mage_Sales_Model_Order $order
+     * @param Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment
+     * @return Mage_Sales_Model_Order_Shipment
+     */
+    protected function importShipment($order, Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment)
     {
         /** @var Mage_Sales_Model_Order_Shipment $orderShipment */
         $orderShipment = Mage::getModel('sales/order_shipment');
@@ -573,7 +630,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $orderShipment->load($jobShipment->getId(), 'epace_shipment_id');
         if ($orderShipment->getId()) {
             $this->writeln("Shipment {$jobShipment->getId()} already imported.");
-            return;
+            return $orderShipment;
         }
 
         $this->helper->importShipment($jobShipment, $order, $orderShipment);
@@ -583,14 +640,19 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         return $orderShipment;
     }
 
-    protected function importInvoice(Mage_Sales_Model_Order $order, Blackbox_Epace_Model_Epace_Invoice $invoice)
+    /**
+     * @param Mage_Sales_Model_Order $order
+     * @param Blackbox_Epace_Model_Epace_Invoice $invoice
+     * @return Mage_Sales_Model_Order_Invoice
+     */
+    protected function importInvoice($order, Blackbox_Epace_Model_Epace_Invoice $invoice)
     {
         /** @var Mage_Sales_Model_Order_Invoice $magentoInvoice */
         $magentoInvoice = Mage::getModel('sales/order_invoice');
         $magentoInvoice->load($invoice->getId(), 'epace_invoice_id');
         if ($magentoInvoice->getId()) {
             $this->writeln("Invoice {$invoice->getId()} already imported.");
-            return;
+            return $magentoInvoice;
         }
 
         $this->helper->importInvoice($invoice, $order, $magentoInvoice);

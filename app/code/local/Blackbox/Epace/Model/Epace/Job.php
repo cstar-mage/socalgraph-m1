@@ -13,6 +13,7 @@
  * @method float getAllowableOvers()
  * @method string getDateSetup()
  * @method string getTimeSetUp()
+ * @method string getPoNum()
  * @method string getPromiseDate()
  * @method bool getScheduledShipDateForced()
  * @method bool getScheduledShipTimeForced()
@@ -231,6 +232,42 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
     }
 
     /**
+     * @return int
+     */
+    public function getBillToJobContactId()
+    {
+        return $this->getData('billToJobContact');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Contact
+     */
+    public function getBillToJobContact()
+    {
+        return $this->_getObject('billToJobContact', 'billToJobContact', 'efi/job_contact', false, function (Blackbox_Epace_Model_Epace_Job_Contact $jobContact) {
+            $jobContact->setJob($this);
+        });
+    }
+
+    /**
+     * @return int
+     */
+    public function getShipToJobContactId()
+    {
+        return $this->getData('shipToJobContact');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Job_Contact
+     */
+    public function getShipToJobContact()
+    {
+        return $this->_getObject('shipToJobContact', 'shipToJobContact', 'efi/job_contact', false, function (Blackbox_Epace_Model_Epace_Job_Contact $jobContact) {
+            $jobContact->setJob($this);
+        });
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Job_Product[]
      */
     public function getProducts()
@@ -310,6 +347,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
             'allowableOvers' => '',
             'dateSetup' => 'date',
             'timeSetUp' => 'date',
+            'poNum' => 'string',
             'promiseDate' => 'date',
             'scheduledShipDateForced' => '',
             'scheduledShipTimeForced' => '',
@@ -334,6 +372,7 @@ class Blackbox_Epace_Model_Epace_Job extends Blackbox_Epace_Model_Epace_Abstract
             'useLegacyPrintFlowFormatPrePress' => '',
             'useLegacyPrintFlowFormatFinishing' => '',
             'billToJobContact' => '',
+            'shipToJobContact' => '',
             'jdfSubmitted' => '',
             'jobValue' => '',
             'destinationBasedTaxing' => '',

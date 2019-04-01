@@ -18,4 +18,94 @@
     <sales_email_order_invoice_summary>
         <block type="core/template" name="invoice_summary" template="blackbox/cinemacloud/sales/email/order/invoice/summary.phtml" />
     </sales_email_order_invoice_summary>
+
+    <customer_salesrep_index>
+        <label>Sales Rep Dashboard</label>
+        <!-- Mage_Customer -->
+        <update handle="customer_account"/>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/scripts.js</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/jquery-ui.min.js</name></action>
+        </reference>
+
+        <reference name="content">
+            <block type="page/html_wrapper" name="salesrep.order_history">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="cinemacloud/salesRep_order_history" name="order_history" as="order_history" template="blackbox/cinemacloud/salesrep/order/history.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+            <block type="page/html_wrapper" name="salesrep.order.info.wrapper">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom orderinfo</value>
+                </action>
+                <action method="dependsOnChildren">
+                    <value>0</value>
+                </action>
+            </block>
+        </reference>
+
+        <reference name="head">
+            <action method="removeItem"><type>skin_css</type><name>css/main.css</name></action>
+            <action method="addCss"><stylesheet>css/services.css</stylesheet></action>
+            <action method="addCss"><stylesheet>css/jquery-ui.css</stylesheet></action>
+            <action method="addCss"><stylesheet>css/main.css</stylesheet></action>
+        </reference>
+    </customer_salesrep_index>
+
+    <customer_salesrep_ajaxshowmore>
+        <block type="cinemacloud/salesRep_order_history" name="salesrep.order.history.items" template="blackbox/cinemacloud/salesrep/order/history/items.phtml">
+        </block>
+    </customer_salesrep_ajaxshowmore>
+
+    <customer_salesrep_ajaxorderinfo>
+        <block type="sales/order_info" name="salesrep.order.info" template="blackbox/cinemacloud/salesrep/order/info.phtml" />
+    </customer_salesrep_ajaxorderinfo>
+
+    <customer_csr_index>
+        <label>CSR Dashboard</label>
+        <!-- Mage_Customer -->
+        <update handle="customer_account"/>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/scripts.js</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/jquery-ui.min.js</name></action>
+        </reference>
+
+        <reference name="content">
+            <block type="page/html_wrapper" name="csr.order_history">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom</value>
+                </action>
+                <block type="cinemacloud/csr_order_history" name="order_history" as="order_history" template="blackbox/cinemacloud/csr/order/history.phtml">
+                    <action method="setNoMessages"><value>1</value></action>
+                </block>
+            </block>
+            <block type="page/html_wrapper" name="csr.order.info.wrapper">
+                <action method="setElementClass">
+                    <value>content_group content_group_nopaddingbottom orderinfo</value>
+                </action>
+                <action method="dependsOnChildren">
+                    <value>0</value>
+                </action>
+            </block>
+        </reference>
+
+        <reference name="head">
+            <action method="removeItem"><type>skin_css</type><name>css/main.css</name></action>
+            <action method="addCss"><stylesheet>css/services.css</stylesheet></action>
+            <action method="addCss"><stylesheet>css/jquery-ui.css</stylesheet></action>
+            <action method="addCss"><stylesheet>css/main.css</stylesheet></action>
+        </reference>
+    </customer_csr_index>
+
+    <customer_csr_ajaxshowmore>
+        <block type="cinemacloud/csr_order_history" name="csr.order.history.items" template="blackbox/cinemacloud/csr/order/history/items.phtml">
+        </block>
+    </customer_csr_ajaxshowmore>
+
+    <customer_csr_ajaxorderinfo>
+        <block type="sales/order_info" name="csr.order.info" template="blackbox/cinemacloud/csr/order/info.phtml" />
+    </customer_csr_ajaxorderinfo>
 </layout>

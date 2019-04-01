@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Blackbox_EpaceImport>
-            <version>0.1.8</version>
+            <version>0.1.11</version>
         </Blackbox_EpaceImport>
     </modules>
     <global>
@@ -17,7 +17,6 @@
                     <sales_order_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid</sales_order_grid>
                     <sales_order_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_View</sales_order_view>
                     <sales_shipment_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Shipment_Grid</sales_shipment_grid>
-                    <sales_order_shipment_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Shipment_View</sales_order_shipment_view>
                     <sales_invoice_grid>Blackbox_EpaceImport_Block_Adminhtml_Sales_Invoice_Grid</sales_invoice_grid>
                     <sales_order_invoice_view>Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Invoice_View</sales_order_invoice_view>
                     <customer_edit_tab_orders>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders</customer_edit_tab_orders>
@@ -67,6 +66,11 @@
                     <order_shipment>Blackbox_EpaceImport_Model_Sales_Order_Shipment</order_shipment>
                 </rewrite>
             </sales>
+            <usa>
+                <rewrite>
+                    <shipping_carrier_ups>Blackbox_EpaceImport_Model_Usa_Shipping_Carrier_Ups</shipping_carrier_ups>
+                </rewrite>
+            </usa>
         </models>
         <resources>
             <epace_import_setup>

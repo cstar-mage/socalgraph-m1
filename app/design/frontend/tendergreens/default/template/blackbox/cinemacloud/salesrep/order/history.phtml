@@ -1,0 +1,81 @@
+<?php /** @var Blackbox_CinemaCloud_Block_SalesRep_Order_History $this */ ?>
+<h2>Sales Rep Dashboard</h2>
+<form class="service_content_address_form">
+    <div class="service_content_dashboard">
+        <?php echo $this->getChildHtml('filter') ?>
+        <div class="service_content_dashboard_ordersinformations">
+            <div class="title13">Orders information</div>
+            <?php include 'history/items.phtml'; ?>
+        </div>
+        <div class="service_orders_showmore"><a class="title13" href="#"><i class="showmore_circle" style="display:none"></i>SHOW MORE</a></div>
+    </div>
+    <script>
+        var orderinfoAjax = null;
+        jQuery('.service_content_dashboard_ordersinformations').on('click', '.orderinfo_opener', function(e) {
+            var orderId = jQuery(this).data('order-id');
+            var orderinfo = jQuery('.orderinfo');
+
+            if (orderinfo.find('.jobinformation').data('order-id') == orderId) {
+                return;
+            }
+
+            orderinfo.html('');
+            if (orderinfoAjax && orderinfoAjax.readyState != 4) {
+                orderinfoAjax.abort();
+            }
+
+            orderinfoAjax = jQuery.ajax({
+                url: '/customer/salesRep/ajaxOrderInfoHtml',
+                type: 'get',
+                data: {
+                    order_id: orderId
+                },
+                success: function (html) {
+                    orderinfo.html(html);
+                },
+                error: function () {
+                    alert('An error has occured.');
+                }
+            });
+        });
+
+        <?php $pager = $this->getChild('pager') ?>
+        var showmoreAjax = null;
+        var curpage = <?= (int)$pager->getCurrentPage() ?>;
+        var lastpage = <?= (int)$pager->getLastPageNum() ?>;
+        jQuery('.service_orders_showmore').click(function (e) {
+            e.preventDefault();
+            if (showmoreAjax && showmoreAjax.readyState != 4) {
+                return;
+            }
+
+            var params = <?=json_encode(Mage::app()->getRequest()->getParams(), JSON_FORCE_OBJECT)?>;
+            params['<?=$pager->getPageVarName()?>'] = curpage + 1;
+
+            var circle = jQuery('.showmore_circle').show();
+
+            showmoreAjax = jQuery.ajax({
+                url: '/customer/salesRep/orderShowMoreHtml',
+                type: 'get',
+                data: params,
+                success: function (html) {
+                    if (html) {
+                        jQuery(html).insertAfter(jQuery('.service_content_dashboard_ordersinformations .service_order').last());
+                        curpage++;
+                        if (curpage >= lastpage) {
+                            jQuery('.service_orders_showmore').hide();
+                        }
+                    } else {
+                        jQuery('.service_orders_showmore').hide();
+                    }
+                },
+                error: function () {
+                    alert('An error has occured.');
+                },
+                complete: function () {
+                    circle.hide();
+                }
+            });
+        });
+    </script>
+</form>
