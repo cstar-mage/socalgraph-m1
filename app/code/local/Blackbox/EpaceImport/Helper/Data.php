@@ -1569,16 +1569,26 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
-    protected function getTimestamp($dateString, $timeString)
+    public function getDateTime($dateString, $timeString)
     {
-        if ($dateString == $timeString) {
-            return strtotime($dateString);
-        }
-        $time = strtotime($timeString);
-        if ($time > 3600 * 24 * 10) {
-            return $time;
+        $dateTime = new \DateTime($dateString, new \DateTimeZone('UTC'));
+
+        if (empty($timeString) || $dateString == $timeString) {
+            return $dateTime;
         }
 
-        return strtotime($dateString) + $time;
+        $timeDateTime = new \DateTime($timeString, new \DateTimeZone('UTC'));
+        if ($timeDateTime->getTimestamp() > 3600 * 24 * 10) {
+            return $dateTime;
+        }
+
+        $dateTime->setTime(0, 0, 0);
+        $dateTime->setTimestamp($dateTime->getTimestamp() + $timeDateTime->getTimestamp());
+        return $dateTime;
+    }
+
+    public function getTimestamp($dateString, $timeString)
+    {
+        return $this->getDateTime($dateString, $timeString)->getTimestamp();
     }
 }
