@@ -1591,4 +1591,19 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return $this->getDateTime($dateString, $timeString)->getTimestamp();
     }
+
+    public function convertOutputDateWithoutDST($date)
+    {
+        if ($date instanceof \DateTime) {
+            $dateTime = $date;
+        } else {
+            $dateTime = new \DateTime($date, new DateTimeZone('UTC'));
+        }
+
+        $dateTime->setTimezone(new \DateTimeZone(Mage::getStoreConfig('general/locale/timezone')));
+        if ($dateTime->format('I')) {
+            $dateTime->setTimestamp($dateTime->getTimestamp() - 3600);
+        }
+        return $dateTime;
+    }
 }

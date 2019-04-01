@@ -19,6 +19,9 @@ $epaceShipment = Mage::getModel('efi/job_shipment')->load($shipment->getEpaceShi
 
 $salesPersonCustomer = Mage::getModel('customer/customer')->load($shipment->getSalesPersonId());
 $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->getCsrId());
+
+/** @var Blackbox_EpaceImport_Helper_Data $helper */
+$helper = Mage::helper('epacei');
 ?>
 <html>
 <head>
@@ -87,8 +90,8 @@ $csrCustomer = Mage::getModel('customer/customer')->load($shipment->getOrder()->
             'Customer' => $customer->getName(),
             'Job Number' => $shipment->getOrder()->getEpaceJobId(),
             'Shipment Number' => $shipment->getEpaceShipmentId(),
-            'Shipment Date' => date('m/d/Y', strtotime($shipment->getCreatedAt())),
-            'Ship Via' => $epaceShipment->getId() ? $epaceShipment->getShipVia()->getDescription() : $shipment->getOrder()->getShippingDescription(),
+            'Shipment Date' => $helper->convertOutputDateWithoutDST($shipment->getCreatedAt())->format('m/d/Y h:i a'),
+            'Ship Via' => $epaceShipment->getId() ? $epaceShipment->getShipVia()->getShipProvider()->getName() . ' - ' . $epaceShipment->getShipVia()->getDescription() : $shipment->getOrder()->getShippingDescription(),
             'Customer PO' => $epaceShipment->getId() ? $epaceShipment->getJob()->getPoNum() : null,
             'Salesperson' => $salesPersonCustomer->getName(),
             'CSR' => $csrCustomer->getName()

@@ -13,7 +13,7 @@ class Blackbox_CinemaCloud_Block_Adminhtml_Sales_Order_Shipment_View extends Mag
             ]);
 
             $this->_addButton('deliveryReceipt', array(
-                    'label'     => Mage::helper('sales')->__('Delivery Receipt'),
+                    'label'     => Mage::helper('sales')->__('Delivery Ticket'),
                     'class'     => 'save',
                     'onclick'   => 'popWin(\''.$this->getDeliveryReceiptUrl().'\', null, \'modal=yes,width=\' + (parseInt(window.innerWidth)) + \',height=\' + (parseInt(window.innerHeight)) + \',toolbar=0,menubar=0,location=0,status=0\')'
                 )
