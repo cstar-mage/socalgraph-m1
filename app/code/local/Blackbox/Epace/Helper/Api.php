@@ -234,7 +234,15 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
             $this->throwException('No "out" node found.', $body);
         }
 
-        return (array)$out->string;
+        $result = (array)$out->string;
+        // fix for ids with boundary spaces. Epace api unable to get details through ReadObject method because of trimming.
+        foreach ($result as $k => $v) {
+            if ($v !== trim($v)) {
+                unset($result[$k]);
+            }
+        }
+
+        return $result;
     }
 
     /**
