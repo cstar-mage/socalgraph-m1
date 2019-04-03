@@ -5,7 +5,8 @@ $installer = $this;
 $installer->startSetup();
 
 $installer->getConnection()->addColumn($installer->getTable('epacei/estimate'), 'estimate_number', array(
-    'type'      => Varien_Db_Ddl_Table::TYPE_INTEGER,
+    'type'      => Varien_Db_Ddl_Table::TYPE_TEXT,
+    'length'    => 255,
     'nullable'  => true,
     'comment'   => 'Estimate Number'
 ));
