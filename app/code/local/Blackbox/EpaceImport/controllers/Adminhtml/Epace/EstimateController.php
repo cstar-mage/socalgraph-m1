@@ -268,4 +268,34 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
             $this->renderLayout();
         }
     }
+
+    public function orderEstimatesGridAction()
+    {
+        $estimate = $this->_initOrder();
+        if ($estimate) {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        }
+    }
+
+    /**
+     * Initialize order model instance
+     *
+     * @return Mage_Sales_Model_Order|false
+     */
+    protected function _initOrder()
+    {
+        $id = $this->getRequest()->getParam('order_id');
+        $order = Mage::getModel('sales/order')->load($id);
+
+        if (!$order->getId()) {
+            $this->_getSession()->addError($this->__('This order no longer exists.'));
+            $this->_redirect('*/*/');
+            $this->setFlag('', self::FLAG_NO_DISPATCH, true);
+            return false;
+        }
+        Mage::register('sales_order', $order);
+        Mage::register('current_order', $order);
+        return $order;
+    }
 }

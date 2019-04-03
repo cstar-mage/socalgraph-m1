@@ -120,7 +120,7 @@ $orderStoreDate = $this->formatDate($_order->getCreatedAtStoreDate(), 'medium', 
                                 <label><?php echo $this->__('Estimate') ?></label>
                             </td>
                             <td class="value">
-                                <strong><a href="<?php echo $this->getUrl('*/epace_estimate/view', ['estimate_id' => $estimate->getId()]) ?>"><?=$estimate->getIncrementId()?></a></strong>
+                                <strong><a href="<?php echo $this->getUrl('*/epace_estimate/view', ['estimate_id' => $estimate->getId()]) ?>"><?=($estimate->getEstimateNumber() ?: $estimate->getIncrementId()) . ' ' . $estimate->getVersion()?></a></strong>
                             </td>
                         </tr>
                     <?php endif; ?>

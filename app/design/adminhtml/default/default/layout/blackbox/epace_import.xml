@@ -107,4 +107,16 @@
             <block type="epacei/adminhtml_customer_edit_tab_shipments" name="adminhtml.customer.edit.tab.shipments"/>
         </block>
     </adminhtml_customer_shipments>
+
+    <adminhtml_sales_order_view>
+        <reference name="sales_order_tabs">
+            <action method="addTab"><name>order_estimates</name><block>epacei/adminhtml_sales_order_view_tab_estimates</block></action>
+        </reference>
+    </adminhtml_sales_order_view>
+
+    <adminhtml_epace_estimate_orderestimatesgrid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="epacei/adminhtml_sales_order_view_tab_estimates" name="admin.order.estimates.grid"/>
+        </block>
+    </adminhtml_epace_estimate_orderestimatesgrid>
 </layout>
