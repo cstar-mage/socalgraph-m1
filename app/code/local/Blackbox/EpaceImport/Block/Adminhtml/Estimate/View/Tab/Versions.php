@@ -21,8 +21,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_View_Tab_Versions
     {
         /** @var Mage_Sales_Model_Mysql4_Order_Grid_Collection $collection */
         $collection = Mage::getResourceModel('epacei/estimate_collection');
-        $collection->addAttributeToFilter('estimate_number', $this->getEstimate()->getEstimateNumber())
-            ->setOrder('version', Varien_Data_Collection::SORT_ORDER_DESC);
+        $collection->addAttributeToFilter('estimate_number', $this->getEstimate()->getEstimateNumber());
         $this->setCollection($collection);
         return Mage_Adminhtml_Block_Widget_Grid::_prepareCollection();
     }
