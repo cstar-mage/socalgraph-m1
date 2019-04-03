@@ -55,6 +55,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
             'width' => '80px',
             'type'  => 'text',
             'index' => 'shipments',
+            'frame_callback' => array($this, 'truncateShipmentIds')
         ));
 
         $this->addColumn('job_type', array(
@@ -166,5 +167,15 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Order_Grid extends Mage_Adminht
         $this->addExportType('*/*/exportExcel', Mage::helper('sales')->__('Excel XML'));
 
         return Mage_Adminhtml_Block_Widget_Grid::_prepareColumns();
+    }
+
+    /**
+     * Decorate status column values
+     *
+     * @return string
+     */
+    public function truncateShipmentIds($value, $row, $column, $isExport)
+    {
+        return Mage::helper('core/string')->truncate($value, 25);
     }
 }
