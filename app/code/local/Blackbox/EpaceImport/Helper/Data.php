@@ -190,6 +190,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'store_name' => $this->getStore()->getName(),
             'created_at' => $this->getTimestamp($estimate->getEntryDate(), $estimate->getEntryTime()),
             'total_item_count' => count($magentoEstimate->getAllItems()),
+            'estimate_number' => $estimate->getEstimateNumber(),
+            'version' => $estimate->getEstimateVersionNumber()
         ]);
         $magentoEstimate->addData($aggregatedFields);
 

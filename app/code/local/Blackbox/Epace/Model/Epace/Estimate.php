@@ -30,6 +30,8 @@
  * @method bool getAllowVAT()
  * @method bool getRepetitiveRuns()
  * @method int getManufacturingLocation()
+ * @method int getEstimateVersionNumber()
+ * @method int getNextEstimateVersionNumber()
  * @method bool getHighestEstimateVersion()
  * @method bool getAutoAddQuoteLetter()
  * @method string getLastChangedDate()
@@ -177,6 +179,8 @@ class Blackbox_Epace_Model_Epace_Estimate extends Blackbox_Epace_Model_Epace_Abs
             'allowVAT' => '',
             'repetitiveRuns' => '',
             'manufacturingLocation' => '',
+            'estimateVersionNumber' => 'int',
+            'nextEstimateVersionNumber' => 'int',
             'highestEstimateVersion' => '',
             'autoAddQuoteLetter' => '',
             'lastChangedDate' => 'date',
