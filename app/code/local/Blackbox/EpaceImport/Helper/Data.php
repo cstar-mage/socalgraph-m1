@@ -908,14 +908,14 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $orderShipment->addItem($shipmentItem);
         }
 
-        if ($jobShipment->getContact()->getCustomer()) {
+        if ($jobShipment->getContact() && $jobShipment->getContact()->getCustomer()) {
             $customer = $this->getCustomerFromCustomer($jobShipment->getContact()->getCustomer());
             $customerId = $customer->getId();
         } else {
             $customerId = $order->getCustomerId();
         }
 
-        if ($jobShipment->getContact()->getSalesPerson()) {
+        if ($jobShipment->getContact() && $jobShipment->getContact()->getSalesPerson()) {
             $salesPersonCustomer = $this->getCustomerFromSalesPerson($jobShipment->getContact()->getSalesPerson());
             $salesPersonCustomerId = $salesPersonCustomer->getId();
         } else {
