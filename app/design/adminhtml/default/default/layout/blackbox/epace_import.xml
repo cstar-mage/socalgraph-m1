@@ -38,10 +38,16 @@
                 </block>
                 <action method="addTab"><name>estimate_info</name><block>estimate_tab_info</block></action>
                 <action method="addTab"><name>orders</name><block>epacei/adminhtml_estimate_view_tab_orders</block></action>
+                <action method="addTab"><name>versions</name><block>epacei/adminhtml_estimate_view_tab_versions</block></action>
             </block>
         </reference>
     </adminhtml_epace_estimate_view>
 
+    <adminhtml_epace_estimate_versionsgrid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="epacei/adminhtml_estimate_view_tab_versions" name="admin.estimate.version.grid"/>
+        </block>
+    </adminhtml_epace_estimate_versionsgrid>
 
     <adminhtml_epace_receivable_grid>
         <update handle="formkey"/>

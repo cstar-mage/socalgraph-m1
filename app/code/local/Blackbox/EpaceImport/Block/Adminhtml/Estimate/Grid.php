@@ -41,11 +41,18 @@ class Blackbox_EpaceImport_Block_Adminhtml_Estimate_Grid extends Mage_Adminhtml_
     protected function _prepareColumns()
     {
 
-        $this->addColumn('real_estimate_id', array(
+        $this->addColumn('estimate_number', array(
             'header'=> Mage::helper('epacei')->__('Estimate #'),
-            'width' => '80px',
+            'width' => '10px',
             'type'  => 'text',
-            'index' => 'increment_id',
+            'index' => 'estimate_number',
+        ));
+
+        $this->addColumn('version', array(
+            'header'=> Mage::helper('epacei')->__('Version'),
+            'width' => '10px',
+            'type'  => 'text',
+            'index' => 'version',
         ));
 
         if (!Mage::app()->isSingleStoreMode()) {

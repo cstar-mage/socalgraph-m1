@@ -259,4 +259,13 @@ class Blackbox_EpaceImport_Adminhtml_Epace_EstimateController extends Mage_Admin
         $grid       = $this->getLayout()->createBlock('epacei/adminhtml_estimate_grid');
         $this->_prepareDownloadResponse($fileName, $grid->getExcelFile($fileName));
     }
+
+    public function versionsGridAction()
+    {
+        $estimate = $this->_initEstimate();
+        if ($estimate) {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        }
+    }
 }
