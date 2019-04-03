@@ -214,7 +214,7 @@ abstract class Blackbox_Epace_Model_Epace_AbstractObject extends Varien_Object
             $this->_links[$objectField] = false;
             if (!empty($this->getData($dataField))) {
                 $object = $this->_loadObject($modelClass, $this->getData($dataField), $globalCache);
-                if ($object->getId()) {
+                if (!is_null($object->getId())) {
                     if ($initCallback) {
                         $initCallback($object);
                     }

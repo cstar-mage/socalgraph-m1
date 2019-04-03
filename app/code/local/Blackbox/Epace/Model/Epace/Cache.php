@@ -21,7 +21,7 @@ class Blackbox_Epace_Model_Epace_Cache
             /** @var Blackbox_Epace_Model_Epace_AbstractObject $object */
             $object = Mage::getModel($type, $this);
             $object->load($id);
-            if (!$object->getId()) {
+            if (is_null($object->getId())) {
                 $object = false;
             }
             $this->cache[$className][$id] = $object;
