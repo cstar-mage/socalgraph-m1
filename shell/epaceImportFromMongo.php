@@ -63,11 +63,6 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
      */
     protected $helper;
 
-    /**
-     * @var Blackbox_EpaceImport_Model_Cron
-     */
-    protected $cron;
-
     protected $tabs = 0;
     protected $newLine = true;
     protected $logTime = false;
@@ -78,7 +73,6 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
 
         $this->epaceHelper = Mage::helper('epace');
         $this->helper = Mage::helper('epacei');
-        $this->cron = Mage::getModel('epacei/cron');
 
         $this->helper->setOutput(function ($msg) {
             $this->writeln($msg);
