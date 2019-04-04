@@ -363,6 +363,7 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Blackbox_Epace_Model_Resource_Epace_Estimate_Collection $mongoCollection */
             $mongoCollection = Mage::getResourceModel('efi/estimate_collection');
             $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $mongoCollection->addFilter('entryDate', ['gteq' => new \DateTime('2019-01-01')]);
             $ids = $mongoCollection->loadIds();
             $collection->addFieldToFilter('epace_estimate_id', ['in' => $ids]);
         } else {
@@ -398,6 +399,7 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Blackbox_Epace_Model_Resource_Epace_Job_Collection $mongoCollection */
             $mongoCollection = Mage::getResourceModel('efi/job_collection');
             $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $mongoCollection->addFilter('dateSetup', ['gteq' => new \DateTime('2019-01-01')]);
             $ids = $mongoCollection->loadIds();
             $collection->addFieldToFilter('epace_job_id', ['in' => $ids]);
         } else {
@@ -437,6 +439,7 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $mongoCollection */
             $mongoCollection = Mage::getResourceModel('efi/invoice_collection');
             $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $mongoCollection->addFilter('invoiceDate', ['gteq' => new \DateTime('2019-01-01')]);
             $ids = $mongoCollection->loadIds();
             $collection->addFieldToFilter('epace_invoice_id', ['in' => $ids]);
         } else {
@@ -473,6 +476,7 @@ class Blackbox_EpaceImport_Model_Cron
             /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $mongoCollection */
             $mongoCollection = Mage::getResourceModel('efi/job_shipment_collection');
             $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $mongoCollection->addFilter('date', ['gteq' => new \DateTime('2019-01-01')]);
             $ids = $mongoCollection->loadIds();
             $collection->addFieldToFilter('epace_shipment_id', ['in' => $ids]);
         } else {
