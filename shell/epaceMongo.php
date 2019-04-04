@@ -379,10 +379,6 @@ class EpaceMongo extends Mage_Shell_Abstract
     {
         $from = $this->getArg('from');
         $to = $this->getArg('to');
-        if ($to) {
-            $to = new \DateTime($to);
-        }
-//        $to = false; // operators < and <= do not work
 
         if ($this->getArg('global')) {
             $this->importEntities('salesPerson');
@@ -404,13 +400,10 @@ class EpaceMongo extends Mage_Shell_Abstract
             if ($from) {
                 $collection->addFilter('entryDate', ['gteq' => new DateTime($from)]);
             }
-            // operators < and <= do not work
-//            if ($to) {
-//                $collection->addFilter('entryDate', ['lteq' => new DateTime($to)]);
-//            }
             if ($to) {
-                $collection->setOrder('entryDate', 'ASC');
+                $collection->addFilter('entryDate', ['lteq' => new DateTime($to)]);
             }
+            $collection->setOrder('entryDate', 'ASC');
 
             if ($this->getArg('ef')) {
                 $filters = json_decode($this->getArg('ef'));
@@ -436,10 +429,6 @@ class EpaceMongo extends Mage_Shell_Abstract
                 $this->writeln('Estimate ' . ++$i . '/' . $count . ': ' . $estimateId);
                 /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
                 $estimate = Mage::getModel('efi/estimate')->load($estimateId);
-                if ($to && $this->helper->getTimestamp($estimate->getEntryDate(), $estimate->getEntryTime()) > $to->getTimestamp()) {
-                    $this->writeln("Skip $estimateId because of --to arg: " . $estimate->getEntryDate() . ' ' . $estimate->getEntryTime());
-                    break;
-                }
                 $this->importEstimate($estimate);
             }
         }
@@ -450,12 +439,10 @@ class EpaceMongo extends Mage_Shell_Abstract
             if ($from) {
                 $collection->addFilter('dateSetup', ['gteq' => new DateTime($from)]);
             }
-//            if ($to) {
-//                $collection->addFilter('dateSetup', ['lteq' => new DateTime($to)]);
-//            }
             if ($to) {
-                $collection->setOrder('dateSetup', 'ASC');
+                $collection->addFilter('dateSetup', ['lteq' => new DateTime($to)]);
             }
+            $collection->setOrder('dateSetup', 'ASC');
 
             if ($this->getArg('jf')) {
                 $filters = json_decode($this->getArg('jf'));
@@ -486,10 +473,6 @@ class EpaceMongo extends Mage_Shell_Abstract
                     } else {
                         /** @var Blackbox_Epace_Model_Epace_Job $job */
                         $job = Mage::getModel('efi/job')->load($jobId);
-                        if ($to && $this->helper->getTimestamp($job->getDateSetup(), $job->getTimeSetUp()) > $to->getTimestamp()) {
-                            $this->writeln("\tSkip $jobId because of --to arg: " . $job->getDateSetup() . ' ' . $job->getTimeSetUp());
-                            break;
-                        }
 
                         if ($job->getEstimate()) {
                             $this->importEstimate($job->getEstimate());
