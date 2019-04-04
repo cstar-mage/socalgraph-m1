@@ -114,6 +114,7 @@ class Blackbox_EpaceImport_Model_Cron
         $collection = Mage::getResourceModel('efi/estimate_collection');
         if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
             $collection->addFilter('_created_at', ['gteq' => $from]);
+            $collection->addFilter('entryDate', ['gteq' => new \DateTime('2019-01-01')]);
         } else {
             $collection->addFilter('entryDate', ['gteq' => $from]);
         }
@@ -140,6 +141,7 @@ class Blackbox_EpaceImport_Model_Cron
         $collection = Mage::getResourceModel('efi/job_collection');
         if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
             $collection->addFilter('_created_at', ['gteq' => $from]);
+            $collection->addFilter('dateSetup', ['gteq' => new \DateTime('2019-01-01')]);
         } else {
             $collection->addFilter('dateSetup', ['gteq' => $from]);
         }
@@ -177,6 +179,7 @@ class Blackbox_EpaceImport_Model_Cron
         $collection = Mage::getResourceModel('efi/job_shipment_collection');
         if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
             $collection->addFilter('_created_at', ['gteq' => $from]);
+            $collection->addFilter('date', ['gteq' => new \DateTime('2019-01-01')]);
         } else {
             $collection->addFilter('date', ['gteq' => $from]);
         }
@@ -203,6 +206,7 @@ class Blackbox_EpaceImport_Model_Cron
         $collection = Mage::getResourceModel('efi/invoice_collection');
         if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
             $collection->addFilter('_created_at', ['gteq' => $from]);
+            $collection->addFilter('invoiceDate', ['gteq' => new \DateTime('2019-01-01')]);
         } else {
             $collection->addFilter('invoiceDate', ['gteq' => $from]);
         }
