@@ -20,6 +20,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
     protected $wholesaleGroupId = null;
 
     protected $tabs = 0;
+    protected $newLine = true;
 
     /**
      * @var Blackbox_EpaceImport_Helper_Data
@@ -35,6 +36,11 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
         if ($this->getArg('dump')) {
             $this->dump();
+            return;
+        }
+
+        if ($this->getArg('listNotImported')) {
+            $this->listNotImported();
             return;
         }
 
@@ -666,6 +672,111 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         return $magentoInvoice;
     }
 
+    protected function listNotImported()
+    {
+        if ($this->getArg('mongo')) {
+            Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+        }
+
+        $entities = [
+            'Estimate' => [
+                'keys' => [
+                    'e',
+                    'estimates'
+                ],
+                'dateField' => 'entryDate',
+                'magentoClass' => 'epacei/estimate',
+                'idField' => 'epace_estimate_id',
+            ],
+            'Job' => [
+                'keys' => [
+                    'j',
+                    'jobs'
+                ],
+                'dateField' => 'dateSetup',
+                'magentoClass' => 'sales/order',
+                'idField' => 'epace_job_id',
+            ],
+            'Invoice' => [
+                'keys' => [
+                    'i',
+                    'invoices'
+                ],
+                'dateField' => 'invoiceDate',
+                'magentoClass' => 'sales/order_invoice',
+                'idField' => 'epace_invoice_id',
+            ],
+            'JobShipment' => [
+                'keys' => [
+                    's',
+                    'shipments'
+                ],
+                'dateField' => 'date',
+                'magentoClass' => 'sales/order_shipment',
+                'idField' => 'epace_shipment_id',
+            ]
+        ];
+
+        /** @var Blackbox_Epace_Helper_Data $epaceHelper */
+        $epaceHelper = Mage::helper('epace');
+
+        foreach ($entities as $entity => $settings) {
+            $found = false;
+            foreach ($settings['keys'] as $key) {
+                if ($this->getArg($key)) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                continue;
+            }
+
+            $this->write($entity . ' ');
+
+            $epaceModelType = $epaceHelper->getTypeName($entity);
+
+            /** @var Blackbox_Epace_Model_Resource_Epace_Collection $epaceCollection */
+            $epaceCollection = Mage::getResourceModel('efi/' . $epaceModelType . '_collection');
+
+            if ($from = $this->getArg('from')) {
+                $epaceCollection->addFilter($settings['dateField'], ['gteq' => new \DateTime($from)]);
+            }
+            if ($to = $this->getArg('to')) {
+                $epaceCollection->addFilter($settings['dateField'], ['lteq' => new \DateTime($to)]);
+            }
+            $ids = $epaceCollection->loadIds();
+
+            $ids = array_filter($ids, function($value) {
+                return is_numeric($value) || !empty($value);
+            });
+
+            /** @var Mage_Core_Model_Resource_Db_Collection_Abstract $magentoCollection */
+            $magentoCollection = Mage::getResourceModel($settings['magentoClass'] . '_collection');
+            $connection = $magentoCollection->getConnection();
+
+            $quotedIds = array_map(function($v) use ($connection) {
+                return (is_int($v) || preg_match("/^\\d+$/", $v)) ? $v : $connection->quote($v);
+            }, $ids);
+
+            $select = $connection->select()->from($magentoCollection->getResource()->getMainTable(), $settings['idField'])
+                ->where($settings['idField'] . ' IN (' . implode(',', $quotedIds) . ')');
+
+            $importedIds = $connection->fetchCol($select);
+
+            foreach ($importedIds as $id) {
+                $index = array_search($id, $ids);
+                if ($index === false) {
+                    $this->writeln('Error: id not found. ' . $id);
+                } else {
+                    unset($ids[$index]);
+                }
+            }
+
+            $this->writeln(implode(PHP_EOL, $ids));
+        }
+    }
+
     protected function getWebsiteId()
     {
         return Mage::app()->getWebsite()->getId();
@@ -676,9 +787,24 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         return Mage::app()->getStore();
     }
 
-    protected function writeln($message)
+    protected function write($msg)
     {
-        echo str_repeat("\t", $this->tabs) . $message . PHP_EOL;
+        if ($this->newLine) {
+            echo str_repeat("\t", $this->tabs) . $msg;
+        } else {
+            echo $msg;
+        }
+        $this->newLine = false;
+    }
+
+    protected function writeln($msg)
+    {
+        if ($this->newLine) {
+            echo str_repeat("\t", $this->tabs) . $msg . PHP_EOL;
+        } else {
+            echo $msg . PHP_EOL;
+        }
+        $this->newLine = true;
     }
 }
 
