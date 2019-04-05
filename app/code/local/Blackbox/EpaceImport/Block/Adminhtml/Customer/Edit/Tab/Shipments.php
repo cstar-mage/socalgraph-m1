@@ -14,11 +14,15 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Shipments extends M
     protected function _prepareCollection()
     {
         $collection = Mage::getResourceModel('sales/order_shipment_grid_collection')
-            ->addFieldToFilter(['customer_id', 'sales_person_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId]);
+            ->addFieldToFilter(['customer_id', 'sales_person_id', 'csr_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId, $customerId]);
         $collection->getSelect()->join(
             ['s' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/shipment'), ['entity_id', 'sales_person_id', 'customer_id'])],
             'main_table.entity_id = s.entity_id',
             ['customer_id', 'sales_person_id']
+        )->join(
+            ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'csr_id'])],
+            'main_table.order_id = o.entity_id',
+            ['csr_id']
         );
         $this->setCollection($collection);
         return parent::_prepareCollection();

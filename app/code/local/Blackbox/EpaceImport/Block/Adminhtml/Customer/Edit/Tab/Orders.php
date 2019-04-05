@@ -15,12 +15,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Orders extends Mage
             ->addFieldToSelect('store_id')
             ->addFieldToSelect('billing_name')
             ->addFieldToSelect('shipping_name')
-            ->addFieldToFilter(['customer_id', 'sales_person_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId])
+            ->addFieldToFilter(['customer_id', 'sales_person_id', 'csr_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId, $customerId])
             ->setIsCustomerMode(true);
         $collection->getSelect()->join(
-            ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'sales_person_id', 'original_quoted_price', 'subtotal', 'estimate_id'])],
+            ['o' => $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), ['entity_id', 'sales_person_id', 'csr_id', 'original_quoted_price', 'subtotal', 'estimate_id'])],
             'main_table.entity_id = o.entity_id',
-            ['sales_person_id', 'estimate_price' => 'original_quoted_price', 'subtotal', 'estimate_id']
+            ['sales_person_id', 'csr_id', 'estimate_price' => 'original_quoted_price', 'subtotal', 'estimate_id']
         );
         $collection->setIsCustomerMode(true);
 

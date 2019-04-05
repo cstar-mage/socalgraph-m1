@@ -10,10 +10,17 @@ class Blackbox_EpaceImport_Model_Resource_Sales_Sale_Collection extends Mage_Sal
     protected $_salesPerson;
 
     /**
+     * Customer model
+     *
+     * @var Mage_Customer_Model_Customer
+     */
+    protected $_csr;
+
+    /**
      * Set filter by sales person
      *
      * @param Mage_Customer_Model_Customer $customer
-     * @return Mage_Sales_Model_Resource_Sale_Collection
+     * @return $this
      */
     public function setSalesPersonFilter(Mage_Customer_Model_Customer $customer)
     {
@@ -21,6 +28,17 @@ class Blackbox_EpaceImport_Model_Resource_Sales_Sale_Collection extends Mage_Sal
         return $this;
     }
 
+    /**
+     * Set filter by sales person
+     *
+     * @param Mage_Customer_Model_Customer $customer
+     * @return $this
+     */
+    public function setCSRFilter(Mage_CUstomer_Model_Customer $customer)
+    {
+        $this->_csr = $customer;
+        return $this;
+    }
 
     /**
      * Before load action
@@ -43,18 +61,31 @@ class Blackbox_EpaceImport_Model_Resource_Sales_Sale_Collection extends Mage_Sal
             )
             ->group('sales.store_id');
 
-        if ($this->_customer instanceof Mage_Customer_Model_Customer && $this->_salesPerson instanceof Mage_Customer_Model_Customer) {
-            $this->addFieldToFilter([
-                'sales.customer_id',
-                'sales.sales_person_id'
-            ], [
-                $this->_customer->getId(),
-                $this->_salesPerson->getId()
-            ]);
-        } else if ($this->_customer instanceof Mage_Customer_Model_Customer && !$this->_salesPerson) {
-            $this->addFieldToFilter('sales.customer_id', $this->_customer->getId());
-        } else if ($this->_salesPerson instanceof Mage_Customer_Model_Customer) {
-            $this->addFieldToFilter('sales.sales_person_id', $this->_salesPerson->getId());
+        $filterField = [];
+        $filterValue = [];
+
+        if ($this->_customer instanceof Mage_Customer_Model_Customer) {
+            $filterField[] = 'sales.customer_id';
+            $filterValue[] = $this->_customer->getId();
+        }
+        if ($this->_salesPerson instanceof Mage_Customer_Model_Customer) {
+            $filterField[] = 'sales.sales_person_id';
+            $filterValue[] = $this->_salesPerson->getId();
+        }
+        if ($this->_csr instanceof Mage_Customer_Model_Customer) {
+            $filterField[] = 'sales.csr_id';
+            $filterValue[] = $this->_csr->getId();
+        }
+
+        if (!empty($filterField) && !empty($filterValue)) {
+            if (count($filterField) == 1) {
+                $filterField = current($filterField);
+            }
+            if (count($filterValue) == 1) {
+                $filterValue = current($filterValue);
+            }
+
+            $this->addFieldToFilter($filterField, $filterValue);
         }
 
         if (!is_null($this->_orderStateValue)) {

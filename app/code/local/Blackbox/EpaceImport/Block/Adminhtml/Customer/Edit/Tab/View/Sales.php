@@ -11,8 +11,12 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_View_Sales extends 
         $this->_collection = Mage::getResourceModel('epacei/sales_sale_collection')
             ->setCustomerFilter(Mage::registry('current_customer'))
             ->setOrderStateFilter(Mage_Sales_Model_Order::STATE_CANCELED, true);
-        if (Mage::registry('current_customer')->getGroupId() == Mage::helper('epacei')->getWholesaleCustomerGroupId()) {
-            $this->_collection->setSalesPersonFilter(Mage::registry('current_customer'));
+
+        $customer = Mage::registry('current_customer');
+        if ($customer->getGroupId() == Mage::helper('epacei')->getWholesaleCustomerGroupId()) {
+            $this->_collection->setSalesPersonFilter($customer);
+        } else if ($customer->getGroupId() == Mage::helper('epacei')->getCSRCustomerGroupId()) {
+            $this->_collection->setCSRFilter($customer);
         }
         $this->_collection->load();
 

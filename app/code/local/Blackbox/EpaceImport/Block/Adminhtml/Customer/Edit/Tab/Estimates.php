@@ -23,7 +23,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_Estimates extends M
             ->addFieldToSelect('grand_total')
             ->addFieldToSelect('estimate_currency_code')
             ->addFieldToSelect('store_id')
-            ->addFieldToFilter(['customer_id', 'sales_person_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId]);
+            ->addFieldToFilter(['customer_id', 'sales_person_id', 'csr_id'], [$customerId = Mage::registry('current_customer')->getId(), $customerId, $customerId]);
 
         $collection->getSelect()->columns([
             'customer' => 'CONCAT(COALESCE(customer_firstname, \'\'), COALESCE(customer_lastname, \'\'))',
