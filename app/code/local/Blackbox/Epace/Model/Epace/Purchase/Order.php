@@ -8,7 +8,7 @@
  * @method string getAddress1()
  * @method string getAddress2()
  * @method string getCity()
- * @method int getZip()
+ * @method string getZip()
  * @method string getEmailAddress()
  * @method string getPhoneNumber()
  * @method int getPoNumber()
@@ -163,7 +163,7 @@ class Blackbox_Epace_Model_Epace_Purchase_Order extends Blackbox_Epace_Model_Epa
             'address1' => 'string',
             'address2' => 'string',
             'city' => 'string',
-            'zip' => 'int',
+            'zip' => 'string',
             'state' => 'string',
             'country' => 'int',
             'emailAddress' => 'string',
