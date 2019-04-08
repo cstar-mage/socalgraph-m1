@@ -10,8 +10,8 @@
  * @method string getDescription()
  * @method string getLineStatus()
  * @method float getQtyOrdered()
- * @method int getJob()
- * @method int getJobPart()
+ * @method string getJob()
+ * @method string getJobPart()
  * @method int getGlAccount()
  * @method bool getTaxable()
  * @method string getDateEntered()
@@ -123,9 +123,9 @@ class Blackbox_Epace_Model_Epace_Purchase_Order_Line extends Blackbox_Epace_Mode
             'description' => 'string',
             'lineStatus' => 'string',
             'qtyOrdered' => 'float',
-            'job' => 'int',
-            'jobPart' => 'int',
-            'activityCode' => 'int',
+            'job' => 'string',
+            'jobPart' => 'string',
+            'activityCode' => 'string',
             'glAccount' => 'int',
             'jobPartOutsidePurch' => 'int',
             'taxable' => 'bool',
