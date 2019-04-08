@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @method Blackbox_Epace_Model_Epace_AbstractObject[] getItems()
+ *
+ * Class Blackbox_Epace_Model_Resource_Epace_Collection
+ */
 abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Data_Collection
 {
     /**

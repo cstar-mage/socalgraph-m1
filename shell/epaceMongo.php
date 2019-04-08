@@ -302,6 +302,9 @@ class EpaceMongo extends Mage_Shell_Abstract
     protected $manager;
     protected $database;
 
+    /**
+     * @var MongoEpaceCollection[]
+     */
     protected $collectionAdapters = [];
 
     protected $tabs = 0;
@@ -349,6 +352,11 @@ class EpaceMongo extends Mage_Shell_Abstract
                 return;
             }
 
+            if ($this->getArg('vendors')) {
+                $this->importVendors();
+                return;
+            }
+
             if ($this->getArg('resave')) {
                 $this->resaveEntities();
                 return;
@@ -356,9 +364,17 @@ class EpaceMongo extends Mage_Shell_Abstract
 
             $this->importToMongo();
 
+            foreach ($this->collectionAdapters as $adapter) {
+                try {
+                    $adapter->flush();
+                } catch (\Exception $e) {
+                    $this->writeln('Error while flushing ' . $adapter->getCollectionName() . ': ' . $e->getMessage());
+                }
+            }
+
             $this->saveStatus('success');
         } catch (\Exception $e) {
-            $this->writeln($e->getMessage());
+            $this->writeln('Error: ' . $e->getMessage());
             Mage::logException($e);
             $this->saveStatus('error', 'Exception in ' . $e->getFile() . ':' . $e->getLine() . '. Message: ' . $e->getMessage());
         }
@@ -392,6 +408,8 @@ class EpaceMongo extends Mage_Shell_Abstract
             $this->importEntities('job_status');
             $this->importEntities('job_type');
             $this->importEntities('invoice_extra_type');
+            $this->importEntities('purchase_order_type');
+            $this->importEntities('pOStatus');
         }
 
         if ($this->getArg('estimates')) {
@@ -406,19 +424,7 @@ class EpaceMongo extends Mage_Shell_Abstract
             $collection->setOrder('entryDate', 'ASC');
 
             if ($this->getArg('ef')) {
-                $filters = json_decode($this->getArg('ef'));
-                if (is_null($filters)) {
-                    throw new \Exception("Invalid job filter");
-                }
-                if (!is_array($filters)) {
-                    $filters = [$filters];
-                }
-                foreach ($filters as $filter) {
-                    if (is_object($filter->value)) {
-                        $filter->value = (array)$filter->value;
-                    }
-                    $collection->addFilter($filter->field, $filter->value);
-                }
+                $this->addFilter($collection, $this->getArg('ef'));
             }
 
             $ids = $collection->loadIds();
@@ -445,19 +451,7 @@ class EpaceMongo extends Mage_Shell_Abstract
             $collection->setOrder('dateSetup', 'ASC');
 
             if ($this->getArg('jf')) {
-                $filters = json_decode($this->getArg('jf'));
-                if (is_null($filters)) {
-                    throw new \Exception("Invalid job filter");
-                }
-                if (!is_array($filters)) {
-                    $filters = [$filters];
-                }
-                foreach ($filters as $filter) {
-                    if (is_object($filter->value)) {
-                        $filter->value = (array)$filter->value;
-                    }
-                    $collection->addFilter($filter->field, $filter->value);
-                }
+                $this->addFilter($collection, $this->getArg('jf'));
             }
 
             $ids = $collection->loadIds();
@@ -483,6 +477,88 @@ class EpaceMongo extends Mage_Shell_Abstract
                 }
             } finally {
                 $this->tabs--;
+            }
+        }
+
+        if ($this->getArg('purchaseOrders')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Purchase_Order_Collection $collection */
+            $collection = Mage::getResourceModel('efi/purchase_order_collection');
+            if ($from) {
+                $collection->addFilter('dateEntered', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('dateEntered', ['lteq' => new DateTime($to)]);
+            }
+            $collection->setOrder('dateEntered', 'ASC');
+
+            if ($this->getArg('pof')) {
+                $this->addFilter($collection, $this->getArg('pof'));
+            }
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+            $i = 0;
+            $this->writeln('Found ' . $count . ' purchase orders.');
+            $this->tabs++;
+            try {
+                foreach ($ids as $id) {
+                    $this->writeln('PurchaseOrder ' . ++$i . '/' . $count . ': ' . $id);
+                    if (in_array($id, $this->processedJobs)) {
+                        $this->writeln("\tPurchaseOrder $id already processed.");
+                    } else {
+                        /** @var Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder */
+                        $purchaseOrder = Mage::getModel('efi/purchase_order')->load($id);
+
+                        $this->importPurchaseOrder($purchaseOrder);
+                    }
+                }
+            } finally {
+                $this->tabs--;
+            }
+        }
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Resource_Epace_Collection $collection
+     * @param string|array|object $filters
+     * @throws Exception
+     */
+    protected function addFilter(Blackbox_Epace_Model_Resource_Epace_Collection $collection, $filters)
+    {
+        if (is_string($filters)) {
+            $filters = json_decode($filters);
+        }
+        if (is_null($filters)) {
+            throw new \Exception("Invalid {$collection->getResource()->getObjectType()} filter");
+        }
+        if (!is_array($filters)) {
+            $filters = [$filters];
+        }
+        foreach ($filters as $filter) {
+            if (is_object($filter->value)) {
+                $filter->value = (array)$filter->value;
+            }
+            $collection->addFilter($filter->field, $filter->value);
+        }
+    }
+
+    public function importVendors()
+    {
+        /** @var Blackbox_Epace_Model_Resource_Epace_Vendor_Collection $collection */
+        $collection = Mage::getResourceModel('efi/vendor_collection');
+        $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+
+        $adapter = $this->getCollectionAdapter('vendor');
+
+        foreach ($ids as $id) {
+            $this->writeln(++$i . '/' . $count);
+            $vendor = Mage::getModel('efi/vendor')->load($id);
+            if ($vendor->getId()) {
+                $adapter->insertOrUpdate($vendor);
+            } else {
+                $this->writeln('Error: could not load.');
             }
         }
     }
@@ -855,6 +931,22 @@ class EpaceMongo extends Mage_Shell_Abstract
         return $this->getCollectionAdapter('receivable')->insertOrUpdate($receivable, $forceUpdate);
     }
 
+    protected function importPurchaseOrder(Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder)
+    {
+        $forceUpdate = false;
+        foreach ($purchaseOrder->getLines() as $line) {
+            $forceUpdate |= $this->getCollectionAdapter('purchase_order_line')->insertOrUpdate($line);
+        }
+        if ($purchaseOrder->getVendor()) {
+            $this->getCollectionAdapter('vendor')->insertOrUpdate($purchaseOrder->getVendor());
+        }
+        if ($purchaseOrder->getShipToContact()) {
+            $this->getCollectionAdapter('contact')->insertOrUpdate($purchaseOrder->getShipToContact());
+        }
+
+        return $this->getCollectionAdapter('purchase_order')->insertOrUpdate($purchaseOrder, $forceUpdate);
+    }
+
     protected function importCustomer($customer)
     {
         if ($customer instanceof Blackbox_Epace_Model_Epace_Customer) {
@@ -882,8 +974,15 @@ class EpaceMongo extends Mage_Shell_Abstract
         /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
         $collection = Mage::getResourceModel('efi/' . $type . '_collection');
         $adapter = $this->getCollectionAdapter($type);
-        foreach ($collection->getItems() as $item) {
-            $adapter->insertOrUpdate($item);
+        $this->writeln('Importing ' . $adapter->getCollectionName());
+        $this->tabs++;
+        try {
+            foreach ($collection->getItems() as $item) {
+                $this->writeln($item->getId());
+                $adapter->insertOrUpdate($item);
+            }
+        } finally {
+            $this->tabs--;
         }
 
         $adapter->flush();
