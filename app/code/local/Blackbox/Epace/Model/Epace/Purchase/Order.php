@@ -12,7 +12,6 @@
  * @method string getEmailAddress()
  * @method string getPhoneNumber()
  * @method int getPoNumber()
- * @method int getVendorContact()
  * @method int getTerms()
  * @method bool getDiscountCode()
  * @method string getDateEntered()
@@ -73,11 +72,35 @@ class Blackbox_Epace_Model_Epace_Purchase_Order extends Blackbox_Epace_Model_Epa
     }
 
     /**
+     * @return string
+     */
+    public function getVendorId()
+    {
+        return $this->getData('vendor');
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Vendor
      */
     public function getVendor()
     {
         return $this->_getObject('vendor', 'vendor', 'efi/vendor');
+    }
+
+    /**
+     * @return int
+     */
+    public function getVendorContactId()
+    {
+        return $this->getData('vendorContact');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Contact
+     */
+    public function getVendorContact()
+    {
+        return $this->_getObject('vendorContact', 'vendorContact', 'efi/contact');
     }
 
     /**
