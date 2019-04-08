@@ -38,6 +38,9 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
      */
     protected $_isOrdersRendered = false;
 
+    /** @var null|array */
+    protected $_loadedIds = null;
+
     /**
      * @var Blackbox_Epace_Model_Epace_Cache
      */
@@ -132,10 +135,7 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
             return $this;
         }
 
-        $this->_renderFilters();
-        $this->_renderOrders();
-        $this->_renderLimit();
-        $itemIds = $this->_loadIds();
+        $itemIds = $this->loadIds();
 
         foreach ($itemIds as $id) {
             if ($this->_cache) {
@@ -158,10 +158,23 @@ abstract class Blackbox_Epace_Model_Resource_Epace_Collection extends Varien_Dat
      */
     public function loadIds()
     {
-        $this->_renderFilters();
-        $this->_renderOrders();
-        $this->_renderLimit();
-        return $this->_loadIds();
+        if (is_null($this->_loadedIds)) {
+            $this->_renderFilters();
+            $this->_renderOrders();
+            $this->_renderLimit();
+            $this->_loadedIds = $this->_loadIds();
+        }
+        return $this->_loadedIds;
+    }
+
+    /**
+     * @return $this
+     */
+    public function clear()
+    {
+        parent::clear();
+        $this->_loadedIds = null;
+        return $this;
     }
 
     public function getSize()
