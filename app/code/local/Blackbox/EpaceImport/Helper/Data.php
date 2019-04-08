@@ -1788,7 +1788,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         if ($epaceInvoice->getReceivable()) {
-            $magentoReceivable = Mage::getModel('epacei/receivable')->load($invoice->getId(), 'invoice_id');
+            $magentoReceivable = Mage::getModel('epacei/receivable')->load($epaceInvoice->getReceivable()->getId(), 'epace_receivable_id');
             if ($magentoReceivable->getId()) {
                 $this->updateReceivable($magentoReceivable, $epaceInvoice->getReceivable(), $invoice, $logChanges);
             } else {
