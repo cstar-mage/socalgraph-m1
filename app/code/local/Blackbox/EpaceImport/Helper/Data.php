@@ -339,7 +339,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                 'row_total_incl_tax' => $part->getValue() + $taxAmount,
                 'base_row_total_incl_tax' => $part->getValue() + $taxAmount,
                 'epace_job_part' => $part->getJobPart(),
-                'epace_part_original_price' => $part->getOriginalQuotedPrice()
+                'epace_part_original_price' => $part->getOriginalQuotedPrice(),
+                'job_type' => $part->getJobType()
             ]);
             $order->addItem($item);
         }
