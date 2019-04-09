@@ -24,6 +24,25 @@
     </customer_account_index>
 
     <sales_order_tracking>
+        <reference name="breadcrumbs">
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>home</name>
+                <params>
+                    <label>Home</label>
+                    <title>Home</title>
+                    <link>/</link>
+                </params>
+            </action>
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>my_account</name>
+                <params>
+                    <label>Track Progress</label>
+                    <title>Track Progress</title>
+                    <!--<link>{{baseSecureUrl}}checkout/onepage/</link>-->
+                </params>
+            </action>
+        </reference>
+
         <reference name="head">
             <action method="addItem"><type>skin_css</type><name>css/progress.css</name></action>
         </reference>
