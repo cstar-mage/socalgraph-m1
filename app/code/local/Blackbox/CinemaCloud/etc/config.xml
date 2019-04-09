@@ -35,6 +35,11 @@
                     <layout>Blackbox_CinemaCloud_Model_Core_Layout</layout>
                 </rewrite>
             </core>
+            <reports_resource>
+                <rewrite>
+                    <order_collection>Blackbox_CinemaCloud_Model_Resource_Reports_Order_Collection</order_collection>
+                </rewrite>
+            </reports_resource>
         </models>
         <events>
             <controller_front_init_routers>
