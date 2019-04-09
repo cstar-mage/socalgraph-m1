@@ -42,17 +42,26 @@
 <?php echo $this->getChildHtml('head') ?>
 </head>
 <body<?php echo $this->getBodyClass()?' class="'.$this->getBodyClass().'"':'' ?>>
-<?php //echo $this->getChildHtml('after_body_start') ?>
-    <div class="tenger-greens-wrapper">
-        <div class="tenger-greens-page">
-            <?php echo $this->getChildHtml('header') ?>
-            <div class="main">
-                <div class="col-main">
-                    <?php echo $this->getChildHtml('content') ?>
-                </div>
-            </div>
+<?php echo $this->getChildHtml('after_body_start') ?>
+<?php echo $this->getChildHtml('header') ?>
+<section>
+    <div class="wrapper">
+        <?php echo $this->getChildHtml('breadcrumbs') ?>
+        <?php if (in_array('customer_account', $this->getLayout()->getUpdate()->getHandles())): ?>
+            <script>
+                jQuery( document ).ready(function () {
+                    jQuery(".main_content").prepend(jQuery( ".main_content .page-title" ));
+                });
+            </script>
+        <?php endif; ?>
+        <?php if ($this->getTitle()): ?>
+            <h1><?=$this->getTitle()?></h1>
+        <?php endif; ?>
+        <div class="main_content">
+            <?php echo $this->getChildHtml('content'); ?>
         </div>
     </div>
+</section>
 </body>
 </html>
 
