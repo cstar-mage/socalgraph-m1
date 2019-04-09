@@ -24,10 +24,15 @@
     </customer_account_index>
 
     <sales_order_tracking>
+        <reference name="head">
+            <action method="addItem"><type>skin_css</type><name>css/progress.css</name></action>
+        </reference>
+        <reference name="root">
+            <action method="setTitle"><title>Track Progress</title></action>
+        </reference>
         <reference name="content">
             <block type="tendergreens/tracking" name="sales.order.tracking" template="blackbox/tendergreens/sales/order/tracking.phtml">
                 <block type="tendergreens/sales_tracking_progress" name="sales.order.tracking.progress" as="progress" template="blackbox/tendergreens/sales/order/tracking/progress.phtml"/>
-                <block type="tendergreens/sales_tracking_progress" name="sales.order.tracking.progress.mobile" as="progress.mobile" template="blackbox/tendergreens/sales/order/tracking/progress_mobile.phtml"/>
             </block>
         </reference>
     </sales_order_tracking>

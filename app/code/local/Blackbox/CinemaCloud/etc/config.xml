@@ -113,6 +113,12 @@
                     <frontName>sso</frontName>
                 </args>
             </cc_sso>
+            <helpdesk>
+                <use>cinemacloud</use>
+            </helpdesk>
+            <sales>
+                <use>cinemacloud</use>
+            </sales>
         </routers>
     </frontend>
     <adminhtml>

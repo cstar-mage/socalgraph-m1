@@ -1,143 +1,195 @@
 <?php /** @var Blackbox_TenderGreens_Block_Tracking $this */ ?>
-<div class="headship">
-    <div class="trackheader">
-        <h1> TRACK PROGRESS</h1>
-    </div>
-    <?php echo $this->getMessagesBlock()->toHtml() ?>
 
-    <div class="shipping-status-track" >
-        <div class = "ordernum">
-            <h4>ORDER # <?php echo $this->getOrder()->getIncrementId() ?></h4>
+<div class="content">
+    <div class="trackprogress">
+        <form class="trackprogress_search">
+            <input type="text" placeholder="ENTER YOUR ORDER NUMBER" name="order_id">
+            <button class="button_big button button_grey"><span>SEARCH</span></button>
+        </form>
+        <?php if ($order = $this->getOrder()): ?>
+        <div class="trackprogress_head">
+            <div class="trackprogress_head_desktop">
+                <div class="trackprogress_head_desktop_group">
+                    <div class="title13">ORDERED BY</div>
+                    <div class="trackprogress_head_desktop_group_content">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12">
+                                <div class="fz13">Name:</div>
+                                <div class="fz13"><?=$order->getCustomerName()?></div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="fz13">E-mail:</div>
+                                <div class="fz13"><?=$order->getCustomerEmail()?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trackprogress_head_desktop_group">
+                    <?php $address = $order->getShippingAddress() ?>
+                    <div class="title13">DELIVERY TO</div>
+                    <div class="trackprogress_head_desktop_group_content">
+                        <div class="row">
+                            <div class="col-md-4 col-sm-12">
+                                <div class="fz13">Name:</div>
+                                <div class="fz13"><?php echo $address->getName() ?></div>
+                            </div>
+                            <div class="col-md-8 col-sm-12">
+                                <div class="fz13">Address:</div>
+                                <div class="fz13"><?php echo $address->getStreetFull() . ' ' . $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostcode() . ' ' . $address->getCountry() ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trackprogress_head_desktop_group">
+                    <?php $address = $order->getBillingAddress() ?>
+                    <div class="title13">Bill to</div>
+                    <div class="trackprogress_head_desktop_group_content">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12">
+                                <div class="fz13">Address:</div>
+                                <div class="fz13"><?php echo $address->getStreetFull() . ' ' . $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostcode() . ' ' . $address->getCountry() ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="trackprogress_head_desktop_order">
+                    <div class="title13">ORDER</div>
+                    <div class="fz24">#<?=$order->getIncrementId()?></div>
+                </div>
+            </div>
+            <div class="trackprogress_head_tablet">
+                <div class="trackprogress_head_tablet_order">
+                    <div class="title13">ORDER</div>
+                    <div class="fz24">#<?=$order->getIncrementId()?></div>
+                </div>
+                <div class="trackprogress_head_tablet_tabs">
+                    <div class="trackprogress_head_tablet_tabs_nav nav"><a class="active" data-toggle="tab" href="#ordered">ORDERED BY</a><a data-toggle="tab" href="#delivery">DELIVERY TO</a><a data-toggle="tab" href="#bill">BILL TO</a></div>
+                    <div class="trackprogress_head_tablet_tabs_content tab-content">
+                        <div class="tab-pane fade show active" id="ordered">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="fz13">Name:</div>
+                                    <div class="fz13"><?=$order->getCustomerName()?></div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="fz13">E-mail:</div>
+                                    <div class="fz13"><?=$order->getCustomerEmail()?></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="delivery">
+                            <?php $address = $order->getShippingAddress() ?>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="fz13">Name:</div>
+                                    <div class="fz13"><?=$address->getName()?></div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="fz13">Address:</div>
+                                    <div class="fz13"><?php echo $address->getStreetFull() . ' ' . $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostcode() . ' ' . $address->getCountry() ?></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="bill">
+                            <?php $address = $order->getBillingAddress() ?>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="fz13">Address:</div>
+                                    <div class="fz13"><?php echo $address->getStreetFull() . ' ' . $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostcode() . ' ' . $address->getCountry() ?></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="trackprogress_head_mobile">
+                <div class="trackprogress_head_mobile_order">
+                    <div class="title13">ORDER</div>
+                    <div class="fz24">#<?=$order->getIncrementId()?></div>
+                </div>
+                <div class="trackprogress_head_mobile_content">
+                    <div class="row">
+                        <div class="col-6">
+                            <?php $address = $order->getShippingAddress() ?>
+                            <div class="title13">SHIPPING</div>
+                            <div class="trackprogress_head_mobile_content_group">
+                                <div class="fz13">Address:</div>
+                                <div class="fz13"><?php echo $address->getStreetFull() . ' ' . $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostcode() . ' ' . $address->getCountry() ?></div>
+                            </div>
+                            <div class="trackprogress_head_mobile_content_group">
+                                <div class="fz13">Name:</div>
+                                <div class="fz13"><?=$address->getName()?></div>
+                            </div>
+                            <div class="trackprogress_head_mobile_content_group">
+                                <div class="fz13">Payment Method</div>
+                                <div class="fz13"><?php echo $order->getPayment()->getMethodInstance()->getTitle()?></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <?php $address = $order->getBillingAddress() ?>
+                            <div class="title13">Billing</div>
+                            <div class="trackprogress_head_mobile_content_group">
+                                <div class="fz13">Address:</div>
+                                <div class="fz13"><?php echo $address->getStreetFull() . ' ' . $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostcode() . ' ' . $address->getCountry() ?></div>
+                            </div>
+                            <div class="trackprogress_head_mobile_content_group">
+                                <div class="fz13">Shipping method:</div>
+                                <div class="fz13"><?php echo $order->getShippingDescription() ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <?php echo $this->getChildHtml('progress') ?>
-    </div>
-
-
-
-
-    <div class= "track-table">
-        <div class = "track-table-row">
-            <div class = "track-column1">
-                <h5>PRODUCT NAME</h5>
+        <div class="trackprogress_content">
+            <?php echo $this->getChildHtml('progress') ?>
+            <div class="trackprogress_table">
+                <table class="trackprogress_table_desktop">
+                    <thead>
+                    <tr>
+                        <th class="tal">PRODUCT</th>
+                        <th class="tac">PRODUCT</th>
+                        <th class="tac">PRICE</th>
+                        <th class="tac">QTY</th>
+                        <th class="tar">SUBTOTAL</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php /** @var Mage_Sales_Model_Order_Item $item */ foreach ($order->getAllVisibleItems() as $item): ?>
+                        <tr>
+                            <td class="tal title"><?=$this->escapeHtml($item->getName())?></td>
+                            <td class="tac"><?=$this->escapeHtml(Mage::helper('epacei')->getJobTypes()[$item->getJobType()])?></td>
+                            <td class="tac"><?=Mage::helper('core')->formatPrice($item->getPrice(), false)?></td>
+                            <td class="tac"><?=(int)$item->getQtyOrdered()?></td>
+                            <td class="tar"><?=Mage::helper('core')->formatPrice($item->getRowTotal(), false)?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <div class="trackprogress_table_mobile">
+                    <div class="trackprogress_table_mobile_head title13">PRODUCT</div>
+                    <div class="trackprogress_table_mobile_content">
+                        <?php /** @var Mage_Sales_Model_Order_Item $item */ foreach ($order->getAllVisibleItems() as $item): ?>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="trackprogress_table_mobile_title"><?=$this->escapeHtml($item->getName())?></div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="trackprogress_table_mobile_text"><span>SKU </span><?=$this->escapeHtml($item->getSku())?></div>
+                                    <div class="trackprogress_table_mobile_text"><span>PRICE </span><?=Mage::helper('core')->formatPrice($item->getPrice(), false)?></div>
+                                    <div class="trackprogress_table_mobile_text"><span>QTY </span><?=(int)$item->getQtyOrdered()?></div>
+                                    <div class="trackprogress_table_mobile_text"><span>SUBTOTAL </span><?=Mage::helper('core')->formatPrice($item->getRowTotal(), false)?></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
             </div>
-            <div class = "track-column2">
-                <h5>LINK</h5>
-            </div>
-            <div class = "track-column3">
-                <h5>PRODUCT SKU</h5>
-            </div>
-            <div class = "track-column4">
-                <h5>PURCHASES</h5>
-            </div>
-            <div class = "track-column5">
-                <h5>DOWNLOADS</h5>
+            <div class="trackprogress_buttons">
+                <a class="button button_white button_big" href="<?=$this->getUrl('customer/account')?>"><span class="goback">GO BACK</span></a>
+                <a class="button button_grey button_big" href="#">REORDER</a>
             </div>
         </div>
-
-        <?php /** @var Mage_Sales_Model_Order_Item $item */ ?>
-        <?php $i=1; foreach ($this->getOrder()->getAllVisibleItems() as $item): $i++; ?>
-            <div class="track-table-row<?=$i?>">
-                <div class="track-column1">
-                    <p><?php echo $item->getName() ?></p>
-                </div>
-                <div class="track-column2">
-                    <?php if (Mage::helper('product_file')->isFileExists($item->getProductId())): ?>
-                        <p><a target="_blank" href="<?php echo Mage::getUrl('downloadable/download/file', array('product_id' => $item->getProductId()))?>">Download</a></p>
-                    <?php endif; ?>
-                </div>
-                <div class="track-column3">
-                    <p><?php echo $item->getSku() ?></p>
-                </div>
-                <div class="track-column4">
-                    <p>Unlimited</p>
-                </div>
-                <div class="track-column5">
-                    <p><?php echo Mage::helper('product_file')->getDownloadsUsed($item) ?></p>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-
-    <div class= "track-mobile">
-        <div class="mobileheader">
-            <h4>YOUR SHIPPING STATUS</h4></div>
-        <div class = "mobile-ordernum">
-            <h5>ORDER # <?php echo $this->getOrder()->getIncrementId() ?></h5>
-        </div>
-        <?php echo $this->getChildHtml('progress.mobile') ?>
-
-        <?php /** @var Mage_Sales_Model_Order_Item $item */ ?>
-        <?php $i=1; foreach ($this->getOrder()->getAllVisibleItems() as $item): $i++; ?>
-            <div class="track-mobile-table1">
-                <div class = "track-mobile-table-row">
-                    <div class = "track-mobile-column1">
-                        <h5>Product Name:</h5>
-                    </div>
-                    <div class = "track-mobile-column2">
-                        <p><?php echo $item->getName() ?></p>
-                    </div>
-                </div>
-
-                <div class = "track-mobile-table-row">
-                    <div class = "track-mobile-column1">
-                        <h5>Link:</h5>
-                    </div>
-                    <div class = "track-mobile-column2">
-                        <?php if (Mage::helper('product_file')->isFileExists($item->getProductId())): ?>
-                            <p><a target="_blank" href="<?php echo Mage::getUrl('downloadable/download/file', array('product_id' => $item->getProductId()))?>">Download</a></p>
-                        <?php endif; ?>
-                    </div>
-
-                </div>
-
-                <div class = "track-mobile-table-row">
-                    <div class = "track-mobile-column1">
-                        <h5>Product SKU:</h5>
-                    </div>
-                    <div class = "track-mobile-column2">
-                        <p><?php echo $item->getSku() ?></p>
-                    </div>
-
-                </div>
-
-                <div class = "track-mobile-table-row">
-                    <div class = "track-mobile-column1">
-                        <h5>Purchases:</h5>
-                    </div>
-                    <div class = "track-mobile-column2">
-                        <p>Unlimited</p>
-                    </div>
-
-                </div>
-
-                <div class = "track-mobile-table-row-last">
-                    <div class = "track-mobile-column1">
-                        <h5>DWN:</h5>
-                    </div>
-                    <div class = "track-mobile-column2">
-                        <p><?php echo Mage::helper('product_file')->getDownloadsUsed($item) ?></p>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-
-
-    <div class="but">
-        <div class="buttonnum1">
-            <button class="buttonde" onclick="document.location='/contacts'" ><span>Feedback</span></button>
-        </div>
-        <?php if (!$this->getOrder()->getAccepted()): ?>
-            <div class="buttonnum2">
-                <form action="/sales/order/accept" method="post">
-                    <input type="hidden" name="order_id" value="<?php echo $this->getOrder()->getId() ?>">
-                    <button type="submit" class="buttond"><span>Accept</span></button>
-                </form>
-            </div>
         <?php endif; ?>
-
     </div>
 </div>

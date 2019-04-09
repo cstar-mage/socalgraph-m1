@@ -23,23 +23,17 @@ class Blackbox_TenderGreens_Block_Sales_Tracking_Progress extends Mage_Core_Bloc
 
     protected function getCurrentProgressNumber()
     {
-        if ($this->getOrder()->getAccepted()) {
-            return 5;
+        $order = $this->getOrder();
+        if ($order->getAccepted() || $order->getState() == 'closed') {
+            return 4;
         }
-        if ($trackingInfo = $this->getTrackingInfo()) {
-            if ($trackingInfo->getStatus() == 'DELIVERED') {
-                return 5;
-            }
-            if ($trackingInfo->getErrorMessage()) {
-                return 2;
-            } else {
-                return 3;
-            }
+        foreach ($order->getTrackingNumbers() as $trackingNumber) {
+            return 3;
         }
-        if ($this->getOrder()->hasShipments()) {
-            return 1;
+        if ($order->hasShipments()) {
+            return 2;
         }
-        return 0;
+        return 1;
     }
 
     protected function getTrackingInfo()

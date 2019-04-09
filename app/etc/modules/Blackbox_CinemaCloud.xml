@@ -4,6 +4,9 @@
         <Blackbox_CinemaCloud>
             <active>true</active>
             <codePool>local</codePool>
+            <depends>
+                <Blackbox_HelpDesk />
+            </depends>
         </Blackbox_CinemaCloud>
     </modules>
 </config>
