@@ -29,6 +29,9 @@ class Blackbox_TenderGreens_Sales_OrderController extends Mage_Sales_OrderContro
     protected function _loadValidOrderBySearch()
     {
         $orderId = $this->getRequest()->getParam('order_id');
+        if (substr($orderId, 0, 1) == '#') {
+            $orderId = substr($orderId, 1);
+        }
         if (empty($orderId)) {
             return false;
         }
@@ -48,18 +51,26 @@ class Blackbox_TenderGreens_Sales_OrderController extends Mage_Sales_OrderContro
             return true;
         }
 
-        if (!is_numeric($orderId) || !$orderId) {
-            return false;
-        }
+//        if (!is_numeric($orderId) || !$orderId) {
+//            return false;
+//        }
+//
+//        $orderId = (int)$orderId;
+//
+//        $order->load($orderId);
+//
+//        if ($this->_canViewOrder($order)) {
+//            Mage::register('current_order', $order);
+//            return true;
+//        }
+        return false;
+    }
 
-        $orderId = (int)$orderId;
-
-        $order->load($orderId);
-
-        if ($this->_canViewOrder($order)) {
-            Mage::register('current_order', $order);
+    protected function _canViewOrder($order)
+    {
+        if ($order->getId() && $order->getEpaceJobId()) {
             return true;
         }
-        return false;
+        return parent::_canViewOrder($order);
     }
 }

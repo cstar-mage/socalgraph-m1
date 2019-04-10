@@ -3,7 +3,7 @@
 <div class="content">
     <div class="trackprogress">
         <form class="trackprogress_search">
-            <input type="text" placeholder="ENTER YOUR ORDER NUMBER" name="order_id">
+            <input type="text" placeholder="ENTER YOUR ORDER NUMBER" name="order_id" value="<?=$this->escapeHtml($this->getRequest()->getParam('order_id'))?>">
             <button class="button_big button button_grey"><span>SEARCH</span></button>
         </form>
         <?php if ($order = $this->getOrder()): ?>
