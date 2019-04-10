@@ -105,6 +105,16 @@ $orderStoreDate = $this->formatDate($_order->getCreatedAtStoreDate(), 'medium', 
                         <td class="value"><strong><a href="<?php echo $this->getUrl('*/epace_estimate/view', ['estimate_id' => $estimate->getId()]) ?>"><?=$estimate->getEstimateNumber() ?: $estimate->getIncrementId() . ' ' . $estimate->getVersion()?></a></strong></td>
                     </tr>
                 <?php endif; ?>
+                <?php if ($order->getEpaceJobId() && (Mage::registry('current_shipment') instanceof Mage_Sales_Model_Order_Shipment || Mage::registry('current_invoice') instanceof Mage_Sales_Model_Order_Invoice)): ?>
+                    <tr>
+                        <td class="label">
+                            <label><?php echo $this->__('Job') ?></label>
+                        </td>
+                        <td class="value">
+                            <strong><a href="<?php echo $this->getUrl('*/sales_order/view', ['order_id' => $order->getId()]) ?>"><?=$order->getEpaceJobId()?></a></strong>
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </table>
         </div>
     </div>
