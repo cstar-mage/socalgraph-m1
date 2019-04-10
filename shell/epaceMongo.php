@@ -335,10 +335,17 @@ class EpaceMongo extends Mage_Shell_Abstract
         $this->saveStatus('running');
 
         try {
-            $host = $this->getArg('host');
-            $this->manager = new MongoDB\Driver\Manager($host);
+            if ($this->getArg('config_settings')) {
+                /** @var Blackbox_Epace_Helper_Mongo $helper */
+                $helper = Mage::helper('epace/mongo');
+                $this->manager = new MongoDB\Driver\Manager($helper->getHost());
+                $this->database = $helper->getDatabase();
+            } else {
+                $host = $this->getArg('host');
+                $this->manager = new MongoDB\Driver\Manager($host);
 
-            $this->database = $this->getArg('database');
+                $this->database = $this->getArg('database');
+            }
             if (!$this->database) {
                 throw new \Exception('No database specified.');
             }

@@ -10,7 +10,6 @@
  * @method string getDescription()
  * @method string getLineStatus()
  * @method float getQtyOrdered()
- * @method string getJob()
  * @method string getJobPart()
  * @method int getGlAccount()
  * @method bool getTaxable()
@@ -110,6 +109,38 @@ class Blackbox_Epace_Model_Epace_Purchase_Order_Line extends Blackbox_Epace_Mode
         return $this->_getObject('activityCode', 'activityCode', 'efi/activity_code');
     }
 
+    /**
+     * @return string
+     */
+    public function getSalesTaxRate1Code()
+    {
+        return $this->getData('salesTaxRate1');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesTax
+     */
+    public function getSalesTaxRate1()
+    {
+        return $this->_getObject('salesTaxRate1', 'salesTaxRate1', 'efi/salesTax', true);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSalesTaxRate2Code()
+    {
+        return $this->getData('salesTaxRate2');
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_SalesTax
+     */
+    public function getSalesTaxRate2()
+    {
+        return $this->_getObject('salesTaxRate2', 'salesTaxRate2', 'efi/salesTax', true);
+    }
+
     public function getDefinition()
     {
         return [
@@ -133,10 +164,12 @@ class Blackbox_Epace_Model_Epace_Purchase_Order_Line extends Blackbox_Epace_Mode
             'printStreamShared' => 'bool',
             'externalLineNum' => 'int',
             'paperSheet' => 'bool',
+            'salesTaxRate1' => 'string',
             'taxBase1' => 'float',
             'taxBase1Forced' => 'bool',
             'taxAmount1' => 'float',
             'taxAmount1Forced' => 'bool',
+            'salesTaxRate2' => 'string',
             'taxBase2' => 'float',
             'taxBase2Forced' => 'bool',
             'taxAmount2' => 'float',

@@ -4,15 +4,23 @@
  * @method string getLookupHint()
  * @method string getFirstName()
  * @method string getLastName()
- * @method string getMobilePhoneNumber()
  * @method string getBusinessPhoneNumber()
  * @method string getBusinessPhoneExtension()
  * @method string getEmail()
+ * @method string getBusinessFaxNumber()
+ * @method string getBusinessFaxExtension()
+ * @method string getMobilePhoneNumber()
+ * @method string getOtherPhoneNumber()
+ * @method string getTitle()
  * @method string getCompanyName()
  * @method string getAddress1()
+ * @method string getAddress2()
+ * @method string getAddress3()
  * @method string getCity()
  * @method string getState()
  * @method int getZip()
+ * @method string getHomePhoneNumber()
+ * @method string getHomeFaxNumber()
  * @method int getTaxableCode()
  * @method string getSalesTax()
  * @method int getShipVia()
@@ -95,19 +103,27 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
     {
         return [
             'id' => 'int',
-            'firstName' => '',
-            'lastName' => '',
-            'email' => '',
-            'mobilePhoneNumber' => '',
-            'businessPhoneNumber' => '',
-            'businessPhoneExtension' => '',
-            'companyName' => '',
-            'address1' => '',
-            'address2' => '',
+            'lookupHint' => 'string',
+            'firstName' => 'string',
+            'lastName' => 'string',
+            'businessPhoneNumber' => 'string',
+            'businessPhoneExtension' => 'string',
+            'email' => 'string',
+            'businessFaxNumber' => 'string',
+            'businessFaxExtension' => 'string',
+            'mobilePhoneNumber' => 'string',
+            'otherPhoneNumber ' => 'string',
+            'title' => 'string',
+            'companyName' => 'string',
+            'address1' => 'string',
+            'address2' => 'string',
+            'address3' => 'string',
             'city' => 'string',
-            'state' => '',
-            'zip' => '',
+            'state' => 'string',
+            'zip' => 'string',
             'country' => 'int',
+            'homePhoneNumber ' => 'string',
+            'homeFaxNumber' => 'string',
             'customer' => 'string',
             'residential' => 'bool',
             'active' => 'bool',
@@ -116,13 +132,13 @@ class Blackbox_Epace_Model_Epace_Contact extends Blackbox_Epace_Model_Epace_Abst
             'doNotEmail' => 'bool',
             'needsInfo' => 'bool',
             'crm' => 'bool',
-            'defaultCurrency' => '',
+            'defaultCurrency' => 'string',
             'autoUpdate' => 'bool',
             'jobContact' => 'bool',
             'failedGPSLookup' => 'bool',
             'metroAreaForced' => 'bool',
             'useAlternateText' => 'bool',
-            'imUserName' => '',
+            'imUserName' => 'string',
             'dsfShipTo' => 'bool',
             'dsfUser' => 'bool',
             'altAutoUpdate' => 'bool',

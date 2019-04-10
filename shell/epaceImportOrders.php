@@ -534,6 +534,32 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 }
             }
         }
+
+        if ($this->getArg('purchaseOrders')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Purchase_Order_Collection $collection */
+            $collection = Mage::getResourceModel('efi/purchase_order_collection');
+            if ($from) {
+                $collection->addFilter('dateEntered', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('dateEntered', ['lteq' => new DateTime($to)]);
+            }
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+            $i = 0;
+            $this->writeln('Found ' . $count . ' purchase orders.');
+            foreach ($ids as $id) {
+                $this->writeln('Purchase Order ' . ++$i . '/' . $count . ': ' . $id);
+                /** @var Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder */
+                $purchaseOrder = Mage::getModel('efi/purchase_order')->load($id);
+                try {
+                    $this->importPurchaseOrder($purchaseOrder);
+                } catch (\Exception $e) {
+                    $this->writeln($e->getMessage());
+                }
+            }
+        }
     }
 
     protected function importEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate)
@@ -644,6 +670,24 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
         $orderShipment->save();
 
         return $orderShipment;
+    }
+
+    protected function importPurchaseOrder(Blackbox_Epace_Model_Epace_Purchase_Order $po)
+    {
+        /** @var Blackbox_EpaceImport_Model_PurchaseOrder $mpo */
+        $mpo = Mage::getModel('epacei/purchaseOrder');
+
+        $mpo->load($po->getId(), 'epace_purchase_order_id');
+        if ($mpo->getId()) {
+            $this->writeln("Purchase Order {$po->getId()} already imported.");
+            return $mpo;
+        }
+
+        $this->helper->importPurchaseOrder($po, $mpo);
+
+        $mpo->save();
+
+        return $mpo;
     }
 
     /**

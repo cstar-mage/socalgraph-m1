@@ -7,6 +7,7 @@
  * @method string getContactLastName()
  * @method string getAddress1()
  * @method string getAddress2()
+ * @method string getAddress3()
  * @method string getCity()
  * @method string getZip()
  * @method string getEmailAddress()
@@ -111,9 +112,20 @@ class Blackbox_Epace_Model_Epace_Purchase_Order extends Blackbox_Epace_Model_Epa
         return $this->getData('shipVia');
     }
 
+    /**
+     * @return Blackbox_Epace_Model_Epace_Ship_Via
+     */
     public function getShipVia()
     {
         return $this->_getObject('shipVia', 'shipVia', 'efi/ship_via', true);
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderStatusId()
+    {
+        return $this->getData('orderStatus');
     }
 
     /**
@@ -185,6 +197,7 @@ class Blackbox_Epace_Model_Epace_Purchase_Order extends Blackbox_Epace_Model_Epa
             'contactLastName' => 'string',
             'address1' => 'string',
             'address2' => 'string',
+            'address3' => 'string',
             'city' => 'string',
             'zip' => 'string',
             'state' => 'string',

@@ -1020,6 +1020,328 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         return $orderShipment;
     }
 
+    public function importPurchaseOrder(Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder, Blackbox_EpaceImport_Model_PurchaseOrder $mpo = null)
+    {
+        if (!$mpo instanceof Blackbox_EpaceImport_Model_PurchaseOrder) {
+            $mpo = Mage::getModel('epacei/purchaseOrder');
+        }
+
+        $shippingMethod = $this->getShippingMethod($purchaseOrder->getShipVia());
+
+        if ($purchaseOrder->getCountry() && $purchaseOrder->getStateCode()) {
+            /** @var Mage_Directory_Model_Resource_Region_Collection $regionCollection */
+            $regionCollection = Mage::getResourceModel('directory/region_collection');
+            $regionCollection->addFieldToFilter('country_id', $purchaseOrder->getCountry()->getIsoCountry())
+                ->addFieldToFilter('code', $purchaseOrder->getStateCode());
+            if ($region = $regionCollection->getFirstItem()) {
+                $regionName = $region->getDefaultName();
+                $regionId = $region->getId();
+            } else {
+                $regionName = $purchaseOrder->getStateCode();
+                $regionId = null;
+            }
+        } else {
+            $regionName = $purchaseOrder->getStateCode();
+            $regionId = null;
+        }
+
+        $mpo->setData([
+            'epace_purchase_order_id' => $purchaseOrder->getId(),
+            'status' => $purchaseOrder->getOrderStatusId(),
+            'type' => $purchaseOrder->getPurchaseOrderType(),
+            'shipping_description' => $shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle(),
+            'requester' => $purchaseOrder->getRequester(),
+            'store_id' => $this->getStore()->getId(),
+            'base_discount_amount' => $purchaseOrder->getDiscountAmount(),
+            'base_grand_total' => $purchaseOrder->getTaxedTotal(),
+            'base_shipping_tax_amount' => 0,
+            'base_subtotal' => $purchaseOrder->getOrderTotal(),
+            'base_original_total' => $purchaseOrder->getOriginalTotal(),
+            'base_tax_amount' => $purchaseOrder->getTaxAmount1(),
+            'base_tax_amount2' => $purchaseOrder->getTaxAmount2(),
+            'discount_amount' => $purchaseOrder->getDiscountAmount(),
+            'grand_total' => $purchaseOrder->getTaxedTotal(),
+            'base_to_global_rate' => 1,
+            'base_to_order_rate' => 1,
+            'subtotal' => $purchaseOrder->getOrderTotal(),
+            'original_total' => $purchaseOrder->getOriginalTotal(),
+            'tax_amount' => $purchaseOrder->getTaxAmount1(),
+            'tax_amount2' => $purchaseOrder->getTaxAmount2(),
+            'base_subtotal_incl_tax' => $purchaseOrder->getTaxedTotal(),
+            'subtotal_incl_tax' => $purchaseOrder->getTaxedTotal(),
+            'base_currency_code' => $this->getStore()->getBaseCurrencyCode(),
+            'email' => $purchaseOrder->getEmailAddress(),
+            'company' => $purchaseOrder->getCompanyName(),
+            'contact_firstname' => $purchaseOrder->getContactFirstName(),
+            'contact_lastname' => $purchaseOrder->getContactLastName(),
+            'contact_middlename' => null,
+            'contact_prefix' => null,
+            'contact_suffix' => null,
+            'street' => implode("\n", array_filter([$purchaseOrder->getAddress1(), $purchaseOrder->getAddress2(), $purchaseOrder->getAddress3()])),
+            'city' => $purchaseOrder->getCity(),
+            'region' => $regionName,
+            'region_id' => $regionId,
+            'postcode' => $purchaseOrder->getZip(),
+            'country_id' => $purchaseOrder->getCountry() ? $purchaseOrder->getCountry()->getIsoCountry() : null,
+            'telephone' => $purchaseOrder->getPhoneNumber(),
+            'po_number' => $purchaseOrder->getPoNumber(),
+            'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
+            'order_currency_code' => $purchaseOrder->getAltCurrencyCode(),
+            'shipping_methd' => $shippingMethod->getCarrier() . '_' . $shippingMethod->getMethod(),
+            'store_currency_code' => $this->getStore()->getBaseCurrencyCode(),
+            'store_name' => $this->getStore()->getName(),
+            'created_at' => $this->getTimestamp($purchaseOrder->getDateEntered(), null)
+        ]);
+
+        /** @var Mage_Core_Model_Resource $resource */
+        $resource = Mage::getSingleton('core/resource');
+        $connection = $resource->getConnection('core_read');
+        $orderTable = $resource->getTableName('sales/order');
+        $orderItemTable = $resource->getTableName('sales/order_item');
+
+        $totalWeight = 0;
+
+        foreach ($purchaseOrder->getLines() as $line) {
+            if ($line->getJobId()) {
+                $orderId = $connection->fetchOne($connection->select()->from($orderTable, 'entity_id')->where('epace_job_id = ?', $line->getJobId()));
+                if (!$orderId) {
+                    throw new \Exception('Unable to find order with job ' . $line->getJobId() . ' for purchase order line ' . $line->getId());
+                }
+            } else {
+                $orderId = null;
+            }
+            if ($line->getJobPart()) {
+                $orderItemId = $connection->fetchOne($connection->select()->from($orderItemTable, 'item_id')->where('order_id = ?', $orderId)->where('epace_job_part = ?', $line->getJobPart()));
+                if (!$orderItemId) {
+                    throw new \Exception('Unable to find order item ' . $line->getJobPartKey() . ' for purchase order line ' . $line->getId());
+                }
+            } else {
+                $orderItemId = null;
+            }
+
+            $taxPercent = 0;
+            if ($line->getSalesTaxRate1()) {
+                $taxPercent = $line->getSalesTaxRate1()->getTaxRate();
+            }
+            if ($line->getSalesTaxRate2()) {
+                $taxPercent += $line->getSalesTaxRate2()->getTaxRate();
+            }
+
+            $item = Mage::getModel('epacei/purchaseOrder_item');
+            $item->setData([
+                'order_id' => $orderId,
+                'store_id' => $this->getStore()->getId(),
+                'created_at' => $this->getTimestamp($line->getDateEntered(), null),
+                'order_item_id' => $orderItemId,
+                'weight' => (float)$line->getTotalWeight(),
+                'description' => $line->getDescription(),
+                'qty' => $line->getQtyOrdered(),
+                'price' => $line->getUnitPrice(),
+                'extended_prcie' => $line->getExtendedPrice(),
+                'base_price' => $line->getUnitPrice(),
+                'base_extended_price' => $line->getExtendedPrice(),
+                'tax_percent' => $taxPercent,
+                'uom' => $line->getUom(),
+                'qty_uom' => $line->getQtyUom(),
+                'row_weight' => $line->getTotalWeight()
+            ]);
+            $mpo->addItem($item);
+
+            $totalWeight += (float)$line->getTotalWeight();
+        }
+
+        $mpo->setWeight($totalWeight);
+
+        if ($shipToContact = $purchaseOrder->getShipToContact()) {
+            $shipToAddress = Mage::getModel('epacei/address')->load($shipToContact->getId(), 'epace_contact_id');
+            if (!$shipToAddress->getId()) {
+                $this->importEpaceAddress($shipToContact, $shipToAddress);
+                $shipToAddress->save();
+            }
+            $mpo->setShipToAddress($shipToAddress);
+        }
+
+        if ($vendorContact = $purchaseOrder->getVendorContact()) {
+            $vendorAddress = Mage::getModel('epacei/address')->load($vendorContact->getId(), 'epace_contact_id');
+            if (!$vendorAddress->getId()) {
+                $this->importEpaceAddress($vendorContact, $vendorAddress);
+                $vendorAddress->save();
+            }
+            $mpo->setVendorAddress($vendorAddress);
+        }
+
+        if ($purchaseOrder->getVendor()) {
+            $mVendor = Mage::getModel('epacei/vendor')->load($purchaseOrder->getVendor()->getId(), 'epace_vendor_id');
+            if (!$mVendor->getId()) {
+                $this->importVendor($purchaseOrder->getVendor(), $mVendor);
+                $mVendor->save();
+            }
+            $mpo->setVendorId($mVendor->getId());
+        }
+
+        return $mpo;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Contact $contact
+     * @param Blackbox_EpaceImport_Model_Address $address
+     * @return Blackbox_EpaceImport_Model_Address
+     */
+    public function importEpaceAddress(Blackbox_Epace_Model_Epace_Contact $contact, Blackbox_EpaceImport_Model_Address $address = null)
+    {
+        if (!$address) {
+            $address = Mage::getModel('epacei/address');
+        }
+        $customerId = null;
+        if ($contact->getCustomer()) {
+            $customer = $this->getCustomerFromCustomer($contact->getCustomer());
+            $customerId = $customer->getId();
+        }
+
+        $salesPersonId = null;
+        if ($contact->getSalesPerson()) {
+            $salesPersonCustomer = $this->getCustomerFromSalesPerson($contact->getSalesPerson());
+            $salesPersonId = $salesPersonCustomer->getId();
+        }
+
+        /** @var Mage_Directory_Model_Resource_Region_Collection $regionCollection */
+        $regionCollection = Mage::getResourceModel('directory/region_collection');
+        $regionCollection->addFieldToFilter('country_id', $contact->getCountry()->getIsoCountry())
+            ->addFieldToFilter('code', $contact->getState());
+        if ($region = $regionCollection->getFirstItem()) {
+            $regionName = $region->getDefaultName();
+            $regionId = $region->getId();
+        } else {
+            $regionName = $contact->getState();
+            $regionId = null;
+        }
+
+        $address->setData([
+            'region_id' => $regionId,
+            'customer_id' => $customerId,
+            'sales_person_id' => $salesPersonId,
+            'epace_contact_id' => $contact->getId(),
+            'fax' => $this->getFaxFromContact($contact),
+            'region' => $regionName,
+            'postcode' => $contact->getZip(),
+            'lastname' => $contact->getLastName(),
+            'street' => implode("\n", array_filter([$contact->getAddress1(), $contact->getAddress2(), $contact->getAddress3()])),
+            'city' => $contact->getCity(),
+            'email' => $contact->getEmail(),
+            'telephone' => $this->getPhoneFromContact($contact),
+            'country_id' => $contact->getCountry()->getIsoCountry(),
+            'firstname' => $contact->getFirstName(),
+            'company' => $contact->getCompanyName()
+        ]);
+        return $address;
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Vendor $vendor
+     * @param Blackbox_EpaceImport_Model_Vendor $mVendor
+     * @return Blackbox_EpaceImport_Model_Vendor
+     */
+    public function importVendor(Blackbox_Epace_Model_Epace_Vendor $vendor, Blackbox_EpaceImport_Model_Vendor $mVendor = null)
+    {
+        if (!$mVendor) {
+            $mVendor = Mage::getModel('epacei/vendor');
+        }
+
+        if ($vendor->getShipVia()) {
+            $shippingMethod = $this->getShippingMethod($vendor->getShipVia());
+        } else {
+            $shippingMethod = null;
+        }
+
+        $shipToAddressId = null;
+        $paymentAddressId = null;
+        $shipFromAddressId = null;
+
+        if ($vendor->getShipToContactId()) {
+            $shipToAddress = Mage::getModel('epacei/address')->load($vendor->getShipToContactId(), 'epace_contact_id');
+            if (!$shipToAddress->getId() && $vendor->getShipToContact()) {
+                $this->importEpaceAddress($vendor->getShipToContact(), $shipToAddress);
+                $shipToAddress->save();
+            }
+
+            $shipToAddressId = $shipToAddress->getId();
+        }
+
+        if ($vendor->getPaymentContactId()) {
+            $paymentAddress = Mage::getModel('epacei/address')->load($vendor->getPaymentContactId(), 'epace_contact_id');
+            if (!$paymentAddress->getId() && $vendor->getPaymentContact()) {
+                $this->importEpaceAddress($vendor->getPaymentContact(), $paymentAddress);
+                $paymentAddress->save();
+            }
+
+            $paymentAddressId = $paymentAddress->getId();
+        }
+
+        if ($vendor->getShipFromContactId()) {
+            $shipFromAddress = Mage::getModel('epacei/address')->load($vendor->getShipFromContactId(), 'epace_contact_id');
+            if (!$shipFromAddress->getId() && $vendor->getShipFromContact()) {
+                $this->importEpaceAddress($vendor->getShipFromContact(), $shipFromAddress);
+                $shipFromAddress->save();
+            }
+
+            $shipFromAddressId = $shipFromAddress->getId();
+        }
+
+        $mVendor->setData([
+            'epace_vendor_id' => $vendor->getId(),
+            'type' => $vendor->getVendorType(),
+            'website_id' => $this->getWebsiteId(),
+            'email' => $vendor->getEmailAddress(),
+            'store_id' => $this->getStore()->getId(),
+            'created_at' => $this->getTimestamp($vendor->getSetupDate(), null),
+            'is_active' => $vendor->getActive(),
+            'firstname' => $vendor->getContactFirstName(),
+            'lastname' => $vendor->getContactLastName(),
+            'middlename' => '',
+            'telephone' => $vendor->getPhoneNumber(),
+            'shipping_method' => $shippingMethod ? $shippingMethod->getCarrier() . '_' . $shippingMethod->getMethod() : '',
+            'ship_to_address_id' => $shipToAddressId,
+            'payment_address_id' => $paymentAddressId,
+            'ship_from_address_id' => $shipFromAddressId
+        ]);
+
+        return $mVendor;
+    }
+
+    protected function getPhoneFromContact(Blackbox_Epace_Model_Epace_Contact $contact)
+    {
+        if ($contact->getBusinessPhoneNumber()) {
+            return $contact->getBusinessPhoneNumber() . ($contact->getBusinessPhoneExtension() ? ', Ext. ' . $contact->getBusinessPhoneExtension() : '');
+        }
+
+        if ($contact->getMobilePhoneNumber()) {
+            return $contact->getMobilePhoneNumber();
+        }
+
+        if ($contact->getHomePhoneNumber()) {
+            return $contact->getHomePhoneNumber();
+        }
+
+        if ($contact->getOtherPhoneNumber()) {
+            return $contact->getOtherPhoneNumber();
+        }
+
+        return '';
+    }
+
+    protected function getFaxFromContact(Blackbox_Epace_Model_Epace_Contact $contact)
+    {
+        if ($contact->getBusinessFaxNumber()) {
+            return $contact->getBusinessFaxNumber() . ($contact->getBusinessFaxExtension() ? ', Ext. ' . $contact->getBusinessFaxExtension() : '');
+        }
+
+        if ($contact->getHomeFaxNumber()) {
+            return $contact->getHomeFaxNumber();
+        }
+
+        return '';
+    }
+
     /**
      * @param Mage_Shipping_Model_Carrier_Abstract $carrier
      * @param $method

@@ -49,6 +49,7 @@
         </block>
     </adminhtml_epace_estimate_versionsgrid>
 
+
     <adminhtml_epace_receivable_grid>
         <update handle="formkey"/>
         <block type="epacei/adminhtml_receivable_grid" name="epace_receivable.grid" output="toHtml"></block>
@@ -82,6 +83,7 @@
         </reference>
     </adminhtml_epace_receivable_view>
 
+
     <adminhtml_dashboard_index>
         <reference name="root">
             <block type="epacei/adminhtml_dashboard_import_messages" name="import_messages" />
@@ -108,9 +110,11 @@
         </block>
     </adminhtml_customer_shipments>
 
+
     <adminhtml_sales_order_view>
         <reference name="sales_order_tabs">
             <action method="addTab"><name>order_estimates</name><block>epacei/adminhtml_sales_order_view_tab_estimates</block></action>
+            <action method="addTab"><name>order_purchase_orders</name><block>epacei/adminhtml_sales_order_view_tab_purchaseOrders</block></action>
         </reference>
     </adminhtml_sales_order_view>
 
@@ -119,4 +123,50 @@
             <block type="epacei/adminhtml_sales_order_view_tab_estimates" name="admin.order.estimates.grid"/>
         </block>
     </adminhtml_epace_estimate_orderestimatesgrid>
+
+    <adminhtml_epace_purchaseorder_orderpurchaseordersgrid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="epacei/adminhtml_sales_order_view_tab_purchaseOrders" name="admin.order.purchase_orders.grid"/>
+        </block>
+    </adminhtml_epace_purchaseorder_orderpurchaseordersgrid>
+
+
+
+    <adminhtml_epace_purchaseorder_grid>
+        <update handle="formkey"/>
+        <block type="epacei/adminhtml_purchaseOrder_grid" name="epace_purchase_order.grid" output="toHtml"></block>
+    </adminhtml_epace_purchaseorder_grid>
+
+    <adminhtml_epace_purchaseorder_index>
+        <reference name="content">
+            <block type="epacei/adminhtml_purchaseOrder" name="epace_purchase_order.grid.container"></block>
+        </reference>
+    </adminhtml_epace_purchaseorder_index>
+
+    <adminhtml_epace_purchaseorder_view>
+        <reference name="content">
+            <block type="epacei/adminhtml_purchaseOrder_view" name="epacei_purchase_order_edit"></block>
+        </reference>
+        <reference name="left">
+            <block type="epacei/adminhtml_purchaseOrder_view_tabs" name="epacei_purchase_order_tabs">
+                <block type="epacei/adminhtml_purchaseOrder_view_tab_info" name="purchase_order_tab_info" template="blackbox/epacei/purchase_order/view/tab/info.phtml">
+                    <block type="epacei/adminhtml_purchaseOrder_view_messages" name="purchase_order_messages"></block>
+                    <block type="epacei/adminhtml_purchaseOrder_view_info" name="purchase_order_info" template="blackbox/epacei/purchase_order/view/info.phtml"></block>
+                    <block type="epacei/adminhtml_purchaseOrder_view_items" name="purchase_order_items" template="blackbox/epacei/purchase_order/view/items.phtml">
+                        <action method="addItemRender"><type>default</type><block>epacei/adminhtml_purchaseOrder_view_items_renderer_default</block><template>blackbox/epacei/purchase_order/view/items/renderer/default.phtml</template></action>
+                        <action method="addColumnRender"><column>qty</column><block>epacei/adminhtml_purchaseOrder_items_column_qty</block><template>sales/items/column/qty.phtml</template></action>
+                        <action method="addColumnRender"><column>name</column><block>epacei/adminhtml_purchaseOrder_items_column_name</block><template>sales/items/column/name.phtml</template></action>
+                        <action method="addColumnRender"><column>name</column><block>epacei/adminhtml_purchaseOrder_items_column_name_grouped</block><template>sales/items/column/name.phtml</template><type>grouped</type></action>
+                        <block type="core/text_list" name="purchase_order_item_extra_info" />
+                    </block>
+                    <block type="epacei/adminhtml_purchaseOrder_view_history" name="purchase_order_history" template="blackbox/epacei/purchase_order/view/history.phtml"></block>
+                    <block type="epacei/adminhtml_purchaseOrder_totals" name="purchase_order_totals" template="blackbox/epacei/purchase_order/totals.phtml">
+                        <block type="epacei/adminhtml_purchaseOrder_totals_tax" name="tax" template="blackbox/epacei/purchase_order/totals/tax.phtml" />
+                    </block>
+                </block>
+                <action method="addTab"><name>purchase_order_info</name><block>purchase_order_tab_info</block></action>
+                <action method="addTab"><name>orders</name><block>epacei/adminhtml_purchaseOrder_view_tab_orders</block></action>
+            </block>
+        </reference>
+    </adminhtml_epace_purchaseorder_view>
 </layout>

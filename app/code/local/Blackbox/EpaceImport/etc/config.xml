@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Blackbox_EpaceImport>
-            <version>0.1.13</version>
+            <version>0.1.14</version>
         </Blackbox_EpaceImport>
     </modules>
     <global>
@@ -59,6 +59,21 @@
                     <receivable>
                         <table>epacei_flat_receivable</table>
                     </receivable>
+                    <purchase_order>
+                        <table>epacei_flat_purchase_order</table>
+                    </purchase_order>
+                    <purchase_order_item>
+                        <table>epacei_flat_purchase_order_item</table>
+                    </purchase_order_item>
+                    <purchase_order_status_history>
+                        <table>epacei_flat_purchase_order_status_history</table>
+                    </purchase_order_status_history>
+                    <address>
+                        <table>epacei_flat_address</table>
+                    </address>
+                    <vendor>
+                        <table>epacei_flat_vendor</table>
+                    </vendor>
                 </entities>
             </epacei_resource>
             <sales>
