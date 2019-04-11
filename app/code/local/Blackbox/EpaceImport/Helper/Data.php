@@ -1087,7 +1087,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'po_number' => $purchaseOrder->getPoNumber(),
             'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'order_currency_code' => $purchaseOrder->getAltCurrencyCode(),
-            'shipping_methd' => $shippingMethod->getCarrier() . '_' . $shippingMethod->getMethod(),
+            'shipping_method' => $shippingMethod->getCarrier() . '_' . $shippingMethod->getMethod(),
             'store_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'store_name' => $this->getStore()->getName(),
             'created_at' => $this->getTimestamp($purchaseOrder->getDateEntered(), null)
