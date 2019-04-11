@@ -2179,6 +2179,58 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         $newShipment->dispose();
     }
 
+    public function updatePurchaseOrder(Blackbox_EpaceImport_Model_PurchaseOrder $purchaseOrder, $logChanges = false)
+    {
+        /** @var Blackbox_Epace_Model_Epace_Purchase_Order $epacePurchaseOrder */
+        $epacePurchaseOrder = Mage::getModel('efi/purchase_order')->load($purchaseOrder->getEpacePurchaseOrderId());
+        if (!$epacePurchaseOrder->getId()) {
+            return null;
+        }
+
+        $newPurchaseOrder = $this->importPurchaseOrder($epacePurchaseOrder);
+        $changes = $this->updateObject($purchaseOrder, $newPurchaseOrder, [
+            'store_name',
+            'updated_at',
+        ]);
+        if ($logChanges) {
+            $this->logChanges('Purchase Order ' . $purchaseOrder->getId() . ' updates', $changes);
+        }
+
+        $ignoreFields = [
+            'entity_id',
+            'purchase_order_id',
+//            'created_at',
+            'updated_at'
+        ];
+
+        $oldItems = $purchaseOrder->getAllItems();
+        foreach ($oldItems as $item) {
+            $item->setDataChanges(false);
+        }
+
+        foreach ($newPurchaseOrder->getAllItems() as $newItem) {
+            $oldItem = null;
+            foreach ($oldItems as $_oldItem) {
+                if ($_oldItem->getEpacePurchaseOrderLineId() == $newItem->getEpacePurchaseOrderLineId()) {
+                    $oldItem = $_oldItem;
+                    break;
+                }
+            }
+
+            if ($oldItem) {
+                $changes = $this->updateObject($oldItem, $newItem, $ignoreFields);
+                $this->logChanges('Purchase order item ' . $oldItem->getId() . ' updates', $changes);
+                $oldItem->save();
+            } else {
+                $this->writeln('Added new purchase order item ' . print_r($newItem->getData(), true));
+                $purchaseOrder->addItem($newItem);
+                $newItem->save();
+            }
+        }
+
+        $purchaseOrder->save();
+    }
+
     /**
      * @param Mage_Core_Model_Abstract $old
      * @param Mage_Core_Model_Abstract $new
@@ -2190,7 +2242,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         $changes = [];
         $fields = $old->getResource()->getReadConnection()->describeTable($old->getResource()->getMainTable());
         foreach ($new->getData() as $key => $value) {
-            if (in_array($key, $ignoreFields)) {
+            if (in_array($key, $ignoreFields) || !isset($fields[$key])) {
                 continue;
             }
             $oldValue = $old->getData($key);

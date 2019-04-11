@@ -7,11 +7,13 @@ class Blackbox_EpaceImport_Model_Cron
 
     const XML_PATH_ENABLE = 'epace/import/enable';
     const XML_PATH_LAST_UPDATE_TIME = 'epace/import/last_update_time';
+    const XML_PATH_LAST_IMPORT_NEW_TIME = 'epace/import/last_import_new_time';
     const XML_PATH_UPDATE_ESTIMATES = 'epace/import/update_estimates';
     const XML_PATH_UPDATE_JOBS = 'epace/import/update_jobs';
     const XML_PATH_UPDATE_CLOSED_JOBS = 'epace/import/update_closed_jobs';
     const XML_PATH_UPDATE_INVOICES = 'epace/import/update_invoices';
     const XML_PATH_UPDATE_SHIPMENTS = 'epace/import/update_shipments';
+    const XML_PATH_UPDATE_PURCHASE_ORDERS = 'epace/import/update_purchase_orders';
     const XML_PATH_IMPORT_NEW_OBJECTS = 'epace/import/import_new';
     const XML_PATH_LOG = 'epace/import/log';
     const XML_PATH_MONGO_ENABLE = 'epace/mongo/enable';
@@ -45,8 +47,8 @@ class Blackbox_EpaceImport_Model_Cron
 
     public function updateEpaceEntities(Mage_Cron_Model_Schedule $schedule)
     {
-        if (ini_get('max_execution_time') < 1200) {
-            ini_set('max_execution_time', 1200);
+        if (ini_get('max_execution_time') < 3600) {
+            ini_set('max_execution_time', 3600);
         }
 
         if (!Mage::getStoreConfigFlag(self::XML_PATH_ENABLE)) {
@@ -59,22 +61,9 @@ class Blackbox_EpaceImport_Model_Cron
 
         $this->log('Start import');
         try {
-            $lastUpdateTime = Mage::getStoreConfig(self::XML_PATH_LAST_UPDATE_TIME);
-            if (!empty($lastUpdateTime)) {
-                if (is_numeric($lastUpdateTime)) {
-                    $dateTime = new \DateTime();
-                    $dateTime->setTimestamp($lastUpdateTime);
-                } else {
-                    try {
-                        $dateTime = new \DateTime($lastUpdateTime);
-                    } catch (\Exception $e) {
-                        $this->log($e->getMessage());
-                    }
-                }
-            }
-            if (!isset($dateTime)) {
-                $dateTime = new \DateTime('-1 month');
-            }
+            $dateTime = $this->getTimeFromConfig(self::XML_PATH_LAST_UPDATE_TIME, '-1 month');
+
+            $currentTime = time();
 
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
                 $this->updateEstimates($dateTime);
@@ -88,24 +77,52 @@ class Blackbox_EpaceImport_Model_Cron
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
                 $this->updateShipments($dateTime);
             }
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_PURCHASE_ORDERS)) {
+                $this->updatePurchaseOrders($dateTime);
+            }
+            Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
 
             if (!Mage::getStoreConfigFlag(self::XML_PATH_IMPORT_NEW_OBJECTS)) {
                 return;
             }
 
-            $currentTime = time();
+            $dateTime = $this->getTimeFromConfig(self::XML_PATH_LAST_IMPORT_NEW_TIME, '-1 month');
 
             $this->importNewEstimates($dateTime);
             $this->importNewJobs($dateTime);
             $this->importNewInvoices($dateTime);
             $this->importNewShipments($dateTime);
+            $this->importNewPurchaseOrders($dateTime);
 
-            Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
+            Mage::getConfig()->saveConfig(self::XML_PATH_LAST_IMPORT_NEW_TIME, $currentTime);
         } catch (\Exception $e) {
             $this->log('Exception ' . get_class($e) . ': ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+            throw $e;
         } finally {
             $this->log('End import');
         }
+    }
+
+    protected function getTimeFromConfig($path, $default)
+    {
+        $time = Mage::getStoreConfig($path);
+        if (!empty($time)) {
+            if (is_numeric($time)) {
+                $dateTime = new \DateTime();
+                $dateTime->setTimestamp($time);
+            } else {
+                try {
+                    $dateTime = new \DateTime($time);
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
+            }
+        }
+        if (!isset($dateTime)) {
+            $dateTime = new \DateTime($default);
+        }
+
+        return $dateTime;
     }
 
     protected function importNewEstimates(\DateTime $from)
@@ -221,6 +238,33 @@ class Blackbox_EpaceImport_Model_Cron
             $invoice = Mage::getModel('efi/invoice')->load($id);
             try {
                 $this->importInvoice($invoice);
+            } catch (\Exception $e) {
+                $this->log($e->getMessage());
+            }
+        }
+    }
+
+    protected function importNewPurchaseOrders(\DateTime $from)
+    {
+        /** @var Blackbox_Epace_Model_Resource_Epace_Purchase_Order_Collection $collection */
+        $collection = Mage::getResourceModel('efi/purchase_order_collection');
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            $collection->addFilter('_created_at', ['gteq' => $from]);
+            $collection->addFilter('dateEntered', ['gteq' => new \DateTime('2019-01-01')]);
+        } else {
+            $collection->addFilter('dateEntered', ['gteq' => $from]);
+        }
+
+        $ids = $collection->loadIds();
+        $count = count($ids);
+        $i = 0;
+        $this->log('Found ' . $count . ' purchase orders.');
+        foreach ($ids as $id) {
+            $this->log('Purchase Order ' . ++$i . '/' . $count . ': ' . $id);
+            /** @var Blackbox_Epace_Model_Epace_Purchase_Order $shipment */
+            $purchaseOrder = Mage::getModel('efi/purchase_order')->load($id);
+            try {
+                $this->importPurchaseOrder($purchaseOrder);
             } catch (\Exception $e) {
                 $this->log($e->getMessage());
             }
@@ -352,6 +396,21 @@ class Blackbox_EpaceImport_Model_Cron
         if ($invoice->getReceivable()) {
             $this->helper->importReceivable($invoice->getReceivable(), $magentoInvoice)->save();
         }
+    }
+
+    public function importPurchaseOrder(Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder)
+    {
+        /** @var Blackbox_EpaceImport_Model_PurchaseOrder $magentoPurchaseOrder */
+        $magentoPurchaseOrder = Mage::getModel('epacei/purchaseOrder');
+
+        $magentoPurchaseOrder->load($purchaseOrder->getId(), 'epace_purchase_order_id');
+        if ($magentoPurchaseOrder->getId()) {
+            $this->log("Purchase Order {$purchaseOrder->getId()} already imported.");
+            return;
+        }
+
+        $this->helper->importPurchaseOrder($purchaseOrder, $magentoPurchaseOrder);
+        $magentoPurchaseOrder->save();
     }
 
     protected function updateEstimates(\DateTime $from)
@@ -500,6 +559,43 @@ class Blackbox_EpaceImport_Model_Cron
                     $shipment->getOrder()->reset();
                     $shipment->dispose();
                     gc_collect_cycles();
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
+            }
+
+        } while ($page < $lastPage);
+    }
+
+    protected function updatePurchaseOrders(\DateTime $from)
+    {
+        /** @var Blackbox_EpaceImport_Model_Resource_PurchaseOrder_Collection $collection */
+        $collection = Mage::getResourceModel('epacei/purchaseOrder_collection');
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Purchase_Order_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/purchase_order_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $mongoCollection->addFilter('dateEntered', ['gteq' => new \DateTime('2019-01-01')]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_purchase_order_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_purchase_order_id', ['notnull' => true]);
+        }
+
+        $page = 0;
+        $collection->setPageSize(100);
+        $lastPage = $collection->getLastPageNumber();
+
+        do {
+            $page++;
+
+            $collection->clear()->setCurPage($page)->load();
+            /** @var Blackbox_EpaceImport_Model_PurchaseOrder $purchaseOrder */
+            foreach ($collection->getItems() as $purchaseOrder) {
+                $purchaseOrder->setDataChanges(false);
+                try {
+                    $this->log('Updating purchase order ' . $purchaseOrder->getId() . '. Epace purchase order id: ' . $purchaseOrder->getEpacePurchaseOrderId());
+                    $this->helper->updatePurchaseOrder($purchaseOrder, $this->logEnabled);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
                 }
