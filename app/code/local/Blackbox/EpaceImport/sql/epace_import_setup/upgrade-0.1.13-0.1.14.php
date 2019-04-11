@@ -441,7 +441,7 @@ $table = $installer->getConnection()
     ), 'Purchase Order Id')
     ->addColumn('order_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
         'unsigned'  => true,
-        'nullable'  => false,
+        'nullable'  => true,
     ), 'Order Id')
     ->addColumn('order_item_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
     ), 'Order Item Id')
@@ -577,6 +577,9 @@ $table = $installer->getConnection()
     ->addForeignKey($installer->getFkName('epacei/purchase_order_item', 'purchase_order_id', 'epacei/purchase_order', 'entity_id'),
         'purchase_order_id', $installer->getTable('epacei/purchase_order'), 'entity_id',
         Varien_Db_Ddl_Table::ACTION_CASCADE, Varien_Db_Ddl_Table::ACTION_CASCADE)
+    ->addForeignKey($installer->getFkName('epacei/purchase_order_item', 'order_id', 'sales/order', 'entity_id'),
+        'order_id', $installer->getTable('sales/order'), 'entity_id',
+        Varien_Db_Ddl_Table::ACTION_SET_NULL, Varien_Db_Ddl_Table::ACTION_CASCADE)
     ->addForeignKey($installer->getFkName('epacei/purchase_order_item', 'store_id', 'core/store', 'store_id'),
         'store_id', $installer->getTable('core/store'), 'store_id',
         Varien_Db_Ddl_Table::ACTION_SET_NULL, Varien_Db_Ddl_Table::ACTION_CASCADE)

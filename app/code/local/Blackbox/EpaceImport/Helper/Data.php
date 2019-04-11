@@ -1137,7 +1137,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                 'description' => $line->getDescription(),
                 'qty' => $line->getQtyOrdered(),
                 'price' => $line->getUnitPrice(),
-                'extended_prcie' => $line->getExtendedPrice(),
+                'extended_price' => $line->getExtendedPrice(),
                 'base_price' => $line->getUnitPrice(),
                 'base_extended_price' => $line->getExtendedPrice(),
                 'tax_percent' => $taxPercent,
