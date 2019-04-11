@@ -193,6 +193,15 @@ class Blackbox_EpaceImport_Adminhtml_Epace_ReceivableController extends Mage_Adm
         $this->_redirect('*/*/');
     }
 
+    public function receivableInvoicesGridAction()
+    {
+        $receivable = $this->_initReceivable();
+        if ($receivable) {
+            $this->loadLayout(false);
+            $this->renderLayout();
+        }
+    }
+
     /**
      * Acl check for admin
      *

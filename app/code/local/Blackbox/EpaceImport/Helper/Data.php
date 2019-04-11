@@ -657,7 +657,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'base_shipping_hidden_tax_amnt' => null,
             'shipping_incl_tax' => $invoice->getFreightAmount(),
             'base_shipping_incl_tax' => $invoice->getFreightAmount(),
-            'epace_invoice_id' => $invoice->getId()
+            'epace_invoice_id' => $invoice->getId(),
+            'epace_invoice_number' => $invoice->getInvoiceNum()
         ]);
 
         $orderItem = null;
@@ -743,7 +744,6 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'base_subtotal' => $receivable->getOriginalAmount(),
             'discount_amount' => $receivable->getDiscountApplied(),
             'order_id' => $magentoInvoice->getOrderId(),
-            'invoice_id' => $magentoInvoice->getId(),
             'state' => $receivable->getStatus(),
             'store_currency_code' => $receivable->getAltCurrency(),
             'order_currency_code' => $this->getStore()->getBaseCurrencyCode(),
@@ -768,7 +768,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'date_paid_off' => $receivable->getDatePaidOff() ? strtotime($receivable->getDatePaidOff()) : null,
             'description' => $receivable->getDescription(),
             'gl_register_number' => $receivable->getGlRegisterNumber(),
-            'epace_receivable_id' => $receivable->getId()
+            'epace_receivable_id' => $receivable->getId(),
+            'invoice_number' => $receivable->getInvoiceNumber()
         ]);
 
         return $magentoReceivable;

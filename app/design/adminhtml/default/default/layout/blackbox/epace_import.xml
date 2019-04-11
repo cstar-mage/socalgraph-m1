@@ -79,9 +79,16 @@
                     </block>
                 </block>
                 <action method="addTab"><name>receivable_info</name><block>receivable_tab_info</block></action>
+                <action method="addTab"><name>receivable_invoices</name><block>epacei/adminhtml_receivable_view_tab_invoices</block></action>
             </block>
         </reference>
     </adminhtml_epace_receivable_view>
+
+    <adminhtml_epace_receivable_receivableinvoicesgrid>
+        <block type="core/text_list" name="root" output="toHtml">
+            <block type="epacei/adminhtml_receivable_view_tab_invoices" name="admin.receivable.invoices.grid"/>
+        </block>
+    </adminhtml_epace_receivable_receivableinvoicesgrid>
 
 
     <adminhtml_dashboard_index>
