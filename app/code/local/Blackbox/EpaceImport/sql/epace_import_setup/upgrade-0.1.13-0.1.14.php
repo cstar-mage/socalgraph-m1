@@ -499,6 +499,14 @@ $table = $installer->getConnection()
     ), 'Original Price')
     ->addColumn('base_original_price', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
     ), 'Base Original Price')
+    ->addColumn('extended_price', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
+        'nullable'  => false,
+        'default'   => '0.0000',
+    ), 'Price')
+    ->addColumn('base_extended_price', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
+        'nullable'  => false,
+        'default'   => '0.0000',
+    ), 'Base Price')
     ->addColumn('tax_percent', Varien_Db_Ddl_Table::TYPE_DECIMAL, '12,4', array(
         'default'   => '0.0000',
     ), 'Tax Percent')

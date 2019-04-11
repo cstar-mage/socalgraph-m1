@@ -28,7 +28,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_View_Tab_Orders
     {
         /** @var Mage_Sales_Model_Mysql4_Order_Grid_Collection $collection */
         $collection = Mage::getResourceModel($this->_getCollectionClass());
-        $select = $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('sales/order'), 'entity_id')
+        $select = $collection->getResource()->getReadConnection()->select()->from($collection->getResource()->getTable('epacei/purchase_order_item'), 'order_id')
             ->where('purchase_order_id = ?', $this->getPurchaseOrder()->getId());
         $collection->getSelect()->where('entity_id IN (' . $select . ')');
         $this->setCollection($collection);

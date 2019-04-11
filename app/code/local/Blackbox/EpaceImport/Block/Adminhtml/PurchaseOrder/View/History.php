@@ -10,7 +10,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_View_History extends Ma
 {
     protected function _prepareLayout()
     {
-        $onclick = "submitAndReloadArea($('purchase_order_history_block').parentNode, '".$this->getSubmitUrl()."')";
+        $onclick = "submitAndReloadArea($('order_history_block').parentNode, '".$this->getSubmitUrl()."')";
         $button = $this->getLayout()->createBlock('adminhtml/widget_button')
             ->setData(array(
                 'label'   => Mage::helper('epacei')->__('Submit Comment'),

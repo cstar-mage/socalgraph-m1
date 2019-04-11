@@ -226,7 +226,7 @@
  * @method Blackbox_EpaceImport_Model_PurchaseOrder setHoldBeforeState(string $value)
  * @method string getHoldBeforeStatus()
  * @method Blackbox_EpaceImport_Model_PurchaseOrder setHoldBeforeStatus(string $value)
- * @method string getPurchaseOrderCurrencyCode()
+ * @method string getOrderCurrencyCode()
  * @method Blackbox_EpaceImport_Model_PurchaseOrder setPurchaseOrderCurrencyCode(string $value)
  * @method string getOriginalIncrementId()
  * @method Blackbox_EpaceImport_Model_PurchaseOrder setOriginalIncrementId(string $value)
@@ -278,7 +278,7 @@
  * @method float getBaseShippingInclTax()
  * @method Blackbox_EpaceImport_Model_PurchaseOrder setBaseShippingInclTax(float $value)
  */
-class Blackbox_EpaceImport_Model_PurchaseOrder extends Mage_Core_Model_Abstract
+class Blackbox_EpaceImport_Model_PurchaseOrder extends Mage_Sales_Model_Abstract
 {
     /**
      * Identifier for history item
@@ -410,6 +410,11 @@ class Blackbox_EpaceImport_Model_PurchaseOrder extends Mage_Core_Model_Abstract
             return Mage::app()->getStore($storeId);
         }
         return Mage::app()->getStore();
+    }
+
+    public function getContactName()
+    {
+        return $this->getContactFirstname() . ' ' . $this->getContactLastname();
     }
 
     /**
@@ -737,7 +742,7 @@ class Blackbox_EpaceImport_Model_PurchaseOrder extends Mage_Core_Model_Abstract
     public function getPurchaseOrderCurrency()
     {
         if (is_null($this->_purchaseOrderCurrency)) {
-            $this->_purchaseOrderCurrency = Mage::getModel('directory/currency')->load($this->getPurchaseOrderCurrencyCode());
+            $this->_purchaseOrderCurrency = Mage::getModel('directory/currency')->load($this->getOrderCurrencyCode());
         }
         return $this->_purchaseOrderCurrency;
     }
@@ -795,7 +800,7 @@ class Blackbox_EpaceImport_Model_PurchaseOrder extends Mage_Core_Model_Abstract
 
     public function isCurrencyDifferent()
     {
-        return $this->getPurchaseOrderCurrencyCode() != $this->getBaseCurrencyCode();
+        return $this->getOrderCurrencyCode() != $this->getBaseCurrencyCode();
     }
 
     /**
@@ -973,5 +978,16 @@ class Blackbox_EpaceImport_Model_PurchaseOrder extends Mage_Core_Model_Abstract
     {
         $this->_protectFromNonAdmin();
         return parent::_beforeDelete();
+    }
+
+    /**
+     * Processing object after save data
+     * Updates relevant grid table records.
+     *
+     * @return Mage_Core_Model_Abstract
+     */
+    public function afterCommitCallback()
+    {
+        return Mage_Core_Model_Abstract::afterCommitCallback();
     }
 }

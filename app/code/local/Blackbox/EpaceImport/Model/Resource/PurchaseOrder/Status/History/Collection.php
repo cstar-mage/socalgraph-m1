@@ -30,7 +30,7 @@ class Blackbox_EpaceImport_Model_Resource_PurchaseOrder_Status_History_Collectio
      */
     protected function _construct()
     {
-        $this->_init('epacei/purchase_order_status_history');
+        $this->_init('epacei/purchaseOrder_status_history');
     }
 
     /**

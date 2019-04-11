@@ -154,9 +154,8 @@
                     <block type="epacei/adminhtml_purchaseOrder_view_info" name="purchase_order_info" template="blackbox/epacei/purchase_order/view/info.phtml"></block>
                     <block type="epacei/adminhtml_purchaseOrder_view_items" name="purchase_order_items" template="blackbox/epacei/purchase_order/view/items.phtml">
                         <action method="addItemRender"><type>default</type><block>epacei/adminhtml_purchaseOrder_view_items_renderer_default</block><template>blackbox/epacei/purchase_order/view/items/renderer/default.phtml</template></action>
-                        <action method="addColumnRender"><column>qty</column><block>epacei/adminhtml_purchaseOrder_items_column_qty</block><template>sales/items/column/qty.phtml</template></action>
-                        <action method="addColumnRender"><column>name</column><block>epacei/adminhtml_purchaseOrder_items_column_name</block><template>sales/items/column/name.phtml</template></action>
-                        <action method="addColumnRender"><column>name</column><block>epacei/adminhtml_purchaseOrder_items_column_name_grouped</block><template>sales/items/column/name.phtml</template><type>grouped</type></action>
+                        <action method="addColumnRender"><column>qty</column><block>epacei/adminhtml_purchaseOrder_items_column_qty</block><template>blackbox/epacei/purchase_order/view/items/column/qty.phtml</template></action>
+                        <action method="addColumnRender"><column>name</column><block>epacei/adminhtml_purchaseOrder_items_column_name</block><template>blackbox/epacei/purchase_order/view/items/column/name.phtml</template></action>
                         <block type="core/text_list" name="purchase_order_item_extra_info" />
                     </block>
                     <block type="epacei/adminhtml_purchaseOrder_view_history" name="purchase_order_history" template="blackbox/epacei/purchase_order/view/history.phtml"></block>
@@ -169,4 +168,8 @@
             </block>
         </reference>
     </adminhtml_epace_purchaseorder_view>
+
+    <adminhtml_epace_purchaseorder_addcomment>
+        <block type="epacei/adminhtml_purchaseOrder_view_history" name="purchase_order_history" template="blackbox/epacei/purchase_order/view/history.phtml" output="toHtml"/>
+    </adminhtml_epace_purchaseorder_addcomment>
 </layout>

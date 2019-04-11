@@ -1,12 +1,12 @@
 <div id="order_history_block">
     <?php if ($this->canAddComment()):?>
     <div id="history_form" class="order-history-form">
-        <div><?php echo Mage::helper('sales')->__('Add Estimate Comments') ?></div>
+        <div><?php echo Mage::helper('sales')->__('Add Purchase Order Comments') ?></div>
         <span class="field-row">
             <label class="normal" for="history_status"><?php echo Mage::helper('sales')->__('Status') ?></label><br/>
             <select name="history[status]" class="select" id="history_status">
             <?php foreach ($this->getStatuses() as $_code=>$_label): ?>
-                <option value="<?php echo $_code ?>"<?php if($_code==$this->getEstimate()->getStatus()): ?> selected="selected"<?php endif; ?>><?php echo $_label ?></option>
+                <option value="<?php echo $_code ?>"<?php if($_code==$this->getPurchaseOrder()->getStatus()): ?> selected="selected"<?php endif; ?>><?php echo $_label ?></option>
             <?php endforeach; ?>
             </select>
         </span>
@@ -28,7 +28,7 @@
     <div class="divider"></div>
     <?php endif;?>
     <ul class="note-list">
-    <?php foreach ($this->getEstimate()->getStatusHistoryCollection(true) as $_item): ?>
+    <?php foreach ($this->getPurchaseOrder()->getStatusHistoryCollection(true) as $_item): ?>
         <li>
             <strong><?php echo $this->helper('core')->formatDate($_item->getCreatedAtDate(), 'medium') ?></strong>
             <?php echo $this->helper('core')->formatTime($_item->getCreatedAtDate(), 'medium') ?><span class="separator">|</span><strong><?php echo $_item->getStatusLabel() ?></strong><br/><small><?php echo $this->helper('sales')->__('Customer') ?>
@@ -49,6 +49,6 @@
     <?php endforeach; ?>
     </ul>
     <script type="text/javascript">
-        if ($('order_status')) $('order_status').update('<?php echo $this->jsQuoteEscape($this->getEstimate()->getStatusLabel()) ?>');
+        if ($('order_status')) $('order_status').update('<?php echo $this->jsQuoteEscape($this->getPurchaseOrder()->getStatusLabel()) ?>');
     </script>
 </div>

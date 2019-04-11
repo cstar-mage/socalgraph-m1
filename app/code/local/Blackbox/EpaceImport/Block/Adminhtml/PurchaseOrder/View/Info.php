@@ -81,6 +81,37 @@ class Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_View_Info extends Black
         return $sortPurchaseOrder;
     }
 
+    public function getContactData()
+    {
+        $fields = [
+            'street' => 'Street',
+            'city' => 'City',
+            'region' => 'Region',
+            'postcode' => 'Postcode',
+            'country_id' => 'Country',
+            'telephone' => 'Telephone',
+            'po_number' => 'PO Number'
+        ];
+
+        $data = [];
+
+        $po = $this->getPurchaseOrder();
+        foreach ($fields as $field => $label) {
+            $method = 'get' . uc_words($field, '');
+            $value = $po->$method();
+            if (!$value) {
+                continue;
+            }
+
+            $data[] = [
+                'label' => $label,
+                'value' => $value
+            ];
+        }
+
+        return $data;
+    }
+
     /**
      * Return array of additional account data
      * Value is option style array

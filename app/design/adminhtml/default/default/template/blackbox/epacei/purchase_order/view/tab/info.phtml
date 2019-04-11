@@ -1,14 +1,14 @@
-<?php /** @var $this Mage_Adminhtml_Block_Sales_Estimate_View_Tab_Info */ ?>
-<?php $_estimate = $this->getEstimate() ?>
+<?php /** @var $this Mage_Adminhtml_Block_Sales_PurchaseOrder_View_Tab_Info */ ?>
+<?php $_purchaseOrder = $this->getPurchaseOrder() ?>
 <div>
     <div id="order-messages">
-        <?php echo $this->getChildHtml('estimate_messages') ?>
+        <?php echo $this->getChildHtml('purchase_order_messages') ?>
     </div>
-    <?php echo $this->getChildHtml('estimate_info') ?>
-    <input type="hidden" name="order_id" value="<?php echo $_estimate->getId() ?>"/>
+    <?php echo $this->getChildHtml('purchase_order_info') ?>
+    <input type="hidden" name="order_id" value="<?php echo $_purchaseOrder->getId() ?>"/>
     <div class="entry-edit">
         <div class="entry-edit-head">
-            <h4 class="icon-head head-products"><?php echo Mage::helper('sales')->__('Items Estimated') ?></h4>
+            <h4 class="icon-head head-products"><?php echo Mage::helper('sales')->__('Items Ordered') ?></h4>
         </div>
     </div>
     <?php echo $this->getItemsHtml() ?>
@@ -19,12 +19,12 @@
             <div class="entry-edit-head">
                 <h4><?php echo Mage::helper('sales')->__('Comments History') ?></h4>
             </div>
-            <fieldset><?php echo $this->getChildHtml('estimate_history') ?></fieldset>
+            <fieldset><?php echo $this->getChildHtml('purchase_order_history') ?></fieldset>
         </div>
     </div>
     <div class="box-right entry-edit">
-        <div class="entry-edit-head"><h4><?php echo Mage::helper('sales')->__('Estimate Totals') ?></h4></div>
-        <div class="order-totals"><?php echo $this->getChildHtml('estimate_totals') ?></div>
+        <div class="entry-edit-head"><h4><?php echo Mage::helper('sales')->__('Purchase Order Totals') ?></h4></div>
+        <div class="order-totals"><?php echo $this->getChildHtml('purchase_order_totals') ?></div>
     </div>
     <div class="clear"></div>
 </div>

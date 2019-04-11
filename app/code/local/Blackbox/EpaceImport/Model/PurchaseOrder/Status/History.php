@@ -46,7 +46,7 @@ class Blackbox_EpaceImport_Model_PurchaseOrder_Status_History extends Mage_Sales
      */
     protected function _construct()
     {
-        $this->_init('epacei/purchase_order_status_history');
+        $this->_init('epacei/purchaseOrder_status_history');
     }
 
     /**

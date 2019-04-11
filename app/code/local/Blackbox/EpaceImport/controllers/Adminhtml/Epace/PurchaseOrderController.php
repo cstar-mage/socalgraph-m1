@@ -115,7 +115,7 @@ class Blackbox_EpaceImport_Adminhtml_Epace_PurchaseOrderController extends Mage_
                 $comment = trim(strip_tags($data['comment']));
 
                 $purchaseOrder->save();
-                $purchaseOrder->sendPurchaseOrderUpdateEmail($notify, $comment);
+//                $purchaseOrder->sendPurchaseOrderUpdateEmail($notify, $comment);
 
                 $this->loadLayout('empty');
                 $this->renderLayout();
@@ -258,15 +258,6 @@ class Blackbox_EpaceImport_Adminhtml_Epace_PurchaseOrderController extends Mage_
         $fileName   = 'purchase_orders.xml';
         $grid       = $this->getLayout()->createBlock('epacei/adminhtml_purchaseOrder_grid');
         $this->_prepareDownloadResponse($fileName, $grid->getExcelFile($fileName));
-    }
-
-    public function versionsGridAction()
-    {
-        $purchaseOrder = $this->_initPurchaseOrder();
-        if ($purchaseOrder) {
-            $this->loadLayout(false);
-            $this->renderLayout();
-        }
     }
 
     public function orderPurchaseOrdersGridAction()
