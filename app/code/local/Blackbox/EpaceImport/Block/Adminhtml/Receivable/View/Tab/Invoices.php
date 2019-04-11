@@ -4,7 +4,7 @@
  * Associated Orders grid
  */
 class Blackbox_EpaceImport_Block_Adminhtml_Receivable_View_Tab_Invoices
-    extends Mage_Adminhtml_Block_Sales_Invoice_Grid
+    extends Blackbox_EpaceImport_Block_Adminhtml_Sales_Invoice_Grid//Mage_Adminhtml_Block_Sales_Invoice_Grid
     implements Mage_Adminhtml_Block_Widget_Tab_Interface
 {
     public function __construct()
@@ -19,6 +19,25 @@ class Blackbox_EpaceImport_Block_Adminhtml_Receivable_View_Tab_Invoices
         $receivable = $this->getReceivable();
         /** @var Mage_Sales_Model_Resource_Order_Invoice_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_invoice_collection');
+        $collection->getSelect()->joinInner([
+            'o' => $collection->getResource()->getReadConnection()->select()
+                ->from($collection->getResource()->getTable('sales/order'), [
+                    'entity_id',
+                    'customer_name' => 'CONCAT(COALESCE(customer_firstname, \'\'), \' \', COALESCE(customer_lastname, \'\'))',
+                    'job_type'
+                ])
+        ], 'order_id = o.entity_id', ['customer_name', 'job_type'])
+        ->joinInner([
+            'g' => $collection->getResource()->getReadConnection()->select()
+            ->from ($collection->getResource()->getTable('sales/invoice_grid'), [
+                'entity_id',
+                'order_increment_id',
+                'order_created_at',
+                'billing_name'
+            ])
+        ], 'main_table.entity_id = g.entity_id', ['order_increment_id', 'order_created_at', 'billing_name']);
+        $this->setCollection($collection);
+
         if (!empty($receivable->getInvoiceNumber())) {
             $collection->addFieldToFilter('epace_invoice_number', $receivable->getInvoiceNumber());
         } else {

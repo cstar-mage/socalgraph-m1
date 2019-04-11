@@ -2,7 +2,7 @@
 
 class Blackbox_EpaceImport_Block_Adminhtml_Sales_Invoice_Grid extends Mage_Adminhtml_Block_Sales_Invoice_Grid
 {
-    public function _prepareCollection()
+    protected function _prepareCollection()
     {
         /** @var Mage_Sales_Model_Resource_Order_Invoice_Collection $collection */
         $collection = Mage::getResourceModel($this->_getCollectionClass());
@@ -18,7 +18,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Sales_Invoice_Grid extends Mage_Admin
         return Mage_Adminhtml_Block_Widget_Grid::_prepareCollection();
     }
 
-    public function _prepareColumns()
+    protected function _prepareColumns()
     {
         $this->addColumnAfter('job_type', array(
             'header' => Mage::helper('sales')->__('Category'),
