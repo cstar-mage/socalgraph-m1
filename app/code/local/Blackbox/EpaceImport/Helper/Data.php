@@ -1026,7 +1026,14 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $mpo = Mage::getModel('epacei/purchaseOrder');
         }
 
-        $shippingMethod = $this->getShippingMethod($purchaseOrder->getShipVia());
+        if ($purchaseOrder->getShipVia()) {
+            $shippingRateResult = $this->getShippingMethod($purchaseOrder->getShipVia());
+            $shippingMethod = $shippingRateResult->getCarrier() . '_' . $shippingRateResult->getMethod();
+            $shippingDescription = $shippingRateResult->getCarrierTitle() . ' - ' . $shippingRateResult->getMethodTitle();
+        } else {
+            $shippingMethod = null;
+            $shippingDescription = null;
+        }
 
         if ($purchaseOrder->getCountry() && $purchaseOrder->getStateCode()) {
             /** @var Mage_Directory_Model_Resource_Region_Collection $regionCollection */
@@ -1049,7 +1056,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'epace_purchase_order_id' => $purchaseOrder->getId(),
             'status' => $purchaseOrder->getOrderStatusId(),
             'type' => $purchaseOrder->getPurchaseOrderType(),
-            'shipping_description' => $shippingMethod->getCarrierTitle() . ' - ' . $shippingMethod->getMethodTitle(),
+            'shipping_description' => $shippingDescription,
             'requester' => $purchaseOrder->getRequester(),
             'store_id' => $this->getStore()->getId(),
             'base_discount_amount' => $purchaseOrder->getDiscountAmount(),
@@ -1087,7 +1094,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'po_number' => $purchaseOrder->getPoNumber(),
             'global_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'order_currency_code' => $purchaseOrder->getAltCurrencyCode(),
-            'shipping_method' => $shippingMethod->getCarrier() . '_' . $shippingMethod->getMethod(),
+            'shipping_method' => $shippingMethod,
             'store_currency_code' => $this->getStore()->getBaseCurrencyCode(),
             'store_name' => $this->getStore()->getName(),
             'created_at' => $this->getTimestamp($purchaseOrder->getDateEntered(), null)
