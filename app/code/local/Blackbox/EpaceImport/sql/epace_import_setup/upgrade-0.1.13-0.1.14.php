@@ -434,6 +434,10 @@ $table = $installer->getConnection()
         'nullable'  => false,
         'primary'   => true,
     ), 'Item Id')
+    ->addColumn('epace_purchase_order_line_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
+        'unsigned'  => true,
+        'nullable'  => false,
+    ), 'Epace PurchaseOrderLine id')
     ->addColumn('purchase_order_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
         'unsigned'  => true,
         'nullable'  => false,

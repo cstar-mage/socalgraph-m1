@@ -1129,6 +1129,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
             $item = Mage::getModel('epacei/purchaseOrder_item');
             $item->setData([
+                'epace_purchase_order_line_id' => $line->getId(),
                 'order_id' => $orderId,
                 'store_id' => $this->getStore()->getId(),
                 'created_at' => $this->getTimestamp($line->getDateEntered(), null),
