@@ -1068,6 +1068,8 @@ class EpaceMongo extends Mage_Shell_Abstract
         /** @var Blackbox_Epace_Helper_Data $epaceHelper */
         $epaceHelper = Mage::helper('epace');
 
+        $dates = $this->getArg('dates');
+
         foreach ($entities as $entity => $settings) {
             $found = false;
             foreach ($settings['keys'] as $key) {
@@ -1124,7 +1126,12 @@ class EpaceMongo extends Mage_Shell_Abstract
             foreach ($ids as $id) {
                 if (!in_array($id, $importedIds)) {
                     $count++;
-                    $this->writeln($id);
+                    if ($dates) {
+                        $obj = Mage::getModel('efi/' . $epaceModelType)->load($id);
+                        $this->writeln($id . "\t" . $obj->getData($settings['dateField']));
+                    } else {
+                        $this->writeln($id);
+                    }
                 }
             }
 
