@@ -11,6 +11,7 @@ class Blackbox_EpaceImport_Model_Cron
     const XML_PATH_UPDATE_ESTIMATES = 'epace/import/update_estimates';
     const XML_PATH_UPDATE_JOBS = 'epace/import/update_jobs';
     const XML_PATH_UPDATE_CLOSED_JOBS = 'epace/import/update_closed_jobs';
+    const XML_PATH_UPDATE_RECEIVABLES = 'epace/import/update_invoices';
     const XML_PATH_UPDATE_INVOICES = 'epace/import/update_invoices';
     const XML_PATH_UPDATE_SHIPMENTS = 'epace/import/update_shipments';
     const XML_PATH_UPDATE_PURCHASE_ORDERS = 'epace/import/update_purchase_orders';
@@ -65,19 +66,28 @@ class Blackbox_EpaceImport_Model_Cron
 
             $currentTime = time();
 
+            if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_RECEIVABLES)) {
+                $this->log('Updating receivables.');
+                $this->updateReceivables($dateTime);
+            }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
+                $this->log('Updating estimates.');
                 $this->updateEstimates($dateTime);
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
+                $this->log('Updating jobs.');
                 $this->updateJobs($dateTime);
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
+                $this->log('Updating invoices.');
                 $this->updateInvoices($dateTime);
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
+                $this->log('Updating shipments.');
                 $this->updateShipments($dateTime);
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_PURCHASE_ORDERS)) {
+                $this->log('Updating purchase orders.');
                 $this->updatePurchaseOrders($dateTime);
             }
             Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
@@ -88,10 +98,15 @@ class Blackbox_EpaceImport_Model_Cron
 
             $dateTime = $this->getTimeFromConfig(self::XML_PATH_LAST_IMPORT_NEW_TIME, '-1 month');
 
+            $this->log('Importing new estimates.');
             $this->importNewEstimates($dateTime);
+            $this->log('Importing new jobs.');
             $this->importNewJobs($dateTime);
+            $this->log('Importing new invoices.');
             $this->importNewInvoices($dateTime);
+            $this->log('Importing new shipments.');
             $this->importNewShipments($dateTime);
+            $this->log('Importing new purchase orders.');
             $this->importNewPurchaseOrders($dateTime);
 
             Mage::getConfig()->saveConfig(self::XML_PATH_LAST_IMPORT_NEW_TIME, $currentTime);
@@ -393,9 +408,9 @@ class Blackbox_EpaceImport_Model_Cron
 
         $this->helper->importInvoice($invoice, $order, $magentoInvoice);
         $magentoInvoice->save();
-        if ($invoice->getReceivable()) {
-            $this->helper->importReceivable($invoice->getReceivable(), $magentoInvoice)->save();
-        }
+//        if ($invoice->getReceivable()) {
+//            $this->helper->importReceivable($invoice->getReceivable(), $magentoInvoice)->save();
+//        }
     }
 
     public function importPurchaseOrder(Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder)
@@ -482,6 +497,43 @@ class Blackbox_EpaceImport_Model_Cron
                 try {
                     $this->log('Updating order ' . $order->getId() . '. Job: ' . $order->getEpaceJobId());
                     $this->helper->updateOrder($order, $this->logEnabled);
+                } catch (\Exception $e) {
+                    $this->log($e->getMessage());
+                }
+            }
+
+        } while ($page < $lastPage);
+    }
+
+    protected function updateReceivables(\DateTime $from)
+    {
+        /** @var Blackbox_EpaceImport_Model_Resource_Receivable_Collection $collection */
+        $collection = Mage::getResourceModel('epacei/receivable_collection');
+        if (Blackbox_Epace_Model_Epace_AbstractObject::$useMongo) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $mongoCollection */
+            $mongoCollection = Mage::getResourceModel('efi/receivable_collection');
+            $mongoCollection->addFilter('_updated_at', ['gt' => $from]);
+            $mongoCollection->addFilter('invoiceDate', ['gteq' => new \DateTime('2019-01-01')]);
+            $ids = $mongoCollection->loadIds();
+            $collection->addFieldToFilter('epace_receivable_id', ['in' => $ids]);
+        } else {
+            $collection->addFieldToFilter('epace_receivable_id', ['notnull' => true]);
+        }
+
+        $page = 0;
+        $collection->setPageSize(100);
+        $lastPage = $collection->getLastPageNumber();
+
+        do {
+            $page++;
+
+            $collection->clear()->setCurPage($page)->load();
+            /** @var Blackbox_EpaceImport_Model_Receivable $receivable */
+            foreach ($collection->getItems() as $receivable) {
+                $receivable->setDataChanges(false);
+                try {
+                    $this->log('Updating receivable ' . $receivable->getId() . '. Epace receivable id: ' . $receivable->getEpaceReceivableId());
+                    $this->helper->updateReceivable($receivable, null, $this->logEnabled);
                 } catch (\Exception $e) {
                     $this->log($e->getMessage());
                 }

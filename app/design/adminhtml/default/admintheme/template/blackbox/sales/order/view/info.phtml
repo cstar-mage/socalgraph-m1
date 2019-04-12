@@ -134,18 +134,15 @@ $orderStoreDate = $this->formatDate($_order->getCreatedAtStoreDate(), 'medium', 
                             </td>
                         </tr>
                     <?php endif; ?>
-                    <?php if (($invoice = Mage::registry('current_invoice')) instanceof Mage_Sales_Model_Order_Invoice && $invoice->getEpaceInvoiceNumber()): ?>
-                        <?php $receivableCollection = Mage::getResourceModel('epacei/receivable_collection')->addFieldToFilter('invoice_number', $invoice->getEpaceInvoiceNumber()) ?>
-                        <?php $receivables = $receivableCollection->getItems() ?>
-                        <?php if ($receivables): ?>
+                    <?php if (($invoice = Mage::registry('current_invoice')) instanceof Mage_Sales_Model_Order_Invoice && $invoice->getReceivableId()): ?>
+                        <?php $receivable = Mage::getModel('epacei/receivable')->load($invoice->getReceivableId()) ?>
+                        <?php if ($receivable->getId()): ?>
                             <tr>
                                 <td class="label">
-                                    <label><?php echo $this->__('Receivables') ?></label>
+                                    <label><?php echo $this->__('Receivable') ?></label>
                                 </td>
                                 <td class="value">
-                                    <?php foreach ($receivables as $receivable): ?>
-                                        <div><strong><a href="<?php echo $this->getUrl('*/epace_receivable/view', ['receivable_id' => $receivable->getId()]) ?>"><?=$receivable->getEpaceReceivableId()?></a></strong></div>
-                                    <?php endforeach; ?>
+                                    <div><strong><a href="<?php echo $this->getUrl('*/epace_receivable/view', ['receivable_id' => $receivable->getId()]) ?>"><?=$receivable->getEpaceReceivableId()?></a></strong></div>
                                 </td>
                             </tr>
                         <?php endif; ?>

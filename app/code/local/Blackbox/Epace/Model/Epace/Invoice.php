@@ -153,6 +153,14 @@ class Blackbox_Epace_Model_Epace_Invoice extends Blackbox_Epace_Model_Epace_Job_
     }
 
     /**
+     * @return int
+     */
+    public function getReceivableId()
+    {
+        return $this->getData('receivable');
+    }
+
+    /**
      * @return Blackbox_Epace_Model_Epace_Receivable
      */
     public function getReceivable()

@@ -709,9 +709,9 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
         $magentoInvoice->save();
 
-        if ($invoice->getReceivable()) {
-            $this->helper->importReceivable($invoice->getReceivable(), $magentoInvoice)->save();
-        }
+//        if ($invoice->getReceivable()) {
+//            $this->helper->importReceivable($invoice->getReceivable(), $magentoInvoice)->save();
+//        }
 
         return $magentoInvoice;
     }

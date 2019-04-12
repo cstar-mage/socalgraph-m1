@@ -38,11 +38,7 @@ class Blackbox_EpaceImport_Block_Adminhtml_Receivable_View_Tab_Invoices
         ], 'main_table.entity_id = g.entity_id', ['order_increment_id', 'order_created_at', 'billing_name']);
         $this->setCollection($collection);
 
-        if (!empty($receivable->getInvoiceNumber())) {
-            $collection->addFieldToFilter('epace_invoice_number', $receivable->getInvoiceNumber());
-        } else {
-            $collection->getSelect()->where('FALSE');
-        }
+        $collection->addFieldToFilter('receivable_id', $receivable->getId());
         $this->setCollection($collection);
         return Mage_Adminhtml_Block_Widget_Grid::_prepareCollection();
     }

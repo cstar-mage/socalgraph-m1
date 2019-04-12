@@ -312,14 +312,14 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
 
         $this->helper->importInvoice($invoice, $order, $magentoInvoice);
         $magentoInvoice->save();
-        if ($invoice->getReceivable()) {
-            $this->tabs++;
-            try {
-                $this->helper->importReceivable($invoice->getReceivable(), $magentoInvoice)->save();
-            } finally {
-                $this->tabs--;
-            }
-        }
+//        if ($invoice->getReceivable()) {
+//            $this->tabs++;
+//            try {
+//                $this->helper->importReceivable($invoice->getReceivable(), $magentoInvoice)->save();
+//            } finally {
+//                $this->tabs--;
+//            }
+//        }
     }
 
     protected function write($msg)

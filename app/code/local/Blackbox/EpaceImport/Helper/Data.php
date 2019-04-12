@@ -710,20 +710,40 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $magentoInvoice->addItem($invoiceItem);
         }
 
+        if ($invoice->getReceivable()) {
+            $receivable = Mage::getModel('epacei/receivable')->load($invoice->getReceivableId(), 'epace_receivable_id');
+            if (!$receivable->getId()) {
+                $receivable = $this->importReceivable($invoice->getReceivable(), $order);
+                $receivable->save();
+                $this->writeln('Created Receivable ' . $receivable->getId() . ' epace id: ' . $invoice->getReceivable()->getId());
+            }
+            $magentoInvoice->addData([
+                'receivable_id' => $receivable->getId(),
+                'epace_receivable_id' => $invoice->getReceivableId()
+            ]);
+        }
+
         return $magentoInvoice;
     }
 
-    public function importReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable, Mage_Sales_Model_Order_Invoice $magentoInvoice = null)
+    public function importReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable, Mage_Sales_Model_Order $order = null)
     {
         $customer = $this->getCustomerFromCustomer($receivable->getCustomer());
 
-        if (!$magentoInvoice) {
-            $magentoInvoice = Mage::getModel('sales/order_invoice');
+        $orderId = null;
+        if ($receivable->getJobId()) {
+            if (!$order || !$order->getId() || $order->getEpaceJobId() != $receivable->getJobId()) {
+                $order = Mage::getModel('sales/order')->load($receivable->getJobId(), 'epace_job_id');
+                if (!$order->getId()) {
+                    throw new \Exception('Unable to find order with job ' . $receivable->getJobId() . ' for receivable ' . $receivable->getId());
+                }
+            }
+            $orderId = $order->getId();
         }
 
         $magentoReceivable = Mage::getModel('epacei/receivable');
         $magentoReceivable->setData([
-            'store_id' => $magentoInvoice->getStoreId(),
+            'store_id' => $this->getStore()->getId(),
             'customer_id' => $customer->getId(),
             'base_grand_total' => $receivable->getInvoiceAmount(),
             'shipping_tax_amount' => 0,
@@ -743,7 +763,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'subtotal' => $receivable->getOriginalAmount(),
             'base_subtotal' => $receivable->getOriginalAmount(),
             'discount_amount' => $receivable->getDiscountApplied(),
-            'order_id' => $magentoInvoice->getOrderId(),
+            'order_id' => $orderId,
             'state' => $receivable->getStatus(),
             'store_currency_code' => $receivable->getAltCurrency(),
             'order_currency_code' => $this->getStore()->getBaseCurrencyCode(),
@@ -2119,21 +2139,28 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $this->logChanges('Invoice ' . $invoice->getId() . ' updates', $changes);
         }
 
-        if ($epaceInvoice->getReceivable()) {
-            $magentoReceivable = Mage::getModel('epacei/receivable')->load($epaceInvoice->getReceivable()->getId(), 'epace_receivable_id');
-            if ($magentoReceivable->getId()) {
-                $this->updateReceivable($magentoReceivable, $epaceInvoice->getReceivable(), $invoice, $logChanges);
-            } else {
-                $this->importReceivable($epaceInvoice->getReceivable(), $invoice)->save();
-            }
-        }
+//        if ($epaceInvoice->getReceivable()) {
+//            $magentoReceivable = Mage::getModel('epacei/receivable')->load($epaceInvoice->getReceivable()->getId(), 'epace_receivable_id');
+//            if ($magentoReceivable->getId()) {
+//                $this->updateReceivable($magentoReceivable, $epaceInvoice->getReceivable(), $invoice, $logChanges);
+//            } else {
+//                $this->importReceivable($epaceInvoice->getReceivable(), $invoice)->save();
+//            }
+//        }
 
         $invoice->save();
     }
 
-    public function updateReceivable(Blackbox_EpaceImport_Model_Receivable $receivable, Blackbox_Epace_Model_Epace_Receivable $epaceReceivable, Mage_Sales_Model_Order_Invoice $invoice, $logChanges = false)
+    public function updateReceivable(Blackbox_EpaceImport_Model_Receivable $receivable, Blackbox_Epace_Model_Epace_Receivable $epaceReceivable = null, $logChanges = false)
     {
-        $newReceivable = $this->importReceivable($epaceReceivable, $invoice);
+        if (!$epaceReceivable) {
+            $epaceReceivable = Mage::getModel('efi/receivable')->load($receivable->getEpaceReceivableId());
+            if (is_null($epaceReceivable->getId())) {
+                return;
+            }
+        }
+
+        $newReceivable = $this->importReceivable($epaceReceivable);
         $changes = $this->updateObject($receivable, $newReceivable, [
 //            'created_at',
             'updated_at',
