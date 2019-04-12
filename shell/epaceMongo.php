@@ -516,10 +516,20 @@ class EpaceMongo extends Mage_Shell_Abstract
                         $job = Mage::getModel('efi/job')->load($jobId);
 
                         if ($job->getEstimate()) {
-                            $this->importEstimate($job->getEstimate());
-                        } else {
-                            $this->importJob($job);
+                            $this->tabs++;
+                            try {
+                                $this->writeln('Import estimate ' . $job->getEstimate()->getId());
+                                $this->importEstimate($job->getEstimate());
+                                if ($job->getEstimate()->isConvertedToJob()) {
+                                    continue;
+                                } else {
+                                    $this->writeln('Estimate ' . $job->getEstimate()->getId() . ' is not converted to job.');
+                                }
+                            } finally {
+                                $this->tabs--;
+                            }
                         }
+                        $this->importJob($job);
                     }
                 }
             } finally {
