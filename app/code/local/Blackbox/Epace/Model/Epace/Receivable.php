@@ -148,7 +148,6 @@ class Blackbox_Epace_Model_Epace_Receivable extends Blackbox_Epace_Model_Epace_J
             'altCurrencyRateSourceNote' => 'string',
             'glRegisterNumber' => 'string',
             'commissionRate' => 'float',
-            'sendDunningLetter' => 'bool',
             'dateSetup' => 'date',
             'timeSetup' => 'date',
             'sendDunningLetter' => 'bool',

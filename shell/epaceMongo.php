@@ -354,18 +354,23 @@ class EpaceMongo extends Mage_Shell_Abstract
                 MongoEpaceCollection::$bulkWriteLimit = (int)$this->getArg('bulkWriteLimit');
             }
 
-            if ($this->getArg('fixDates')) {
-                $this->fixDates();
-                return;
-            }
-
-            if ($this->getArg('vendors')) {
-                $this->importVendors();
-                return;
-            }
-
-            if ($this->getArg('resave')) {
-                $this->resaveEntities();
+            if ($mode = $this->getArg('mode')) {
+                switch ($mode) {
+                    case 'notImported':
+                        $this->listNotImported();
+                        break;
+                    case 'fixDates':
+                        $this->fixDates();
+                        break;
+                    case 'vendors':
+                        $this->importVendors();
+                        break;
+                    case 'resave':
+                        $this->resaveEntities();
+                        break;
+                    default:
+                        throw new \Exception('Unsupported mode. Allowed values: notImported, fixDats, vendors, resave');
+                }
                 return;
             }
 
@@ -1012,6 +1017,120 @@ class EpaceMongo extends Mage_Shell_Abstract
 //            }
 //        }
 //    }
+
+    protected function listNotImported()
+    {
+        $entities = [
+            'Estimate' => [
+                'keys' => [
+                    'e',
+                    'estimates'
+                ],
+                'dateField' => 'entryDate',
+            ],
+            'Job' => [
+                'keys' => [
+                    'j',
+                    'jobs'
+                ],
+                'dateField' => 'dateSetup',
+            ],
+            'Invoice' => [
+                'keys' => [
+                    'i',
+                    'invoices'
+                ],
+                'dateField' => 'invoiceDate',
+            ],
+            'JobShipment' => [
+                'keys' => [
+                    's',
+                    'shipments'
+                ],
+                'dateField' => 'date',
+            ],
+            'Receivable' => [
+                'keys' => [
+                    'r',
+                    'receivables'
+                ],
+                'dateField' => 'invoiceDate'
+            ],
+            'PurchaseOrder' => [
+                'keys' => [
+                    'po',
+                    'purchaseOrders'
+                ],
+                'dateField' => 'dateEntered'
+            ],
+        ];
+
+        /** @var Blackbox_Epace_Helper_Data $epaceHelper */
+        $epaceHelper = Mage::helper('epace');
+
+        foreach ($entities as $entity => $settings) {
+            $found = false;
+            foreach ($settings['keys'] as $key) {
+                if ($this->getArg($key)) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                continue;
+            }
+
+            $this->write($entity . ' ');
+
+            $epaceModelType = $epaceHelper->getTypeName($entity);
+
+            /** @var Blackbox_Epace_Model_Resource_Epace_Collection $epaceCollection */
+            $epaceCollection = Mage::getResourceModel('efi/' . $epaceModelType . '_collection');
+
+            if ($from = $this->getArg('from')) {
+                $epaceCollection->addFilter($settings['dateField'], ['gteq' => new \DateTime($from)]);
+            }
+            if ($to = $this->getArg('to')) {
+                $epaceCollection->addFilter($settings['dateField'], ['lteq' => new \DateTime($to)]);
+            }
+
+            $ids = $epaceCollection->loadIds();
+            $this->writeln(count($ids));
+
+            $filter = [];
+            if (!$this->getArg('noMongoFilter')) {
+                if ($from) {
+                    if (is_string($from) && !is_numeric($from)) {
+                        $fromTimestamp = strtotime($from);
+                    } else {
+                        $fromTimestamp = $from;
+                    }
+
+                    $filter[$settings['dateField']] = ['$gte' => new MongoDB\BSON\UTCDateTime($fromTimestamp * 1000 - 3600000 * 24)];
+                }
+                if ($to) {
+                    if (is_string($to) && !is_numeric($to)) {
+                        $toTimestamp = strtotime($to);
+                    } else {
+                        $toTimestamp = $to;
+                    }
+                    $filter[$settings['dateField']] = ['$lte' => new MongoDB\BSON\UTCDateTime($toTimestamp * 1000 + 3600000 * 24)];
+                }
+            }
+
+            $importedIds = $this->getCollectionAdapter($epaceModelType)->loadIds($filter);
+            $count = 0;
+
+            foreach ($ids as $id) {
+                if (!in_array($id, $importedIds)) {
+                    $count++;
+                    $this->writeln($id);
+                }
+            }
+
+            $this->writeln($entity . 's missed:' . $count);
+        }
+    }
 
     /**
      * @param $class
