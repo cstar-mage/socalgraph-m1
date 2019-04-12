@@ -726,7 +726,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         return $magentoInvoice;
     }
 
-    public function importReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable, Mage_Sales_Model_Order $order = null)
+    public function importReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable, Mage_Sales_Model_Order $order = null, Blackbox_EpaceImport_Model_Receivable $magentoReceivable = null)
     {
         $customer = $this->getCustomerFromCustomer($receivable->getCustomer());
 
@@ -741,7 +741,9 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             $orderId = $order->getId();
         }
 
-        $magentoReceivable = Mage::getModel('epacei/receivable');
+        if (!$magentoReceivable) {
+            $magentoReceivable = Mage::getModel('epacei/receivable');
+        }
         $magentoReceivable->setData([
             'store_id' => $this->getStore()->getId(),
             'customer_id' => $customer->getId(),

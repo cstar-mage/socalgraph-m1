@@ -38,6 +38,17 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
             'importMethod' => 'importInvoice',
             'updateMethod' => 'updateInvoice'
         ],
+        'Receivable' => [
+            'keys' => [
+                'r',
+                'receivables'
+            ],
+            'dateField' => 'invoiceDate',
+            'magentoClass' => 'epacei/receivable',
+            'idField' => 'epace_receivable_id',
+            'importMethod' => 'importReceivable',
+            'updateMethod' => 'updateReceivable'
+        ],
         'JobShipment' => [
             'keys' => [
                 's',
@@ -48,6 +59,17 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
             'idField' => 'epace_shipment_id',
             'importMethod' => 'importShipment',
             'updateMethod' => 'updateShipment'
+        ],
+        'PurchaseOrder' => [
+            'keys' => [
+                'po',
+                'purchaseOrders'
+            ],
+            'dateField' => 'dateEntered',
+            'magentoClass' => 'epacei/purchaseOrder',
+            'idField' => 'epace_purchase_order_id',
+            'importMethod' => 'importPurchaseOrder',
+            'updateMethod' => 'updatePurchaseOrder'
         ]
     ];
 
@@ -128,7 +150,30 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
 
         $ids = $epaceCollection->loadIds();
         $count = count($ids);
-        $this->writeln('Found ' . $count . ' entries.');
+
+        if ($this->getArg('notImported')) {
+            /** @var Mage_Core_Model_Resource $resource */
+            $resource = Mage::getSingleton('core/resource');
+            $connection = $resource->getConnection('core_read');
+
+            $magentoModel = Mage::getModel($settings['magentoClass']);
+
+            $select = $connection->select()->from(['main_table' => $magentoModel->getResource()->getMainTable()], $settings['idField'])
+                ->where($settings['idField'] . ' IS NOT NULL');
+
+            $importedIds = $connection->fetchCol($select);
+            foreach ($ids as $key => $id) {
+                if (in_array($id, $importedIds)) {
+                    unset($ids[$key]);
+                }
+            }
+
+            $oldCount = $count;
+            $count = count($ids);
+            $this->writeln('Found ' . $count . ' (' . $oldCount . ')');
+        } else {
+            $this->writeln('Found ' . $count . ' entries.');
+        }
         $i = 0;
 
         $this->tabs++;
@@ -271,7 +316,7 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
         }
     }
 
-    public function importShipment(Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment, Mage_Sales_Model_Order $order = null, $checkImported = false)
+    public function importShipment(Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment, Mage_Sales_Model_Order $order = null, $checkImported = true)
     {
         if (in_array($jobShipment->getId(), $this->processed['JobShipment'])) {
             $this->writeln('Already processed.');
@@ -293,7 +338,7 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
         $orderShipment->save();
     }
 
-    public function importInvoice(Blackbox_Epace_Model_Epace_Invoice $invoice, Mage_Sales_Model_Order $order = null, $checkImported = false)
+    public function importInvoice(Blackbox_Epace_Model_Epace_Invoice $invoice, Mage_Sales_Model_Order $order = null, $checkImported = true)
     {
         if (in_array($invoice->getId(), $this->processed['Invoice'])) {
             $this->writeln('Already processed.');
@@ -312,6 +357,10 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
 
         $this->helper->importInvoice($invoice, $order, $magentoInvoice);
         $magentoInvoice->save();
+
+        if ($magentoInvoice->getEpaceReceivableId() && !in_array($magentoInvoice->getEpaceReceivableId(), $this->processed['Receivable'])) {
+            $this->processed['Receivable'][] = $magentoInvoice->getEpaceReceivableId();
+        }
 //        if ($invoice->getReceivable()) {
 //            $this->tabs++;
 //            try {
@@ -320,6 +369,48 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
 //                $this->tabs--;
 //            }
 //        }
+    }
+
+    public function importReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable, Mage_Sales_Model_Order $order = null, $checkImported = true)
+    {
+        if (in_array($receivable->getId(), $this->processed['Receivable'])) {
+            $this->writeln('Already processed.');
+            return;
+        }
+
+        /** @var Blackbox_EpaceImport_Model_Receivable $magentoReceivable */
+        $magentoReceivable = Mage::getModel('epacei/receivable');
+        if ($checkImported) {
+            $magentoReceivable->load($receivable->getId(), 'epace_receivable_id');
+            if ($magentoReceivable->getId()) {
+                $this->writeln("Receivable {$receivable->getId()} already imported.");
+                return;
+            }
+        }
+
+        $this->helper->importReceivable($receivable, $order, $magentoReceivable);
+        $magentoReceivable->save();
+    }
+
+    public function importPurchaseOrder(Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder, $checkImported = false)
+    {
+        if (in_array($purchaseOrder->getId(), $this->processed['PurchaseOrder'])) {
+            $this->writeln('Already processed.');
+            return;
+        }
+
+        /** @var Blackbox_EpaceImport_Model_PurchaseOrder $mpo */
+        $mpo = Mage::getModel('epacei/purchaseOrder');
+        if ($checkImported) {
+            $mpo->load($purchaseOrder->getId(), 'epace_receivable_id');
+            if ($mpo->getId()) {
+                $this->writeln("PurchaseOrder {$purchaseOrder->getId()} already imported.");
+                return;
+            }
+        }
+
+        $this->helper->importPurchaseOrder($purchaseOrder, $mpo);
+        $mpo->save();
     }
 
     protected function write($msg)
