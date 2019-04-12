@@ -311,6 +311,9 @@ class EpaceMongo extends Mage_Shell_Abstract
 
     protected $processedEstimates = [];
     protected $processedJobs = [];
+    protected $processedShipments = [];
+    protected $processedInvoices = [];
+    protected $processedReceivables = [];
 
     public static $debug = false;
 
@@ -441,8 +444,24 @@ class EpaceMongo extends Mage_Shell_Abstract
 
             $ids = $collection->loadIds();
             $count = count($ids);
+
+            if ($this->getArg('notImported')) {
+                $importedIds = $this->getCollectionAdapter('estimate')->loadIds();
+                foreach ($ids as $key => $id) {
+                    if (in_array($id, $importedIds)) {
+                        unset($ids[$key]);
+                    }
+                }
+
+                $oldCount = $count;
+                $count = count($ids);
+
+                $this->writeln('Found ' . $count . ' (' . $oldCount . ') estimates');
+            } else {
+                $this->writeln('Found ' . $count . ' estimates.');
+            }
+
             $i = 0;
-            $this->writeln('Found ' . $count . ' estimates.');
             foreach ($ids as $estimateId) {
                 $this->writeln('Estimate ' . ++$i . '/' . $count . ': ' . $estimateId);
                 /** @var Blackbox_Epace_Model_Epace_Estimate $estimate */
@@ -468,8 +487,24 @@ class EpaceMongo extends Mage_Shell_Abstract
 
             $ids = $collection->loadIds();
             $count = count($ids);
+
+            if ($this->getArg('notImported')) {
+                $importedIds = $this->getCollectionAdapter('job')->loadIds();
+                foreach ($ids as $key => $id) {
+                    if (in_array($id, $importedIds)) {
+                        unset($ids[$key]);
+                    }
+                }
+
+                $oldCount = $count;
+                $count = count($ids);
+
+                $this->writeln('Found ' . $count . ' (' . $oldCount . ') jobs');
+            } else {
+                $this->writeln('Found ' . $count . ' jobs.');
+            }
+
             $i = 0;
-            $this->writeln('Found ' . $count . ' jobs.');
             $this->tabs++;
             try {
                 foreach ($ids as $jobId) {
@@ -485,6 +520,162 @@ class EpaceMongo extends Mage_Shell_Abstract
                         } else {
                             $this->importJob($job);
                         }
+                    }
+                }
+            } finally {
+                $this->tabs--;
+            }
+        }
+
+        if ($this->getArg('invoices')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Invoice_Collection $collection */
+            $collection = Mage::getResourceModel('efi/invoice_collection');
+            if ($from) {
+                $collection->addFilter('invoiceDate', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('invoiceDate', ['lteq' => new DateTime($to)]);
+            }
+            $collection->setOrder('invoiceDate', 'ASC');
+
+            if ($this->getArg('if')) {
+                $this->addFilter($collection, $this->getArg('if'));
+            }
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+
+            if ($this->getArg('notImported')) {
+                $importedIds = $this->getCollectionAdapter('invoice')->loadIds();
+                foreach ($ids as $key => $id) {
+                    if (in_array($id, $importedIds)) {
+                        unset($ids[$key]);
+                    }
+                }
+
+                $oldCount = $count;
+                $count = count($ids);
+
+                $this->writeln('Found ' . $count . ' (' . $oldCount . ') invoices');
+            } else {
+                $this->writeln('Found ' . $count . ' invoices.');
+            }
+
+            $i = 0;
+            $this->tabs++;
+            try {
+                foreach ($ids as $id) {
+                    $this->writeln('Invoice ' . ++$i . '/' . $count . ': ' . $id);
+                    if (array_key_exists($id, $this->processedInvoices)) {
+                        $this->writeln("\tInvoice $id already processed.");
+                    } else {
+                        /** @var Blackbox_Epace_Model_Epace_Invoice $invoice */
+                        $invoice = Mage::getModel('efi/invoice')->load($id);
+                        $this->importInvoice($invoice);
+                    }
+                }
+            } finally {
+                $this->tabs--;
+            }
+        }
+
+        if ($this->getArg('receivables')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Receivable_Collection $collection */
+            $collection = Mage::getResourceModel('efi/receivable_collection');
+            if ($from) {
+                $collection->addFilter('invoiceDate', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('invoiceDate', ['lteq' => new DateTime($to)]);
+            }
+            $collection->setOrder('invoiceDate', 'ASC');
+
+            if ($this->getArg('rf')) {
+                $this->addFilter($collection, $this->getArg('rf'));
+            }
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+
+            if ($this->getArg('notImported')) {
+                $importedIds = $this->getCollectionAdapter('receivable')->loadIds();
+                foreach ($ids as $key => $id) {
+                    if (in_array($id, $importedIds)) {
+                        unset($ids[$key]);
+                    }
+                }
+
+                $oldCount = $count;
+                $count = count($ids);
+
+                $this->writeln('Found ' . $count . ' (' . $oldCount . ') receivables');
+            } else {
+                $this->writeln('Found ' . $count . ' receivables.');
+            }
+
+            $i = 0;
+            $this->tabs++;
+            try {
+                foreach ($ids as $id) {
+                    $this->writeln('Receivable ' . ++$i . '/' . $count . ': ' . $id);
+                    if (array_key_exists($id, $this->processedReceivables)) {
+                        $this->writeln("\tReceivable $id already processed.");
+                    } else {
+                        /** @var Blackbox_Epace_Model_Epace_Receivable $receivable */
+                        $receivable = Mage::getModel('efi/receivable')->load($id);
+                        $this->importReceivable($receivable);
+                    }
+                }
+            } finally {
+                $this->tabs--;
+            }
+        }
+
+        if ($this->getArg('shipments')) {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Job_Shipment_Collection $collection */
+            $collection = Mage::getResourceModel('efi/job_shipment_collection');
+            if ($from) {
+                $collection->addFilter('date', ['gteq' => new DateTime($from)]);
+            }
+            if ($to) {
+                $collection->addFilter('date', ['lteq' => new DateTime($to)]);
+            }
+            $collection->setOrder('date', 'ASC');
+
+            if ($this->getArg('sf')) {
+                $this->addFilter($collection, $this->getArg('sf'));
+            }
+
+            $ids = $collection->loadIds();
+            $count = count($ids);
+
+            if ($this->getArg('notImported')) {
+                $importedIds = $this->getCollectionAdapter('job_shipment')->loadIds();
+                foreach ($ids as $key => $id) {
+                    if (in_array($id, $importedIds)) {
+                        unset($ids[$key]);
+                    }
+                }
+
+                $oldCount = $count;
+                $count = count($ids);
+
+                $this->writeln('Found ' . $count . ' (' . $oldCount . ') shipments');
+            } else {
+                $this->writeln('Found ' . $count . ' shipments.');
+            }
+
+            $i = 0;
+            $this->tabs++;
+            try {
+                foreach ($ids as $id) {
+                    $this->writeln('JobShipment ' . ++$i . '/' . $count . ': ' . $id);
+                    if (array_key_exists($id, $this->processedShipments)) {
+                        $this->writeln("\tJobShipment $id already processed.");
+                    } else {
+                        /** @var Blackbox_Epace_Model_Epace_Job_Shipment $shipment */
+                        $shipment = Mage::getModel('efi/job_shipment')->load($id);
+                        $this->importShipment($shipment);
                     }
                 }
             } finally {
@@ -509,20 +700,31 @@ class EpaceMongo extends Mage_Shell_Abstract
 
             $ids = $collection->loadIds();
             $count = count($ids);
+
+            if ($this->getArg('notImported')) {
+                $importedIds = $this->getCollectionAdapter('purchase_order')->loadIds();
+                foreach ($ids as $key => $id) {
+                    if (in_array($id, $importedIds)) {
+                        unset($ids[$key]);
+                    }
+                }
+
+                $oldCount = $count;
+                $count = count($ids);
+
+                $this->writeln('Found ' . $count . ' (' . $oldCount . ') purchase orders');
+            } else {
+                $this->writeln('Found ' . $count . ' purchase orders.');
+            }
+
             $i = 0;
-            $this->writeln('Found ' . $count . ' purchase orders.');
             $this->tabs++;
             try {
                 foreach ($ids as $id) {
                     $this->writeln('PurchaseOrder ' . ++$i . '/' . $count . ': ' . $id);
-                    if (in_array($id, $this->processedJobs)) {
-                        $this->writeln("\tPurchaseOrder $id already processed.");
-                    } else {
-                        /** @var Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder */
-                        $purchaseOrder = Mage::getModel('efi/purchase_order')->load($id);
-
-                        $this->importPurchaseOrder($purchaseOrder);
-                    }
+                    /** @var Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder */
+                    $purchaseOrder = Mage::getModel('efi/purchase_order')->load($id);
+                    $this->importPurchaseOrder($purchaseOrder);
                 }
             } finally {
                 $this->tabs--;
@@ -884,6 +1086,11 @@ class EpaceMongo extends Mage_Shell_Abstract
 
     protected function importShipment(Blackbox_Epace_Model_Epace_Job_Shipment $jobShipment)
     {
+        if (array_key_exists($jobShipment->getId(), $this->processedShipments)) {
+            $this->writeln('JobShipment already processed');
+            return $this->processedShipments[$jobShipment->getId()];
+        }
+
         $forceUpdate = false;
         $forceUpdate |= $this->importContact($jobShipment->getContact());
         $forceUpdate |= $this->importContact($jobShipment->getShipTo());
@@ -898,11 +1105,16 @@ class EpaceMongo extends Mage_Shell_Abstract
             $forceUpdate |= $this->getCollectionAdapter('skid')->insertOrUpdate($skid);
         }
 
-        $this->getCollectionAdapter('job_shipment')->insertOrUpdate($jobShipment, $forceUpdate);
+        return $this->processedShipments[$jobShipment->getId()] = $this->getCollectionAdapter('job_shipment')->insertOrUpdate($jobShipment, $forceUpdate);
     }
 
     protected function importInvoice(Blackbox_Epace_Model_Epace_Invoice $invoice)
     {
+        if (array_key_exists($invoice->getId(), $this->processedInvoices)) {
+            $this->writeln('Invoice already processed');
+            return $this->processedInvoices[$invoice->getId()];
+        }
+
         $forceUpdate = false;
 //        if ($invoice->getSalesCategory()) {
 //            $this->getCollectionAdapter('salesCategory')->insertOrUpdate($invoice->getSalesCategory());
@@ -930,17 +1142,22 @@ class EpaceMongo extends Mage_Shell_Abstract
             $forceUpdate |= $this->importReceivable($invoice->getReceivable());
         }
 
-        return $this->getCollectionAdapter('invoice')->insertOrUpdate($invoice, $forceUpdate);
+        return $this->processedInvoices[$invoice->getId()] = $this->getCollectionAdapter('invoice')->insertOrUpdate($invoice, $forceUpdate);
     }
 
     protected function importReceivable(Blackbox_Epace_Model_Epace_Receivable $receivable)
     {
+        if (array_key_exists($receivable->getId(), $this->processedReceivables)) {
+            $this->writeln('Receivable already processed');
+            return $this->processedReceivables[$receivable->getId()];
+        }
+
         $forceUpdate = false;
         foreach ($receivable->getLines() as $line) {
             $forceUpdate |= $this->getCollectionAdapter('receivable_line')->insertOrUpdate($line);
         }
 
-        return $this->getCollectionAdapter('receivable')->insertOrUpdate($receivable, $forceUpdate);
+        return $this->processedReceivables[$receivable->getId()] = $this->getCollectionAdapter('receivable')->insertOrUpdate($receivable, $forceUpdate);
     }
 
     protected function importPurchaseOrder(Blackbox_Epace_Model_Epace_Purchase_Order $purchaseOrder)
