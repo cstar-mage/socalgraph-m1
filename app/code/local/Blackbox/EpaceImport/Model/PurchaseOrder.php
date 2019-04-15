@@ -731,7 +731,7 @@ class Blackbox_EpaceImport_Model_PurchaseOrder extends Mage_Sales_Model_Abstract
      */
     public function getRealPurchaseOrderId()
     {
-        $this->getEpacePurchaseOrderId();
+        return $this->getPoNumber();
     }
 
     /**
