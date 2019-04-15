@@ -809,6 +809,14 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 'dateField' => 'dateEntered',
                 'magentoClass' => 'epacei/purchaseOrder',
                 'epaceIdField' => 'epace_purchase_order_id'
+            ],
+            'PurchaseOrderLine' => [
+                'keys' => [
+                    'pol',
+                    'purchaseOrderLines'
+                ],
+                'magentoClass' => 'epacei/purchaseOrder_item',
+                'epaceIdField' => 'epace_purchase_order_line_id'
             ]
         ];
 
