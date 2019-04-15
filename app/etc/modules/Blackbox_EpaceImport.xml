@@ -8,6 +8,7 @@
                 <Mage_Sales />
                 <Blackbox_OrderApproval />
                 <Blackbox_Notification />
+                <Blackbox_RolesPermissions />
             </depends>
         </Blackbox_EpaceImport>
     </modules>

@@ -23,6 +23,7 @@
                     <customer_edit_tab_view>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_View</customer_edit_tab_view>
                     <customer_edit_tab_view_sales>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tab_View_Sales</customer_edit_tab_view_sales>
                     <customer_edit_tabs>Blackbox_EpaceImport_Block_Adminhtml_Customer_Edit_Tabs</customer_edit_tabs>
+                    <dashboard_totals>Blackbox_EpaceImport_Block_Adminhtml_Dashboard_Totals</dashboard_totals>
                 </rewrite>
             </adminhtml>
             <sales>

@@ -36,10 +36,9 @@ class Blackbox_EpaceImport_Model_resource_Reports_Estimate_Collection extends Ma
         if (is_null($this->_salesAmountExpression)) {
             $adapter = $this->getConnection();
             $expressionTransferObject = new Varien_Object(array(
-                'expression' => '%s - %s',
+                'expression' => '%s',
                 'arguments' => array(
-                    $adapter->getIfNullSql('main_table.base_grand_total', 0),
-                    $adapter->getIfNullSql('main_table.base_tax_amount', 0),
+                    $adapter->getIfNullSql('main_table.base_grand_total', 0)
                 )
             ));
 

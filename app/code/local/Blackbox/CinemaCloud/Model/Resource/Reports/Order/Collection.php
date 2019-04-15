@@ -12,10 +12,9 @@ class Blackbox_CinemaCloud_Model_Resource_Reports_Order_Collection extends Mage_
         if (is_null($this->_salesAmountExpression)) {
             $adapter = $this->getConnection();
             $expressionTransferObject = new Varien_Object(array(
-                'expression' => '%s - %s',
+                'expression' => '%s',
                 'arguments' => array(
-                    $adapter->getIfNullSql('main_table.base_grand_total', 0),
-                    $adapter->getIfNullSql('main_table.base_tax_amount', 0),
+                    $adapter->getIfNullSql('main_table.job_value', 0)
                 )
             ));
 
@@ -30,5 +29,42 @@ class Blackbox_CinemaCloud_Model_Resource_Reports_Order_Collection extends Mage_
         }
 
         return $this->_salesAmountExpression;
+    }
+
+    protected function _prepareSummaryLive($range, $customStart, $customEnd, $isFilter = 0)
+    {
+        parent::_prepareSummaryLive($range, $customStart, $customEnd, $isFilter);
+
+        $this->removeWhereForField('main_table.state');
+        $this->getSelect()->where('main_table.state NOT IN (?)', [
+                Mage_Sales_Model_Order::STATE_CANCELED
+            ]
+        );
+
+        return $this;
+    }
+
+    protected function _calculateTotalsLive($isFilter = 0)
+    {
+        parent::_calculateTotalsLive($isFilter);
+
+        $this->removeWhereForField('main_table.state');
+        $this->getSelect()->where('main_table.state NOT IN (?)', [
+                Mage_Sales_Model_Order::STATE_CANCELED
+            ]
+        );
+
+        return $this;
+    }
+
+    protected function removeWhereForField($field)
+    {
+        $where = $this->getSelect()->getPart(Zend_Db_Select::WHERE);
+        foreach ($where as $key => $condition) {
+            if (strpos($condition, $field) !== false) {
+                unset($where[$key]);
+            }
+        }
+        $this->getSelect()->setPart(Zend_Db_Select::WHERE, $where);
     }
 }

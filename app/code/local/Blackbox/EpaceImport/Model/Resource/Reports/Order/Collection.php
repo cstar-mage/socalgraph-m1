@@ -1,6 +1,6 @@
 <?php
 
-class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Mage_Reports_Model_Resource_Order_Collection
+class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Blackbox_CinemaCloud_Model_Resource_Reports_Order_Collection
 {
     protected $categories = false;
 
@@ -105,6 +105,40 @@ class Blackbox_EpaceImport_Model_resource_Reports_Order_Collection extends Mage_
             ->order('total DESC');
 
         return $this;
+    }
+
+    protected function _calculateTotalsLive($isFilter = 0)
+    {
+        parent::_calculateTotalsLive($isFilter);
+
+        $adapter = $this->getConnection();
+
+        $estimatePriceExp = $adapter->getIfNullSql('main_table.job_value', 0);;
+        $amountToInvoiceExp = $adapter->getIfNullSql('main_table.amount_to_invoice', 0);;
+
+        if ($isFilter == 0) {
+            $rateExp = $adapter->getIfNullSql('main_table.base_to_global_rate', 0);
+            $this->getSelect()->columns(
+                array(
+                    'estimate_price'  => new Zend_Db_Expr(sprintf('SUM((%s) * %s)', $estimatePriceExp, $rateExp)),
+                    'amount_to_invoice'      => new Zend_Db_Expr(sprintf('SUM((%s) * %s)', $amountToInvoiceExp, $rateExp)),
+                )
+            );
+        } else {
+            $this->getSelect()->columns(
+                array(
+                    'estimate_price'  => new Zend_Db_Expr(sprintf('SUM(%s)', $estimatePriceExp)),
+                    'amount_to_invoice'      => new Zend_Db_Expr(sprintf('SUM(%s)', $amountToInvoiceExp)),
+                )
+            );
+        }
+
+        return $this;
+    }
+
+    protected function _calculateTotalsAggregated($isFilter = 0)
+    {
+        return parent::_calculateTotalsAggregated($isFilter);
     }
 
     protected function _getSalesProfitExpression()
