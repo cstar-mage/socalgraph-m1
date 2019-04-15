@@ -210,6 +210,9 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
                         $this->tabs++;
                         try {
                             $epaceModel = Mage::getModel('efi/' . $epaceModelType)->load($id);
+                            if (is_null($epaceModel->getid())) {
+                                throw new \Exception('Unable to load entity from mongo.');
+                            }
                             call_user_func([$this, $settings['importMethod']], $epaceModel);
                         } finally {
                             $this->tabs--;
