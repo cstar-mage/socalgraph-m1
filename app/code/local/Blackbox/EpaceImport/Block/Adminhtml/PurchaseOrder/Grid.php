@@ -37,11 +37,11 @@ class Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_Grid extends Mage_Admin
     protected function _prepareColumns()
     {
 
-        $this->addColumn('epace_purchase_order_id', array(
+        $this->addColumn('po_number', array(
             'header'=> Mage::helper('epacei')->__('PurchaseOrder #'),
             'width' => '10px',
             'type'  => 'text',
-            'index' => 'epace_purchase_order_id',
+            'index' => 'po_number',
         ));
 
         if (!Mage::app()->isSingleStoreMode()) {

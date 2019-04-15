@@ -7,7 +7,7 @@ $purchaseOrderStoreDate = $this->formatDate($_purchaseOrder->getCreatedAtStoreDa
     <!--PurchaseOrder Information-->
     <div class="entry-edit">
         <div class="entry-edit-head">
-            <a href="<?php echo $this->getViewUrl($_purchaseOrder->getId()) ?>"><?php echo Mage::helper('sales')->__('Purchase Order # %s', $_purchaseOrder->getRealPurchaseOrderId()) ?></a>
+            <a href="<?php echo $this->getViewUrl($_purchaseOrder->getId()) ?>"><?php echo Mage::helper('sales')->__('Purchase Order # %s', $_purchaseOrder->getPoNumber()) ?></a>
         </div>
         <div class="fieldset">
             <table cellspacing="0" class="form-list">
@@ -95,6 +95,10 @@ $purchaseOrderStoreDate = $this->formatDate($_purchaseOrder->getCreatedAtStoreDa
                     <td class="label"><label><?php echo Mage::helper('sales')->__('Email') ?></label></td>
                     <td class="value"><a href="mailto:<?php echo $this->escapeHtml($_purchaseOrder->getEmail()) ?>"><strong><?php echo $this->escapeHtml($_purchaseOrder->getEmail()) ?></strong></a></td>
                 </tr>
+                    <tr>
+                        <td class="label"><label><?php echo Mage::helper('sales')->__('Company') ?></label></td>
+                        <td class="value"><strong><?php echo $this->escapeHtml($_purchaseOrder->getCompany()) ?></strong></td>
+                    </tr>
                 <?php foreach ($this->getContactData() as $data):?>
                 <tr>
                     <td class="label"><label><?php echo $data['label'] ?></label></td>
