@@ -65,6 +65,13 @@ class Blackbox_CinemaCloud_Model_Resource_Reports_Order_Collection extends Mage_
                 unset($where[$key]);
             }
         }
+        foreach ($where as &$condition) {
+            if (preg_match('/^\\s*(?:AND|OR)\\s*(.*)$/', $condition, $match)) {
+                $condition = $match[1];
+            }
+
+            break;
+        }
         $this->getSelect()->setPart(Zend_Db_Select::WHERE, $where);
     }
 }
