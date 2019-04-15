@@ -148,6 +148,10 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
             $epaceCollection->addFilter($settings['dateField'], ['lteq' => new \DateTime($to)]);
         }
 
+        if ($filter = $this->getArg($name . 'Filter')) {
+            $this->addFilter($epaceCollection, $filter);
+        }
+
         $ids = $epaceCollection->loadIds();
         $count = count($ids);
 
@@ -414,6 +418,30 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
 
         $this->helper->importPurchaseOrder($purchaseOrder, $mpo);
         $mpo->save();
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Resource_Epace_Collection $collection
+     * @param string|array|object $filters
+     * @throws Exception
+     */
+    protected function addFilter(Blackbox_Epace_Model_Resource_Epace_Collection $collection, $filters)
+    {
+        if (is_string($filters)) {
+            $filters = json_decode($filters);
+        }
+        if (is_null($filters)) {
+            throw new \Exception("Invalid {$collection->getResource()->getObjectType()} filter");
+        }
+        if (!is_array($filters)) {
+            $filters = [$filters];
+        }
+        foreach ($filters as $filter) {
+            if (is_object($filter->value)) {
+                $filter->value = (array)$filter->value;
+            }
+            $collection->addFilter($filter->field, $filter->value);
+        }
     }
 
     protected function write($msg)
