@@ -84,6 +84,11 @@
                     <acl>Blackbox_RolesPermissions_Model_Admin_Acl</acl>
                 </rewrite>
             </admin>
+            <admin_resource>
+                <rewrite>
+                    <user>Blackbox_RolesPermissions_Model_Resource_Admin_User</user>
+                </rewrite>
+            </admin_resource>
             <core>
                 <rewrite>
                     <session>Blackbox_RolesPermissions_Model_Core_Session</session>
