@@ -167,6 +167,7 @@
  * Class Blackbox_Epace_Model_Epace_Job_Part
  */
 class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job_AbstractChild
+    implements Blackbox_Epace_Model_Resource_Epace_CombinedKeyInterface
 {
     protected function _construct()
     {
@@ -543,6 +544,14 @@ class Blackbox_Epace_Model_Epace_Job_Part extends Blackbox_Epace_Model_Epace_Job
             'calculatedSpineSize' => '',
             'primaryKey' => '',
             'foldPatternKey' => '',
+        ];
+    }
+
+    public function getPrimaryKeyFields()
+    {
+        return [
+            'job',
+            'jobPart'
         ];
     }
 

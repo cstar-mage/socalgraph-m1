@@ -730,7 +730,18 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 ],
                 'dateField' => 'entryDate',
                 'magentoClass' => 'epacei/estimate',
-                'idField' => 'epace_estimate_id',
+                'epaceIdField' => 'epace_estimate_id',
+            ],
+            'EstimatePart' => [
+                'keys' => [
+                    'ep',
+                    'estimateParts'
+                ],
+                'magentoClass' => 'epacei/estimate_item',
+                'epaceIdField' => 'epace_estimate_part_id',
+                'selectCallback' => function(Zend_Db_Select $select, Mage_Core_Model_Resource_Db_Collection_Abstract $collection) {
+                    $select->group('epace_estimate_part_id');
+                }
             ],
             'Job' => [
                 'keys' => [
@@ -739,7 +750,29 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 ],
                 'dateField' => 'dateSetup',
                 'magentoClass' => 'sales/order',
-                'idField' => 'epace_job_id',
+                'epaceIdField' => 'epace_job_id',
+            ],
+            'JobPart' => [
+                'keys' => [
+                    'jp',
+                    'jobParts'
+                ],
+                'magentoClass' => 'sales/order_item',
+                'epaceIdField' => 'epace_part_key',
+                'selectCallback' => function(Zend_Db_Select $select, Mage_Core_Model_Resource_Db_Collection_Abstract $collection) {
+                    $part = $select->getPart(Zend_Db_Select::COLUMNS);
+                    foreach ($part as $key =>$column) {
+                        if ($column[1] == 'epace_part_key') {
+                            unset($part[$key]);
+                        }
+                    }
+                    $select->setPart(Zend_Db_Select::COLUMNS, $part);
+
+                    $select->joinInner(['o' => $collection->getResource()->getTable('sales/order')], 'order_id = o.entity_id', [
+                        'epace_part_key' => new Zend_Db_Expr('CONCAT(o.epace_job_id, \':\', epace_job_part)')
+                    ]);
+                },
+                'selectFilter' => 'having'
             ],
             'Invoice' => [
                 'keys' => [
@@ -748,7 +781,16 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 ],
                 'dateField' => 'invoiceDate',
                 'magentoClass' => 'sales/order_invoice',
-                'idField' => 'epace_invoice_id',
+                'epaceIdField' => 'epace_invoice_id',
+            ],
+            'Receivable' => [
+                'keys' => [
+                    'r',
+                    'receivables'
+                ],
+                'dateField' => 'invoiceDate',
+                'magentoClass' => 'epacei/receivable',
+                'epaceIdField' => 'epace_receivable_id'
             ],
             'JobShipment' => [
                 'keys' => [
@@ -757,7 +799,16 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 ],
                 'dateField' => 'date',
                 'magentoClass' => 'sales/order_shipment',
-                'idField' => 'epace_shipment_id',
+                'epaceIdField' => 'epace_shipment_id',
+            ],
+            'PurchaseOrder' => [
+                'keys' => [
+                    'po',
+                    'purchaseOrders'
+                ],
+                'dateField' => 'dateEntered',
+                'magentoClass' => 'epacei/purchaseOrder',
+                'epaceIdField' => 'epace_purchase_order_id'
             ]
         ];
 
@@ -783,11 +834,13 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             /** @var Blackbox_Epace_Model_Resource_Epace_Collection $epaceCollection */
             $epaceCollection = Mage::getResourceModel('efi/' . $epaceModelType . '_collection');
 
-            if ($from = $this->getArg('from')) {
-                $epaceCollection->addFilter($settings['dateField'], ['gteq' => new \DateTime($from)]);
-            }
-            if ($to = $this->getArg('to')) {
-                $epaceCollection->addFilter($settings['dateField'], ['lteq' => new \DateTime($to)]);
+            if (isset($settings['dateField'])) {
+                if ($from = $this->getArg('from')) {
+                    $epaceCollection->addFilter($settings['dateField'], ['gteq' => new \DateTime($from)]);
+                }
+                if ($to = $this->getArg('to')) {
+                    $epaceCollection->addFilter($settings['dateField'], ['lteq' => new \DateTime($to)]);
+                }
             }
             $ids = $epaceCollection->loadIds();
 
@@ -803,10 +856,22 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 return (is_int($v) || preg_match("/^\\d+$/", $v)) ? $v : $connection->quote($v);
             }, $ids);
 
-            $select = $connection->select()->from($magentoCollection->getResource()->getMainTable(), $settings['idField'])
-                ->where($settings['idField'] . ' IN (' . implode(',', $quotedIds) . ')');
+            $select = $connection->select()->from($magentoCollection->getResource()->getMainTable(), $settings['epaceIdField']);
+            if ($settings['selectFilter'] == 'having') {
+                $select->having($settings['epaceIdField'] . ' IN (' . implode(',', $quotedIds) . ')');
+            } else {
+                $select->where($settings['epaceIdField'] . ' IN (' . implode(',', $quotedIds) . ')');
+            }
+
+            if (isset($settings['selectCallback']) && is_callable($settings['selectCallback'])) {
+                call_user_func($settings['selectCallback'], $select, $magentoCollection);
+            }
 
             $importedIds = $connection->fetchCol($select);
+
+            if ($this->getArg('v')) {
+                $this->writeln('Remote ids: ' . PHP_EOL . implode(PHP_EOL, $ids) . PHP_EOL . 'Imported ids:' . PHP_EOL . implode(PHP_EOL, $importedIds) . PHP_EOL . 'Not imported ids:');
+            }
 
             foreach ($importedIds as $id) {
                 $index = array_search($id, $ids);
@@ -818,6 +883,7 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             }
 
             $this->writeln(implode(PHP_EOL, $ids));
+            $this->writeln($entity . 's not imported: ' . count($ids));
         }
     }
 

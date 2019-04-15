@@ -397,7 +397,14 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
     {
         if (empty($filters)) {
             $idFieldName = $resource->getIdFieldName();
-            $renderedFilters = "@$idFieldName = 1 or @$idFieldName != 1";
+            if ($resource instanceof Blackbox_Epace_Model_Resource_Epace_CombinedKeyInterface) {
+                foreach ($resource->getPrimaryKeyFields() as $field) {
+                    $idFieldName = $field;
+                    break;
+                }
+            }
+            $value = $this->_renderFilterValue(1, $resource->getDefinition()[$idFieldName]);
+            $renderedFilters = "@$idFieldName = $value or @$idFieldName != $value";
         } else {
             $renderedFilters = '';
 
@@ -493,6 +500,25 @@ class Blackbox_Epace_Helper_Api extends Mage_Core_Helper_Abstract
 
     protected function _renderFilterValue($value, $type = null)
     {
+        switch ($type) {
+            case 'int':
+                return (string)(int)$value;
+            case 'float':
+                return (string)(float)$value;
+            case 'string':
+                return '\'' . str_replace('\'', '\\\'', $value) . '\'';
+            case 'date':
+                if ($value instanceof \DateTime) {
+                    $date = $value;
+                } else if (is_numeric($value)) {
+                    $date = new \DateTime('now', new \DateTimeZone('Z'));
+                    $date->setTimestamp($value);
+                } else {
+                    $date = new \DateTime($value, new \DateTimeZone('Z'));
+                }
+                return 'date( ' . $date->format('Y, m, d') . ' )';
+
+        }
         if ($value instanceof \DateTime) {
             return 'date( ' . $value->format('Y, m, d') . ' )';
         } else if (is_string($value) && !($type == 'int' && is_numeric($value))) {
