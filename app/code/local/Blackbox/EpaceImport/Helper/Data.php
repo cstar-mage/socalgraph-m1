@@ -704,7 +704,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                 'weee_tax_disposition' => 0,
                 'weee_tax_row_disposition' => 0,
                 'base_weee_tax_disposition' => 0,
-                'base_weee_tax_row_disposition' => 0
+                'base_weee_tax_row_disposition' => 0,
+                'epace_invoice_line_id' => $line->getId()
             ]);
 
             $magentoInvoice->addItem($invoiceItem);
