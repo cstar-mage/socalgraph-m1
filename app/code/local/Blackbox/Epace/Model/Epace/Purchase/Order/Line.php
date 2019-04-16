@@ -10,7 +10,6 @@
  * @method string getDescription()
  * @method string getLineStatus()
  * @method float getQtyOrdered()
- * @method string getJobPart()
  * @method int getGlAccount()
  * @method bool getTaxable()
  * @method string getDateEntered()

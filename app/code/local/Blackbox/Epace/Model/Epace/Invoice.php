@@ -1,7 +1,6 @@
 <?php
 
 /**
- * @method string getJobPart()
  * @method string getInvoiceNum()
  * @method string getInvoiceDate()
  * @method int getInvoiceType()

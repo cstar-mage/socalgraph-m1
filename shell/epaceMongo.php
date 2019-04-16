@@ -122,6 +122,58 @@ class MongoEpaceCollection
         return $result;
     }
 
+    public function deleteIds(array $ids)
+    {
+        foreach ($ids as $id) {
+            $this->deleteId($id);
+        }
+
+        $this->flush();
+
+        return $this;
+    }
+
+    public function deleteId($id)
+    {
+        if (!$this->bulkWrite) {
+            $this->bulkWrite = new MongoDB\Driver\BulkWrite(['ordered' => true]);
+        }
+
+        $this->bulkWrite->delete(['_id' => $this->_prepareIdValue($id)]);
+
+        if ($this->bulkWrite->count() >= self::$bulkWriteLimit) {
+            $this->flush();
+        }
+
+        return $this;
+    }
+
+    protected function _prepareIdValue($value)
+    {
+        if (is_null($value)) {
+            return $value;
+        }
+        $type = $this->epaceResource->getDefinition()[$this->epaceResource->getIdFieldName()];
+        switch ($type) {
+            case 'int':
+                return (int)$value;
+            case 'float':
+                return (float)$value;
+            case 'date':
+                if ($value instanceof \DateTime) {
+                    $timestamp = $value->getTimestamp();
+                } else if (is_numeric($value)) {
+                    $timestamp = $value;
+                } else {
+                    $date = new \DateTime($value, new \DateTimeZone('Z'));
+                    $timestamp = $date->getTimestamp();
+                }
+                return new \MongoDB\BSON\UTCDateTime($timestamp * 1000);
+            default:
+                return (string)$value;
+        }
+    }
+
     public function insertOrUpdate(Blackbox_Epace_Model_Epace_AbstractObject $object, $forceUpdate = false)
     {
         $this->validateObject($object);
@@ -211,6 +263,15 @@ class MongoEpaceCollection
     public function updateDataRaw($data)
     {
         $id = $data[$this->epaceResource->getIdFieldName()];
+        unset($data[$this->epaceResource->getIdFieldName()]);
+
+        $this->updateDataRawById($data, $id);
+    }
+
+    public function updateDataRawById($data, $id)
+    {
+        $id = $this->_prepareIdValue($id);
+
         if (in_array($id, $this->currentBulkWriteIds)) {
             return;
         }
@@ -338,52 +399,60 @@ class EpaceMongo extends Mage_Shell_Abstract
         $this->saveStatus('running');
 
         try {
-            if ($this->getArg('config_settings')) {
-                /** @var Blackbox_Epace_Helper_Mongo $helper */
-                $helper = Mage::helper('epace/mongo');
-                $this->manager = new MongoDB\Driver\Manager($helper->getHost());
-                $this->database = $helper->getDatabase();
-            } else {
-                $host = $this->getArg('host');
-                $this->manager = new MongoDB\Driver\Manager($host);
+            try {
+                if ($this->getArg('config_settings')) {
+                    /** @var Blackbox_Epace_Helper_Mongo $helper */
+                    $helper = Mage::helper('epace/mongo');
+                    $this->manager = new MongoDB\Driver\Manager($helper->getHost());
+                    $this->database = $helper->getDatabase();
+                } else {
+                    $host = $this->getArg('host');
+                    $this->manager = new MongoDB\Driver\Manager($host);
 
-                $this->database = $this->getArg('database');
-            }
-            if (!$this->database) {
-                throw new \Exception('No database specified.');
-            }
-
-            if ($this->getArg('bulkWriteLimit')) {
-                MongoEpaceCollection::$bulkWriteLimit = (int)$this->getArg('bulkWriteLimit');
-            }
-
-            if ($mode = $this->getArg('mode')) {
-                switch ($mode) {
-                    case 'notImported':
-                        $this->listNotImported();
-                        break;
-                    case 'fixDates':
-                        $this->fixDates();
-                        break;
-                    case 'vendors':
-                        $this->importVendors();
-                        break;
-                    case 'resave':
-                        $this->resaveEntities();
-                        break;
-                    default:
-                        throw new \Exception('Unsupported mode. Allowed values: notImported, fixDats, vendors, resave');
+                    $this->database = $this->getArg('database');
                 }
-                return;
-            }
+                if (!$this->database) {
+                    throw new \Exception('No database specified.');
+                }
 
-            $this->importToMongo();
+                if ($this->getArg('bulkWriteLimit')) {
+                    MongoEpaceCollection::$bulkWriteLimit = (int)$this->getArg('bulkWriteLimit');
+                }
 
-            foreach ($this->collectionAdapters as $adapter) {
-                try {
-                    $adapter->flush();
-                } catch (\Exception $e) {
-                    $this->writeln('Error while flushing ' . $adapter->getCollectionName() . ': ' . $e->getMessage());
+                if ($mode = $this->getArg('mode')) {
+                    switch ($mode) {
+                        case 'notImported':
+                            $this->listNotImported();
+                            break;
+                        case 'fixDates':
+                            $this->fixDates();
+                            break;
+                        case 'vendors':
+                            $this->importVendors();
+                            break;
+                        case 'resave':
+                            $this->resaveEntities();
+                            break;
+                        case 'delete':
+                            $this->deleteEntities();
+                            break;
+                        case 'listDeleted':
+                            $this->printDeletedEntities();
+                            break;
+                        default:
+                            throw new \Exception('Unsupported mode. Allowed values: notImported, fixDats, vendors, resave, delete, listDeleted');
+                    }
+                    return;
+                }
+
+                $this->importToMongo();
+            } finally {
+                foreach ($this->collectionAdapters as $adapter) {
+                    try {
+                        $adapter->flush();
+                    } catch (\Exception $e) {
+                        $this->writeln('Error while flushing ' . $adapter->getCollectionName() . ': ' . $e->getMessage());
+                    }
                 }
             }
 
@@ -1364,6 +1433,277 @@ class EpaceMongo extends Mage_Shell_Abstract
 
             $this->writeln($entity . 's missed:' . $count);
         }
+    }
+
+    protected function getDeleteDependencies()
+    {
+        return [
+            'Estimate' => [
+                'EstimateProduct' => [
+                    'EstimatePart' => [
+                        'EstimateQuantity',
+                        'EstimatePartSizeAllowance'
+                    ],
+                    'EstimateProductPriceSummary'
+                ],
+                'EstimateQuoteLetter' => [
+                    'EstimateQuoteLetterNote'
+                ]
+            ],
+            'Job' => [
+                'JobProduct',
+                'JobContact',
+                'JobShipment' => [
+                    'Carton' => [
+                        'CartonContent'
+                    ],
+                    'Skid',
+                ],
+                'JobNote',
+                'JobPart' => [
+                    'JobMaterial',
+                    'JobPartPrePressOp',
+                    'ChangeOrder',
+                    'Proof',
+                    'JobPartItem',
+                    'JobPartPressForm',
+                    'JobComponent',
+                    'JobPartFinishingOp',
+                    'JobPartOutsidePurch',
+                    'JobPlan',
+                    'JobCost',
+                    'JobPartSizeAllowance'
+                ],
+                'Invoice' => [
+                    'InvoiceCommDist',
+                    'InvoiceExtra',
+                    'InvoiceLine',
+                    'InvoiceSalesDist',
+                    'InvoiceTaxDist'
+                ]
+            ],
+            'PurchaseOrder' => [
+                'PurchaseOrderLine'
+            ],
+            'Receivable' => [
+                'ReceivableLine'
+            ],
+            'Skid',
+        ];
+    }
+
+    protected function printDeletedEntities()
+    {
+        $entity = $this->getArg('e');
+        if (!$entity) {
+            $entity = $this->getArg('entity');
+        }
+
+        if ($entity) {
+            $this->writeln(implode(PHP_EOL, $this->getDeleted($entity)));
+        } else {
+            $dependencies = $this->getDeleteDependencies();
+            foreach ($dependencies as $key => $value) {
+                if (is_array($value)) {
+                    $this->printDeletedEntitiesRecursive($key, $value);
+                } else {
+                    $this->printDeletedEntitiesRecursive($value);
+                }
+            }
+        }
+    }
+
+    protected function deleteEntities()
+    {
+        $dependencies = $this->getDeleteDependencies();
+
+        $relations = [];
+
+        $this->buildEntitiesRelations($relations, null, $dependencies);
+
+        foreach ($dependencies as $key => $value) {
+            if (is_array($value)) {
+                $this->deleteEntitiesRecursive($relations, $key);
+            } else {
+                $this->deleteEntitiesRecursive($relations, $value);
+            }
+        }
+    }
+
+    protected function deleteEntitiesRecursive(array &$relations, $entity)
+    {
+        $this->writeln('Process deleted entities: ' . $entity);
+
+        $ids = $this->getDeleted($entity);
+        $count = count($ids);
+        $this->writeln('Found ' . $count . ' deleted');
+        $i = 0;
+
+        $parents = $relations[$entity]['parents'];
+
+        /** @var Blackbox_Epace_Helper_Data $helper */
+        $helper = Mage::helper('epace');
+        $typeName = $helper->getTypeName($entity);
+
+        foreach ($ids as $id) {
+            $this->writeln(++$i . '/' . $count . ' ' . $id);
+
+            if (!empty($parents)) {
+                try {
+                    Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+
+                    $mongoObject = Mage::getModel('efi/' . $typeName)->load($id);
+
+                    foreach ($parents as $parent) {
+                        $method = 'get' . $parent;
+                        if (!method_exists($mongoObject, $method)) {
+                            throw new \Exception('Method "' . $method . '" don\'t exists in ' . get_class($mongoObject));
+                        }
+
+                        /** @var Blackbox_Epace_Model_Epace_AbstractObject $parentMongoObject */
+                        $parentMongoObject = $mongoObject->$method();
+                        if ($parentMongoObject) {
+                            $this->tabs++;
+                            try {
+                                $this->writeln('Update parent entity ' . $parent . ' ' . $parentMongoObject->getId());
+                                $this->updateParentsRecursive($relations, $parentMongoObject);
+                            } finally {
+                                $this->tabs--;
+                            }
+                        }
+                    }
+                } finally {
+                    Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = false;
+                }
+            }
+
+            $this->getCollectionAdapter($typeName)->deleteId($id)->flush();
+        }
+
+        if (isset($relations[$entity]['children'])) {
+            foreach ($relations[$entity]['children'] as $childEntity) {
+                $this->deleteEntitiesRecursive($relations, $childEntity);
+            }
+        }
+    }
+
+    protected function updateParentsRecursive(&$relations, Blackbox_Epace_Model_Epace_AbstractObject $mongoObject)
+    {
+        /** @var Blackbox_Epace_Helper_Data $helper */
+        $helper = Mage::helper('epace');
+        $typeName = $helper->getTypeName($mongoObject->getObjectType());
+
+        $this->getCollectionAdapter($typeName)->updateDataRawById(['_updated_at' => new MongoDB\BSON\UTCDateTime(time() * 1000)], $mongoObject->getId());
+
+        $parents = $relations[$mongoObject->getObjectType()]['parents'];
+
+        $useMongoPrevious = Blackbox_Epace_Model_Epace_AbstractObject::$useMongo;
+        try {
+            Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = true;
+
+            foreach ($parents as $parent) {
+                $method = 'get' . $parent;
+                if (!method_exists($mongoObject, $method)) {
+                    throw new \Exception('Method "' . $method . '" don\'t exists in ' . get_class($mongoObject));
+                }
+
+                $parentMongoObject = $mongoObject->$method();
+                if ($parentMongoObject) {
+                    $this->writeln('Update parent entity ' . $parent . ' ' . $parentMongoObject->getId());
+                    $this->updateParentsRecursive($relations, $parentMongoObject);
+                }
+            }
+        } finally {
+            Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = $useMongoPrevious;
+        }
+    }
+
+    protected function buildEntitiesRelations(array &$relations, $parent, $children)
+    {
+        if (!empty($parent)) {
+            if (!isset($relations[$parent])) {
+                $relations[$parent] = [
+                    'parents' => [],
+                    'children' => []
+                ];
+            }
+        }
+
+        if (!empty($children)) {
+            foreach ($children as $key => $value) {
+                if (is_array($value)) {
+                    $child = $key;
+                    $childChildren = $value;
+                } else {
+                    $child = $value;
+                    $childChildren = null;
+                }
+
+                $this->buildEntitiesRelations($relations, $child, $childChildren);
+                $relations[$parent]['children'][] = $child;
+                if (!empty($parent)) {
+                    $relations[$child]['parents'][] = $parent;
+                }
+            }
+        }
+    }
+
+    protected function printDeletedEntitiesRecursive($entity, $children = null)
+    {
+        $this->writeln($entity);
+
+        $deleted = $this->getDeleted($entity);
+        $this->writeln(implode(PHP_EOL, $deleted));
+
+        if (!empty($children)) {
+            foreach ($children as $key => $value) {
+                if (is_array($value)) {
+                    $this->printDeletedEntitiesRecursive($key, $value);
+                } else {
+                    $this->printDeletedEntitiesRecursive($value);
+                }
+            }
+        }
+    }
+
+    protected function getDeleted($entity)
+    {
+        /** @var Blackbox_Epace_Helper_Data $helper */
+        $helper = Mage::helper('epace');
+
+        $class = $helper->getTypeName($entity);
+        $importedIds = $this->getCollectionAdapter($class)->loadIds();
+
+        $useMongoPrevious = Blackbox_Epace_Model_Epace_AbstractObject::$useMongo;
+        Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = false;
+
+        try {
+            /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
+            $collection = Mage::getResourceModel('efi/' . $class . '_collection');
+            $actualIds = $this->loadEpaceIdsByPages($collection);
+        } finally {
+            Blackbox_Epace_Model_Epace_AbstractObject::$useMongo = $useMongoPrevious;
+        }
+
+        return array_diff($importedIds, $actualIds);
+    }
+
+    protected function loadEpaceIdsByPages(Blackbox_Epace_Model_Resource_Epace_Collection $collection)
+    {
+        $pageSize = 250000;
+        $collection->setPageSize($pageSize);
+        $page = 0;
+
+        $result = [];
+        do {
+            $collection->clear()->setCurPage(++$page);
+            $current = $collection->loadIds();
+            if (!empty($current)) {
+                $result = array_merge($result, $current);
+            }
+        } while (count($current) >= $pageSize);
+
+        return $result;
     }
 
     /**

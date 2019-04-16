@@ -27,7 +27,7 @@ class Blackbox_Epace_Model_Epace_Carton extends Blackbox_Epace_Model_Epace_Shipm
     /**
      * @return Blackbox_Epace_Model_Epace_Skid|bool
      */
-    protected function getSkid()
+    public function getSkid()
     {
         return $this->_getObject('skid', 'skid', 'efi/skid');
     }

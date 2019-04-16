@@ -34,6 +34,63 @@ class Blackbox_EpaceImport_Model_Cron
      */
     protected $connection;
 
+    protected $entities = [
+        'Estimate' => [
+            'keys' => [
+                'e',
+                'estimates'
+            ],
+            'dateField' => 'entryDate',
+            'magentoClass' => 'epacei/estimate',
+            'epaceIdField' => 'epace_estimate_id',
+        ],
+        'Job' => [
+            'keys' => [
+                'j',
+                'jobs'
+            ],
+            'dateField' => 'dateSetup',
+            'magentoClass' => 'sales/order',
+            'epaceIdField' => 'epace_job_id',
+        ],
+        'Invoice' => [
+            'keys' => [
+                'i',
+                'invoices'
+            ],
+            'dateField' => 'invoiceDate',
+            'magentoClass' => 'sales/order_invoice',
+            'epaceIdField' => 'epace_invoice_id',
+        ],
+        'Receivable' => [
+            'keys' => [
+                'r',
+                'receivables'
+            ],
+            'dateField' => 'invoiceDate',
+            'magentoClass' => 'epacei/receivable',
+            'epaceIdField' => 'epace_receivable_id'
+        ],
+        'JobShipment' => [
+            'keys' => [
+                's',
+                'shipments'
+            ],
+            'dateField' => 'date',
+            'magentoClass' => 'sales/order_shipment',
+            'epaceIdField' => 'epace_shipment_id',
+        ],
+        'PurchaseOrder' => [
+            'keys' => [
+                'po',
+                'purchaseOrders'
+            ],
+            'dateField' => 'dateEntered',
+            'magentoClass' => 'epacei/purchaseOrder',
+            'epaceIdField' => 'epace_purchase_order_id'
+        ],
+    ];
+
     public function __construct()
     {
         $this->helper = Mage::helper('epacei');
@@ -69,26 +126,32 @@ class Blackbox_EpaceImport_Model_Cron
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_RECEIVABLES)) {
                 $this->log('Updating receivables.');
                 $this->updateReceivables($dateTime);
+                $this->deleteDeletedEntities('Receivable');
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_ESTIMATES)) {
                 $this->log('Updating estimates.');
                 $this->updateEstimates($dateTime);
+                $this->deleteDeletedEntities('Estimate');
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_JOBS)) {
                 $this->log('Updating jobs.');
                 $this->updateJobs($dateTime);
+                $this->deleteDeletedEntities('Job');
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_INVOICES)) {
                 $this->log('Updating invoices.');
                 $this->updateInvoices($dateTime);
+                $this->deleteDeletedEntities('Invoice');
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_SHIPMENTS)) {
                 $this->log('Updating shipments.');
                 $this->updateShipments($dateTime);
+                $this->deleteDeletedEntities('JobShipment');
             }
             if (Mage::getStoreConfigFlag(self::XML_PATH_UPDATE_PURCHASE_ORDERS)) {
                 $this->log('Updating purchase orders.');
                 $this->updatePurchaseOrders($dateTime);
+                $this->deleteDeletedEntities('PurchaseOrder');
             }
             Mage::getConfig()->saveConfig(self::XML_PATH_LAST_UPDATE_TIME, $currentTime);
 
@@ -654,6 +717,33 @@ class Blackbox_EpaceImport_Model_Cron
             }
 
         } while ($page < $lastPage);
+    }
+
+    public function deleteDeletedEntities($epaceEntity)
+    {
+        $magentoClass = $this->entities[$epaceEntity]['magentoClass'];
+        $epaceIdField = $this->entities[$epaceEntity]['epaceIdField'];
+
+        $this->log('Process deleted entities ' . $epaceEntity);
+
+        $ids = $this->helper->getDeletedIds($epaceEntity, $magentoClass, $epaceIdField);
+        if (empty($ids)) {
+            $this->log('Not found deleted.');
+            return;
+        } else {
+            $this->log('Found ' . count($ids) . ' deleted entities: ' . print_r($ids, true));
+        }
+
+        /** @var Mage_Core_Model_Resource $resource */
+        $resource = Mage::getSingleton('core/resource');
+        $connection = $resource->getConnection('core_write');
+
+        $resourceModel = Mage::getModel($magentoClass)->getResource();
+
+        $result = $connection->delete($resourceModel->getMainTable(), [
+            $epaceIdField . ' IN (?)' => $ids
+        ]);
+        $this->log('Deleted ' . $result . ' rows.');
     }
 
     protected function log($message)

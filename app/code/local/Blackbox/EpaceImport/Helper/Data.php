@@ -87,7 +87,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             return $data['types'];
         }
     }
-    
+
     public function importEstimate(Blackbox_Epace_Model_Epace_Estimate $estimate, Blackbox_EpaceImport_Model_Estimate $magentoEstimate = null)
     {
         if (!$magentoEstimate) {
@@ -111,8 +111,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                         'row_weight' => $quantity->getWeightPerPiece() * $quantity->getQuantityOrdered(),
                         'qty' => $quantity->getData('quantityOrdered'),
                         'base_cost' => $quantity->getCost(),
-                        'price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getPart()->getData('numSigs'),
-                        'base_price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getPart()->getData('numSigs'),
+                        'price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getEstimatePart()->getData('numSigs'),
+                        'base_price' => (float)$quantity->getData('pricePerEach') * (float)$quantity->getEstimatePart()->getData('numSigs'),
                         'tax_percent' => $quantity->getTaxEffectivePercent(),
                         'tax_amount' => $quantity->getData('taxAmount'),
                         'base_tax_amount' => $quantity->getData('taxAmount'),
@@ -575,7 +575,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 //        foreach ($invoice->getLines() as $line) {
 //            $qty += (float)$line->getQtyInvoiced();
 //        }
-        $qty = $invoice->getPart()->getQtyOrdered();
+        $qty = $invoice->getJobPart()->getQtyOrdered();
 
         $discount = 0;
         if ($invoice->getReceivable()) {
@@ -663,7 +663,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
         $orderItem = null;
         foreach ($order->getAllItems() as $_item) {
-            if ($_item->getEpaceJobPart() == $invoice->getJobPart()) {
+            if ($_item->getEpaceJobPart() == $invoice->getJobPartNumber()) {
                 $orderItem = $_item;
                 break;
             }
@@ -830,15 +830,15 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             foreach ($carton->getContents() as $content) {
                 $partId = false;
                 if ($item = $content->getJobPartItem()) {
-                    $partId = $item->getJobPart();
+                    $partId = $item->getJobPartNumber();
                 } else if ($material = $content->getJobMaterial()) {
-                    $partId = $material->getJobPart();
+                    $partId = $material->getJobPartNumber();
                 } else if ($component = $content->getJobComponent()) {
-                    $partId = $component->getJobPart();
+                    $partId = $component->getJobPartNumber();
                 } else if ($pressForm = $content->getJobPartPressForm()) {
-                    $partId = $pressForm->getJobPart();
+                    $partId = $pressForm->getJobPartNumber();
                 } else if ($material = $content->getJobMaterial()) {
-                    $partId = $material->getJobPart();
+                    $partId = $material->getJobPartNumber();
                 } else if ($part = $content->getJobPart()) {
                     $partId = $part->getJobPart();
                 }
@@ -1141,8 +1141,8 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             } else {
                 $orderId = null;
             }
-            if ($line->getJobPart()) {
-                $orderItemId = $connection->fetchOne($connection->select()->from($orderItemTable, 'item_id')->where('order_id = ?', $orderId)->where('epace_job_part = ?', $line->getJobPart()));
+            if ($line->getJobPartNumber()) {
+                $orderItemId = $connection->fetchOne($connection->select()->from($orderItemTable, 'item_id')->where('order_id = ?', $orderId)->where('epace_job_part = ?', $line->getJobPartNumber()));
                 if (!$orderItemId) {
                     throw new \Exception('Unable to find order item ' . $line->getJobPartKey() . ' for purchase order line ' . $line->getId());
                 }
@@ -1989,9 +1989,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach ($newEstimate->getAllItems() as $newItem) {
             $oldItem = null;
-            foreach ($oldItems as $_oldItem) {
+            foreach ($oldItems as $key => $_oldItem) {
                 if ($_oldItem->getEpaceEstimateQuantityId() == $newItem->getEpaceEstimateQuantityId()) {
                     $oldItem = $_oldItem;
+                    unset($oldItems[$key]);
                     break;
                 }
             }
@@ -2008,6 +2009,11 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                 $estimate->addItem($newItem);
                 $newItem->save();
             }
+        }
+
+        // delete not found old items
+        foreach ($oldItems as $deletedItem) {
+            $deletedItem->isDeleted(true);
         }
 
         $oldStatusHistories = $estimate->getAllStatusHistory();
@@ -2055,6 +2061,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             'updated_at'
         ];
 
+        /** @var Mage_Sales_Model_Order_Item[] $oldItems */
         $oldItems = $order->getAllItems();
         foreach ($oldItems as $item) {
             $item->setDataChanges(false);
@@ -2062,9 +2069,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach ($newOrder->getAllItems() as $newItem) {
             $oldItem = null;
-            foreach ($oldItems as $_oldItem) {
+            foreach ($oldItems as $key => $_oldItem) {
                 if ($_oldItem->getEpaceJobPart() == $newItem->getEpaceJobPart()) {
                     $oldItem = $_oldItem;
+                    unset($oldItems[$key]);
                     break;
                 }
             }
@@ -2080,11 +2088,16 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
+        foreach ($oldItems as $deletedItem) {
+            $deletedItem->isDeleted(true);
+        }
+
         $ignoreFields = [
             'entity_id',
             'parent_id'
         ];
 
+        /** @var Mage_Sales_Model_Order_Address[] $oldAddresses */
         $oldAddresses = $order->getAddressesCollection()->getItems();
         foreach ($oldAddresses as $address) {
             $address->setDataChanges(false);
@@ -2092,9 +2105,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach ($newOrder->getAddressesCollection() as $newAddress) {
             $oldAddress = null;
-            foreach ($oldAddresses as $_oldAddress) {
+            foreach ($oldAddresses as $key => $_oldAddress) {
                 if ($_oldAddress->getEpaceJobContactId() == $newAddress->getEpaceJobContactId() && $_oldAddress->getAddressType() == $newAddress->getAddressType()) {
                     $oldAddress = $_oldAddress;
+                    unset($oldAddresses[$key]);
                     break;
                 }
             }
@@ -2108,6 +2122,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                 $order->addAddress($newAddress);
                 $newAddress->save();
             }
+        }
+
+        foreach ($oldAddresses as $deletedAddress) {
+            $deletedAddress->isDeleted(true);
         }
 
         $oldStatusHistories = $order->getStatusHistoryCollection()->getItems();
@@ -2140,6 +2158,45 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         ]);
         if ($logChanges) {
             $this->logChanges('Invoice ' . $invoice->getId() . ' updates', $changes);
+        }
+
+        $ignoreFields = [
+            'entity_id',
+            'parent_id',
+            'order_item_id',
+//            'created_at',
+            'updated_at'
+        ];
+
+        /** @var Mage_Sales_Model_Order_Invoice_Item[] $oldItems */
+        $oldItems = $invoice->getAllItems();
+        foreach ($oldItems as $item) {
+            $item->setDataChanges(false);
+        }
+
+        foreach ($newInvoice->getAllItems() as $newItem) {
+            $oldItem = null;
+            foreach ($oldItems as $key => $_oldItem) {
+                if ($_oldItem->getEpaceInvoiceLineId() == $newItem->getEpaceInvoiceLineId()) {
+                    $oldItem = $_oldItem;
+                    unset($oldItems[$key]);
+                    break;
+                }
+            }
+
+            if ($oldItem) {
+                $changes = $this->updateObject($oldItem, $newItem, $ignoreFields);
+                $this->logChanges('Invoice item ' . $oldItem->getId() . ' updates', $changes);
+                $oldItem->save();
+            } else {
+                $this->writeln('Added new invoice item ' . print_r($newItem->getData(), true));
+                $invoice->addItem($newItem);
+                $newItem->save();
+            }
+        }
+
+        foreach ($oldItems as $deletedItem) {
+            $deletedItem->isDeleted(true);
         }
 
 //        if ($epaceInvoice->getReceivable()) {
@@ -2241,9 +2298,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach ($newPurchaseOrder->getAllItems() as $newItem) {
             $oldItem = null;
-            foreach ($oldItems as $_oldItem) {
+            foreach ($oldItems as $key => $_oldItem) {
                 if ($_oldItem->getEpacePurchaseOrderLineId() == $newItem->getEpacePurchaseOrderLineId()) {
                     $oldItem = $_oldItem;
+                    unset($oldItems[$key]);
                     break;
                 }
             }
@@ -2257,6 +2315,10 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
                 $purchaseOrder->addItem($newItem);
                 $newItem->save();
             }
+        }
+
+        foreach ($oldItems as $deletedItem) {
+            $deletedItem->isDeleted(true);
         }
 
         $purchaseOrder->save();
@@ -2305,6 +2367,40 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
         return $changes;
+    }
+
+    public function getDeletedIds($epaceEntity, $magentoClass, $epaceIdField, $selectCallback = null, $selectFilter = null)
+    {
+        /** @var Blackbox_Epace_Helper_Data $helper */
+        $helper = Mage::helper('epace');
+
+        $epaceClass = $helper->getTypeName($epaceEntity);
+
+        /** @var Mage_Core_Model_Resource $resource */
+        $resource = Mage::getSingleton('core/resource');
+        $connection = $resource->getConnection('core_read');
+
+        /** @var Mage_Core_Model_Resource_Db_Collection_Abstract $magentoCollection */
+        $magentoCollection = Mage::getModel($magentoClass)->getCollection();
+
+        $select = $connection->select()->from(['main_table' => $magentoCollection->getMainTable()], $epaceIdField);
+        if ($selectFilter == 'having') {
+            $select->having($epaceIdField . ' IS NOT NULL');
+        } else {
+            $select->where($epaceIdField . ' IS NOT NULL');
+        }
+
+        if (is_callable($selectCallback)) {
+            call_user_func($selectCallback, $select, $magentoCollection);
+        }
+
+        $importedIds = $connection->fetchCol($select);
+
+        /** @var Blackbox_Epace_Model_Resource_Epace_Collection $collection */
+        $collection = Mage::getResourceModel('efi/' . $epaceClass . '_collection');
+        $actualIds = $collection->loadIds();
+
+        return array_diff($importedIds, $actualIds);
     }
 
     protected function logChanges($message, $changes)

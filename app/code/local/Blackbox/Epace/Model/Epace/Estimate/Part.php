@@ -15,14 +15,37 @@ class Blackbox_Epace_Model_Epace_Estimate_Part extends Blackbox_Epace_Model_Epac
     /**
      * @return Blackbox_Epace_Model_Epace_Estimate_Product
      */
-    public function getProduct()
+    public function getEstimateProduct()
     {
-        return $this->_getObject('product', 'estimateProduct', 'efi/estimate_product');
+        return $this->_getObject('estimateProduct', 'estimateProduct', 'efi/estimate_product');
     }
 
+    /**
+     * @param Blackbox_Epace_Model_Epace_Estimate_Product $product
+     * @return $this
+     */
+    public function setEstimateProduct(Blackbox_Epace_Model_Epace_Estimate_Product $product)
+    {
+        return $this->_setObject('estimateProduct', $product);
+    }
+
+    /**
+     * @return Blackbox_Epace_Model_Epace_Estimate_Product
+     * @deprecated
+     */
+    public function getProduct()
+    {
+        return $this->getEstimateProduct();
+    }
+
+    /**
+     * @param Blackbox_Epace_Model_Epace_Estimate_Product $product
+     * @return Blackbox_Epace_Model_Epace_Estimate_Part
+     * @deprecated
+     */
     public function setProduct(Blackbox_Epace_Model_Epace_Estimate_Product $product)
     {
-        return $this->_setObject('product', $product);
+        return $this->setEstimateProduct($product);
     }
 
     /**

@@ -10,18 +10,18 @@ class Blackbox_Epace_Model_Epace_Estimate_QuoteLetter_Note extends Blackbox_Epac
     /**
      * @return Blackbox_Epace_Model_Epace_Estimate_QuoteLetter|bool
      */
-    public function getQuoteLetter()
+    public function getEstimateQuoteLetter()
     {
-        return $this->_getObject('quoteLetter', 'estimateQuoteLetter', 'efi/estimate_quoteLetter');
+        return $this->_getObject('estimateQuoteLetter', 'estimateQuoteLetter', 'efi/estimate_quoteLetter');
     }
 
     /**
      * @param Blackbox_Epace_Model_Epace_Estimate_QuoteLetter $quoteLetter
      * @return $this
      */
-    public function setQuoteLetter(Blackbox_Epace_Model_Epace_Estimate_QuoteLetter $quoteLetter)
+    public function setEstimateQuoteLetter(Blackbox_Epace_Model_Epace_Estimate_QuoteLetter $quoteLetter)
     {
-        return $this->_setObject('quoteLetter', $quoteLetter);
+        return $this->_setObject('estimateQuoteLetter', $quoteLetter);
     }
 
     public function getDefinition()

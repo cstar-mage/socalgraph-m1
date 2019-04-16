@@ -44,6 +44,11 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
             return;
         }
 
+        if ($this->getArg('listDeleted')) {
+            $this->listDeleted();
+            return;
+        }
+
         $this->import();
     }
 
@@ -892,6 +897,133 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
 
             $this->writeln(implode(PHP_EOL, $ids));
             $this->writeln($entity . 's not imported: ' . count($ids));
+        }
+    }
+
+    protected function listDeleted()
+    {
+        $entities = [
+            'Estimate' => [
+                'keys' => [
+                    'e',
+                    'estimates'
+                ],
+                'dateField' => 'entryDate',
+                'magentoClass' => 'epacei/estimate',
+                'epaceIdField' => 'epace_estimate_id',
+            ],
+            'EstimatePart' => [
+                'keys' => [
+                    'ep',
+                    'estimateParts'
+                ],
+                'magentoClass' => 'epacei/estimate_item',
+                'epaceIdField' => 'epace_estimate_part_id',
+                'selectCallback' => function(Zend_Db_Select $select, Mage_Core_Model_Resource_Db_Collection_Abstract $collection) {
+                    $select->group('epace_estimate_part_id');
+                }
+            ],
+            'Job' => [
+                'keys' => [
+                    'j',
+                    'jobs'
+                ],
+                'dateField' => 'dateSetup',
+                'magentoClass' => 'sales/order',
+                'epaceIdField' => 'epace_job_id',
+            ],
+            'JobPart' => [
+                'keys' => [
+                    'jp',
+                    'jobParts'
+                ],
+                'magentoClass' => 'sales/order_item',
+                'epaceIdField' => 'epace_part_key',
+                'selectCallback' => function(Zend_Db_Select $select, Mage_Core_Model_Resource_Db_Collection_Abstract $collection) {
+                    $part = $select->getPart(Zend_Db_Select::COLUMNS);
+                    foreach ($part as $key =>$column) {
+                        if ($column[1] == 'epace_part_key') {
+                            unset($part[$key]);
+                        }
+                    }
+                    $select->setPart(Zend_Db_Select::COLUMNS, $part);
+
+                    $select->joinInner(['o' => $collection->getResource()->getTable('sales/order')], 'order_id = o.entity_id', [
+                        'epace_part_key' => new Zend_Db_Expr('CONCAT(o.epace_job_id, \':\', epace_job_part)')
+                    ]);
+                },
+                'selectFilter' => 'having'
+            ],
+            'Invoice' => [
+                'keys' => [
+                    'i',
+                    'invoices'
+                ],
+                'dateField' => 'invoiceDate',
+                'magentoClass' => 'sales/order_invoice',
+                'epaceIdField' => 'epace_invoice_id',
+            ],
+            'InvoiceLine' => [
+                'keys' => [
+                    'il',
+                    'invoiceLines'
+                ],
+                'magentoClass' => 'sales/order_invoice_item',
+                'epaceIdField' => 'epace_invoice_line_id'
+            ],
+            'Receivable' => [
+                'keys' => [
+                    'r',
+                    'receivables'
+                ],
+                'dateField' => 'invoiceDate',
+                'magentoClass' => 'epacei/receivable',
+                'epaceIdField' => 'epace_receivable_id'
+            ],
+            'JobShipment' => [
+                'keys' => [
+                    's',
+                    'shipments'
+                ],
+                'dateField' => 'date',
+                'magentoClass' => 'sales/order_shipment',
+                'epaceIdField' => 'epace_shipment_id',
+            ],
+            'PurchaseOrder' => [
+                'keys' => [
+                    'po',
+                    'purchaseOrders'
+                ],
+                'dateField' => 'dateEntered',
+                'magentoClass' => 'epacei/purchaseOrder',
+                'epaceIdField' => 'epace_purchase_order_id'
+            ],
+            'PurchaseOrderLine' => [
+                'keys' => [
+                    'pol',
+                    'purchaseOrderLines'
+                ],
+                'magentoClass' => 'epacei/purchaseOrder_item',
+                'epaceIdField' => 'epace_purchase_order_line_id'
+            ]
+        ];
+
+        foreach ($entities as $entity => $settings) {
+            $found = false;
+            foreach ($settings['keys'] as $key) {
+                if ($this->getArg($key)) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                continue;
+            }
+
+            $this->write($entity . ' ');
+
+            $ids = $this->helper->getDeletedIds($entity, $settings['magentoClass'], $settings['epaceIdField'], $settings['selectCallback'], $settings['selectFilter']);
+            $this->writeln(count($ids) . PHP_EOL . implode(PHP_EOL, $ids));
         }
     }
 

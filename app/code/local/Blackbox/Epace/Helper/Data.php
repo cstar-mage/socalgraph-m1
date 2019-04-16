@@ -18,6 +18,8 @@ class Blackbox_Epace_Helper_Data extends Mage_Core_Helper_Abstract
     {
         if ($objectType == 'EstimateQuoteLetterNote') {
             return 'estimate_quoteLetter_note';
+        } else if ($objectType == 'FinishingOperationSpeed') {
+            return 'finishingOperation_speed';
         }
         $re = '/(?(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z]))/x';
         $matches = preg_split($re, $objectType);

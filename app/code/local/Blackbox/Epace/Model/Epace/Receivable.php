@@ -4,7 +4,6 @@
  * @method int getStatus()
  * @method int getInvoiceNumber()
  * @method string getPoNumber()
- * @method int getJobPart()
  * @method string getInvoiceDate()
  * @method string getDueDate()
  * @method string getExpectedPaymentDate()
