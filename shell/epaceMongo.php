@@ -662,12 +662,12 @@ class EpaceMongo extends Mage_Shell_Abstract
             /** @var Blackbox_Epace_Model_Resource_Epace_Receivable_Collection $collection */
             $collection = Mage::getResourceModel('efi/receivable_collection');
             if ($from) {
-                $collection->addFilter('invoiceDate', ['gteq' => new DateTime($from)]);
+                $collection->addFilter('dateSetup', ['gteq' => new DateTime($from)]);
             }
             if ($to) {
-                $collection->addFilter('invoiceDate', ['lteq' => new DateTime($to)]);
+                $collection->addFilter('dateSetup', ['lteq' => new DateTime($to)]);
             }
-            $collection->setOrder('invoiceDate', 'ASC');
+            $collection->setOrder('dateSetup', 'ASC');
 
             if ($this->getArg('rf')) {
                 $this->addFilter($collection, $this->getArg('rf'));
