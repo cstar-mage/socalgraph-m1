@@ -2014,6 +2014,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         // delete not found old items
         foreach ($oldItems as $deletedItem) {
             $deletedItem->isDeleted(true);
+            $this->writeln('Deleted item ' . $deletedItem->getId() . ', epace estimate part id: ' . $deletedItem->getEpaceEstimatePartId() . ', epace estimate quantity id: ' . $deletedItem->getEpaceEstimateQuantityId());
         }
 
         $oldStatusHistories = $estimate->getAllStatusHistory();
@@ -2089,6 +2090,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         foreach ($oldItems as $deletedItem) {
+            $this->writeln('Deleted order item ' . $deletedItem->getId() . ', epace job part: ' . $order->getEpaceJobId() . ':' . $deletedItem->getEpaceJobPart());
             $deletedItem->isDeleted(true);
         }
 
@@ -2125,6 +2127,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         foreach ($oldAddresses as $deletedAddress) {
+            $this->writeln('Deleted order address ' . $deletedAddress->getId() . ', epace job contact id: ' . $deletedAddress->getEpaceJobContactId() . ', epace contact id: ' . $deletedAddress->getEpaceContactId());
             $deletedAddress->isDeleted(true);
         }
 
@@ -2196,6 +2199,7 @@ class Blackbox_EpaceImport_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         foreach ($oldItems as $deletedItem) {
+            $this->writeln('Deleted invoice item ' . $deletedItem->getId() . ', epace invoice line id: ' . $deletedItem->getEpaceInvoiceLineId());
             $deletedItem->isDeleted(true);
         }
 

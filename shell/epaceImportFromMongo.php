@@ -126,7 +126,11 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
                 continue;
             }
 
-            $this->processEntities($entity, $from, $to, $update);
+            if ($this->getArg('updateDeletedChildren')) {
+                $this->updateDeletedChildren($entity);
+            } else {
+                $this->processEntities($entity, $from, $to, $update);
+            }
         }
 
         $this->writeln('Done.');
@@ -418,6 +422,74 @@ class Shell_EpaceImportFromMongo extends Mage_Shell_Abstract
 
         $this->helper->importPurchaseOrder($purchaseOrder, $mpo);
         $mpo->save();
+    }
+
+    protected function updateDeletedChildren($entity)
+    {
+        $method = 'updateDeleted' . $entity . 'Children';
+        if (!method_exists($this, $method)) {
+            throw new \Exception('Method ' . $method . ' do not exist.');
+        }
+
+        call_user_func([$this, $method]);
+    }
+
+    protected function updateDeletedEstimateChildren()
+    {
+        $ids = $this->helper->getDeletedIds('EstimateQuantity', 'epacei/estimate_item', 'epace_estimate_quantity_id');
+        $this->writeln('Found ' . count($ids) . ' deleted estimate quantities.');
+        if (empty($ids)) {
+            return;
+        }
+
+        /** @var Mage_Core_Model_Resource $resource */
+        $resource = Mage::getSingleton('core/resource');
+        $connection = $resource->getConnection('core_read');
+        $select = $connection->select()->from($resource->getTableName('epacei/estimate_item'), 'estimate_id')
+            ->where('epace_estimate_quantity_id IN (?)', $ids)
+            ->group('estimate_id');
+
+        /** @var Blackbox_EpaceImport_Model_Resource_Estimate_Collection $collection */
+        $collection = Mage::getResourceModel('epacei/estimate_collection');
+        $collection->getSelect()->where('entity_id IN (' . $select . ')');
+
+        $count = count($collection->getItems());
+        $this->writeln('Found ' . $count . ' estimates');
+        $i = 0;
+
+        foreach ($collection->getItems() as $estimate) {
+            $this->writeln(++$i . '/' . $count . ' ' . $estimate->getId());
+            $this->helper->updateEstimate($estimate, true);
+        }
+    }
+
+    protected function updateDeletedInvoiceChildren()
+    {
+        $ids = $this->helper->getDeletedIds('InvoiceLine', 'sales/order_invoice_item', 'epace_invoice_line_id');
+        $this->writeln('Found ' . count($ids) . ' deleted invoice lines.');
+        if (empty($ids)) {
+            return;
+        }
+
+        /** @var Mage_Core_Model_Resource $resource */
+        $resource = Mage::getSingleton('core/resource');
+        $connection = $resource->getConnection('core_read');
+        $select = $connection->select()->from($resource->getTableName('sales/invoice_item'), 'parent_id')
+            ->where('epace_invoice_line_id IN (?)', $ids)
+            ->group('parent_id');
+
+        /** @var Mage_Sales_Model_Resource_Order_Invoice_Collection $collection */
+        $collection = Mage::getResourceModel('sales/order_invoice_collection');
+        $collection->getSelect()->where('entity_id IN (' . $select . ')');
+
+        $count = count($collection->getItems());
+        $this->writeln('Found ' . $count . ' invoices');
+        $i = 0;
+
+        foreach ($collection->getItems() as $invoice) {
+            $this->writeln(++$i . '/' . $count . ' ' . $invoice->getId());
+            $this->helper->updateInvoice($invoice, true);
+        }
     }
 
     /**
