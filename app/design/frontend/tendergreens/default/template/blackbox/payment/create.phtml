@@ -1,0 +1,110 @@
+<?php
+/** @var Blackbox_Payment_Block_Payment $this */
+$order = $this->getOrder();
+//$invoice = $this->getInvoice();
+$quote = $this->getQuote();
+?>
+<div class="content">
+    <div class="payment">
+        <div class="payment_title">Job Details</div>
+        <div class="receipt_order_information_table">
+            <table>
+                <thead>
+                <tr>
+                    <th class="receipt_order_information_th" colspan="3">
+                        <div class="flex">
+                            <div class="receipt_order_information_table_th_title"><span>Job #: </span><?=$order->getEpaceJobId() ?: $order->getIncrementId()?></div>
+                            <div class="receipt_order_information_table_th_status"><span>Status: </span><?=$order->getStatusLabel()?></div>
+                            <div class="receipt_order_information_table_th_products tar"><span>Products: </span><?=count($quote->getAllVisibleItems())?></div>
+                            <div class="receipt_order_information_table_th_qty tac"><span>QTY: </span><?=$quote->getItemsSummaryQty()?></div>
+                            <div class="receipt_order_information_table_th_total tar"><span>Total: </span><?=$quote->getSubtotal()?></div>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php /** @var Mage_Sales_Model_Quote_Item $item */
+                foreach ($quote->getAllVisibleItems() as $item): ?>
+                <tr>
+                    <td class="receipt_order_information_table_title_td"><a class="receipt_order_information_table_title" href="#">Description: <?=$this->escapeHtml($item->getName())?></a></td>
+                    <td class="tac receipt_order_information_table_qty">
+                        <div class="flex flexcenter">
+                            <div class="title13"><span class="desktoptext">QUANTITY:</span><span class="mobiletext">QTY:</span></div><input class="input_border" type="text" value="<?=(int)$item->getQty()?>" readonly="readonly" />
+                        </div>
+                    </td>
+                    <td class="tar receipt_order_information_table_price">
+                        <div class="price">
+                            <div>(<?=$order->formatPrice($item->getPrice())?>x<?=(int)$item->getQty()?>)</div><span class="totalprice"><?=$order->formatPrice($item->getRowTotal())?></span>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <div class="paymentinformation">
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <?=$this->getChildHtml('payment')?>
+                </div>
+                <div class="col-sm-12 col-md-6">
+                    <?php /** @var Mage_Customer_Model_Customer $customer */
+                    $customer = Mage::getSingleton('customer/session')->getCustomer();
+                    $address = $customer->getDefaultBillingAddress();
+                    if (!$address) {
+                        $address = new Varien_Object();
+                    }
+                    ?>
+                    <div class="payment_title">Billing address</div>
+                    <div class="paymentinformation_group">
+                        <div class="title13">Address line 1</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getStreet1())?>">
+                    </div>
+                    <div class="paymentinformation_group">
+                        <div class="title13">address line 2 (optional)</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getStreet2())?>">
+                    </div>
+                    <div class="paymentinformation_group">
+                        <div class="title13">City / town</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getCity())?>">
+                    </div>
+                    <div class="paymentinformation_group">
+                        <div class="title13">Country</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getCountry())?>">
+                    </div>
+                    <div class="paymentinformation_group">
+                        <div class="title13">state</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getRegion())?>">
+                    </div>
+                    <div class="paymentinformation_group">
+                        <div class="title13">postal / zip code</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getPostcode())?>">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="payment_bottom">
+            <div class="row">
+                <div class="col-sm-12"></div>
+                <div class="col-sm-12">
+                    <table>
+                        <tr>
+                            <td>TOTAL:</td>
+                            <td><?=$order->formatPrice($quote->getSubtotal())?></td>
+                        </tr>
+                        <tr>
+                            <td>SHIPPING & HANDELING:</td>
+                            <td><?=$order->formatPrice($quote->getShippingAmount())?></td>
+                        </tr>
+                        <tr>
+                            <td>Discount:</td>
+                            <td><?=$order->formatPrice($quote->getDiscountAmount())?></td>
+                        </tr>
+                        <tr>
+                            <td>sales tax:</td>
+                            <td><?=$order->formatPrice($quote->getShippingAddress()->getTaxAmount())?></td>
+                        </tr>
+                        <tr>
+                            <td>Total</td>
+                            <td><?=$order->formatPrice($quote->getShippingAddress()->getGrandTotal())?></td>
+                        </tr>
+                    </table><a class="button button_middle button_white button_radius button_fullwidth" href="#">MAKE PAYMENT</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

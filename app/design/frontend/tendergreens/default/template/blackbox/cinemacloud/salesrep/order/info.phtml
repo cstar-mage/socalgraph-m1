@@ -113,7 +113,7 @@
         </div>
         <div class="jobinformation_product_total flex flexbetween">
             <div class="jobinformation_product_total_l">
-                <a class="button button_white" href="#">MAKE A PAYMENT</a>
+                <a class="button button_white" href="<?=$this->getUrl('checkout/payment/create', ['order_id' => $order->getId()])?>">MAKE A PAYMENT</a>
                 <a class="button button_white" href="#">ATTACH P.O.</a>
             </div>
             <div class="jobinformation_product_total_r">

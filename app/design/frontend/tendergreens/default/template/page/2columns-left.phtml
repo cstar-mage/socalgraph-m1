@@ -53,6 +53,7 @@
 <section>
     <div class="wrapper">
         <?php echo $this->getChildHtml('breadcrumbs') ?>
+        <?php echo $this->getChildHtml('after_breadcrumbs') ?>
         <h1><?php echo $this->getHeaderTitle() ?></h1>
         <div class="main_content">
             <?php if ($_leftContent = $this->getChildHtml('left_first')): ?>

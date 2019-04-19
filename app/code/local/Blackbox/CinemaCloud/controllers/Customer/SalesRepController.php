@@ -23,6 +23,7 @@ class Blackbox_CinemaCloud_Customer_SalesRepController extends Mage_Core_Control
         $this->loadLayout();
         $this->_initLayoutMessages('customer/session');
         $this->_initLayoutMessages('catalog/session');
+        $this->_initLayoutMessages('checkout/session');
         $this->getLayout()->getBlock('head')->setTitle($this->__('My Account'));
         $this->renderLayout();
     }

@@ -221,6 +221,8 @@
             <!--<action method="addItem"><type>skin_css</type><name>css/tendergreens.css</name><params/><if><![CDATA[&lt;!&ndash;[if (gte IE 9) | (IEMobile)]>&lt;!&ndash;>]]></if></action>-->
             <!--<action method="addItem"><type>skin_css</type><name>css/tendergreens-responsive.css</name><params/><if><![CDATA[&lt;!&ndash;[if (gte IE 9) | (IEMobile)]>&lt;!&ndash;>]]></if></action>-->
             <action method="addItem"><type>skin_css</type><name>css/bootstrap.css</name><params/></action>
+            <action method="addItem"><type>skin_css</type><name>css/bootstrap-grid.css</name><params/></action>
+            <action method="addItem"><type>skin_css</type><name>css/jquery-ui.css</name><params/></action>
             <action method="addItem"><type>skin_css</type><name>css/main.css</name><params/></action>
             <action method="addItem"><type>skin_css</type><name>css/fontawesome-all.css</name><params/><if><![CDATA[<!--[if (gte IE 9) | (IEMobile)]><!-->]]></if></action>
 

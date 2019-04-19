@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<layout>
+    <checkout_payment_create>
+        <reference name="breadcrumbs">
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>home</name>
+                <params>
+                    <label>Home</label>
+                    <title>Home</title>
+                    <link>/</link>
+                </params>
+            </action>
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>jobs_crumb</name>
+                <params>
+                    <label>Jobs</label>
+                    <title>Jobs</title>
+                </params>
+            </action>
+            <action method="addCrumb"> <!--add breadcrumb-->
+                <name>payment_crumb</name>
+                <params>
+                    <label>Payment</label>
+                    <title>Payment</title>
+                </params>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/payment.css</stylesheet></action>
+            <action method="addCss"><stylesheet>css/receipt.css</stylesheet></action>
+            <block type="core/text" name="custom_css">
+                <action method="setText">
+                    <text><![CDATA[
+<style  type="text/css">
+.checkout-payment-method-form+.checkout-payment-method-form  {
+    margin-top: 32px;
+}
+</style>]]>
+                    </text>
+                </action>
+            </block>
+        </reference>
+        <reference name="root">
+            <action method="setTitle"><title>Payment</title></action>
+            <block type="core/text">
+                <action method="setText"><![CDATA[<div class="prevpage"><a href="#">Back to payments</a></div>]]></action>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="blackbox_payment/payment" name="payment.create" template="blackbox/payment/create.phtml">
+                <block type="checkout/onepage_payment" name="checkout.onepage.payment" as="payment" template="blackbox/payment/payment.phtml">
+                    <block type="checkout/onepage_payment_methods" name="checkout.payment.methods" as="methods" template="blackbox/payment/methods.phtml">
+                        <action method="setMethodFormTemplate"><method>purchaseorder</method><template>payment/form/purchaseorder.phtml</template></action>
+                    </block>
+                </block>
+            </block>
+        </reference>
+    </checkout_payment_create>
+</layout>

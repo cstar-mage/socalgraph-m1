@@ -47,6 +47,7 @@
 <section>
     <div class="wrapper">
         <?php echo $this->getChildHtml('breadcrumbs') ?>
+        <?php echo $this->getChildHtml('after_breadcrumbs') ?>
         <?php if (in_array('customer_account', $this->getLayout()->getUpdate()->getHandles())): ?>
             <script>
                 jQuery( document ).ready(function () {
@@ -62,6 +63,11 @@
         </div>
     </div>
 </section>
+<footer>
+    <div class="wrapper">
+        <div class="footer_logo"></div>
+    </div>
+</footer>
 </body>
 </html>
 

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Blackbox_Payment>
+            <version>0.1.0</version>
+        </Blackbox_Payment>
+    </modules>
+    <global>
+        <helpers>
+            <blackbox_payment>
+                <class>Blackbox_Payment_Helper</class>
+            </blackbox_payment>
+        </helpers>
+        <blocks>
+            <blackbox_payment>
+                <class>Blackbox_Payment_Block</class>
+            </blackbox_payment>
+        </blocks>
+        <models>
+            <blackbox_payment>
+                <class>Blackbox_Payment_Model</class>
+            </blackbox_payment>
+        </models>
+    </global>
+    <frontend>
+        <layout>
+            <updates>
+                <blackbox_payment>
+                    <file>blackbox/payment.xml</file>
+                </blackbox_payment>
+            </updates>
+        </layout>
+        <routers>
+            <checkout>
+                <args>
+                    <modules>
+                        <Blackbox_Payment before="Mage_Checkout">Blackbox_Payment</Blackbox_Payment>
+                    </modules>
+                </args>
+            </checkout>
+        </routers>
+    </frontend>
+</config>
