@@ -63,11 +63,11 @@ $quote = $this->getQuote();
                         </tr>
                         <tr>
                             <td>SHIPPING & HANDELING:</td>
-                            <td><?=$order->formatPrice($quote->getShippingAmount())?></td>
+                            <td><?=$order->formatPrice($quote->getShippingAddress()->getShippingAmount())?></td>
                         </tr>
                         <tr>
                             <td>Discount:</td>
-                            <td><?=$order->formatPrice($quote->getDiscountAmount())?></td>
+                            <td><?=$order->formatPrice($quote->getShippingAddress()->getDiscountAmount())?></td>
                         </tr>
                         <tr>
                             <td>sales tax:</td>

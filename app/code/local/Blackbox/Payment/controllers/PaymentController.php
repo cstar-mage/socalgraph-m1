@@ -273,6 +273,12 @@ class Blackbox_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             'subtotal_incl_tax' => 'base_subtotal_incl_tax',
             'shipping_method' => 'shipping_method',
             'shipping_description' => 'shipping_description',
+            'shipping_amount' => 'shipping_amount',
+            'base_shipping_amount' => 'base_shipping_amount',
+            'discount_amount' => 'discount_amount',
+            'base_discount_amount' => 'base_discount_amount',
+            'shipping_tax_amount' => 'shipping_tax_amount',
+            'base_shipping_tax_amount' => 'base_shipping_tax_amount',
             'weight' => 'weight'
         ];
         foreach ($copyFields as $from => $to) {
