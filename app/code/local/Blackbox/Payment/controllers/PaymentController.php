@@ -98,7 +98,7 @@ class Blackbox_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             return;
         }
 
-        $this->getOnepage()->getQuote()->collectTotals()->save();
+//        $this->getOnepage()->getQuote()->collectTotals()->save();
 
         $this->loadLayout()->renderLayout();
     }
