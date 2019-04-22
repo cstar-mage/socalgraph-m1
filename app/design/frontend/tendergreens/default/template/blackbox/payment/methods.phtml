@@ -42,11 +42,11 @@ $oneMethod = count($methods) <= 1;
     </dt>
 <?php else: ?>
 <div class="paymentinformation_type">
-    <?php foreach (array_reverse($methods) as $_method):
+    <?php $first = true; foreach (array_reverse($methods) as $_method):
         $_code = $_method->getCode();
     ?>
         <label class="custom_radio2">
-            <input id="p_method_<?php echo $_code ?>" value="<?php echo $_code ?>" type="radio" name="payment[method]" title="<?php echo $this->escapeHtml($_method->getTitle()) ?>" onclick="payment.switchMethod('<?php echo $_code ?>')"<?php if($this->getSelectedMethodCode()==$_code): ?> checked="checked"<?php endif; ?> class="radio" />
+            <input id="p_method_<?php echo $_code ?>" value="<?php echo $_code ?>" type="radio" name="payment[method]" title="<?php echo $this->escapeHtml($_method->getTitle()) ?>" onclick="payment.switchMethod('<?php echo $_code ?>')"<?php if($this->getSelectedMethodCode()==$_code): ?> checked="checked"<?php endif; ?> class="radio validate-one-required-by-name" />
             <div class="custom__radio2">
                 <?php if ($_code == 'ccsave'): ?>
                     <img src="<?=$this->getSkinUrl('img/paymentcards.png')?>">
@@ -57,9 +57,9 @@ $oneMethod = count($methods) <= 1;
                 <?php endif; ?>
             </div>
         </label>
-    <?php endforeach; ?>
+    <?php $first = false; endforeach; ?>
 </div>
-<div class="paymentinformation-card">
+<div class="paymentinformation-card" style="width: 640px;">
     <?php foreach ($methods as $_method):
         $_code = $_method->getCode();
     ?>
@@ -69,16 +69,15 @@ $oneMethod = count($methods) <= 1;
         </div>
     <?php endif; ?>
     <?php endforeach; ?>
+</div>
 <?php endif; ?>
 <?php echo $this->getChildChildHtml('additional'); ?>
-
-
-<!--<script type="text/javascript">-->
-<!--    //<![CDATA[-->
-<!--    --><?php //echo $this->getChildChildHtml('scripts'); ?>
-<!--    payment.init();-->
-<!--    --><?php //if (is_string($oneMethod)): ?>
-<!--    payment.switchMethod('--><?php //echo $oneMethod ?><!--');-->
-<!--    --><?php //endif; ?>
-<!--    //]]>-->
-<!--</script>-->
+<script type="text/javascript">
+    //<![CDATA[
+    <?php echo $this->getChildChildHtml('scripts'); ?>
+    payment.init();
+    <?php if (is_string($oneMethod)): ?>
+    payment.switchMethod('<?php echo $oneMethod ?>');
+    <?php endif; ?>
+    //]]>
+</script>

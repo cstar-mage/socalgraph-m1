@@ -24,4 +24,14 @@ class Blackbox_Payment_Block_Payment extends Mage_Core_Block_Template
     {
         return Mage::getSingleton('checkout/session')->getQuote();
     }
+
+    /**
+     * Getter
+     *
+     * @return float
+     */
+    public function getQuoteBaseGrandTotal()
+    {
+        return (float)$this->getQuote()->getBaseGrandTotal();
+    }
 }

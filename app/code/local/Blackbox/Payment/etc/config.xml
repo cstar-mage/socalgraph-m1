@@ -21,6 +21,13 @@
                 <class>Blackbox_Payment_Model</class>
             </blackbox_payment>
         </models>
+        <resources>
+            <blackbox_payment_setup>
+                <setup>
+                    <module>Blackbox_Payment</module>
+                </setup>
+            </blackbox_payment_setup>
+        </resources>
     </global>
     <frontend>
         <layout>

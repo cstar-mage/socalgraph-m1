@@ -1,4 +1,4 @@
-<div class="paymentinformation_group" id="payment_form_<?php echo $this->getMethodCode() ?>">
+<div class="paymentinformation_group" id="payment_form_<?php echo $this->getMethodCode() ?>" style="display:none;">
     <div class="title13">Purchase Order Number</div>
     <input type="text" id="po_number" name="payment[po_number]" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Purchase Order Number')) ?>" class="input_border required-entry input-text" value="<?php echo $this->escapeHtml($this->getInfoData('po_number')) ?>">
 </div>

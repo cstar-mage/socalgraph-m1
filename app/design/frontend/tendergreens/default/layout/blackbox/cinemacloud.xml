@@ -28,8 +28,8 @@
             <action method="addItem"><type>skin_js</type><name>js/jquery-ui.min.js</name></action>
         </reference>
 
-        <reference name="root">
-            <block type="core/messages" name="after_breadcrumbs" as="after_breadcrumbs"/>
+        <reference name="after_breadcrumbs">
+            <block type="core/messages" name="messages" as="messages"/>
         </reference>
 
         <reference name="content">

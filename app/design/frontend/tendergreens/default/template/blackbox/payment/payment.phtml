@@ -24,9 +24,20 @@
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
+
+<script type="text/javascript">
+    //<![CDATA[
+    var quoteBaseGrandTotal = <?php echo (float)$this->getQuoteBaseGrandTotal(); ?>;
+    var checkQuoteBaseGrandTotal = quoteBaseGrandTotal;
+    var quoteGrandTotalClean = quoteBaseGrandTotal;
+    var payment = new Payment('checkout_payment_form');
+    //]]>
+</script>
 <div class="payment_title">Payment information</div>
 <div class="paymentinformationfz13">Choose your method of payment</div>
-<?php echo $this->getChildChildHtml('methods_additional', '', true, true) ?>
-<?php echo $this->getChildHtml('methods') ?>
-</div>
+<form id="checkout_payment_form">
+    <?php echo $this->getChildChildHtml('methods_additional', '', true, true) ?>
+    <?php echo $this->getChildHtml('methods') ?>
+    <?php echo $this->getBlockHtml('formkey') ?>
+</form>
 <?php echo $this->getChildChildHtml('additional') ?>

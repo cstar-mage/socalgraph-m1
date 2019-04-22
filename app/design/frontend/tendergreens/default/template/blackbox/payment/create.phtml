@@ -48,32 +48,7 @@ $quote = $this->getQuote();
                     <?=$this->getChildHtml('payment')?>
                 </div>
                 <div class="col-sm-12 col-md-6">
-                    <?php /** @var Mage_Customer_Model_Customer $customer */
-                    $customer = Mage::getSingleton('customer/session')->getCustomer();
-                    $address = $customer->getDefaultBillingAddress();
-                    if (!$address) {
-                        $address = new Varien_Object();
-                    }
-                    ?>
-                    <div class="payment_title">Billing address</div>
-                    <div class="paymentinformation_group">
-                        <div class="title13">Address line 1</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getStreet1())?>">
-                    </div>
-                    <div class="paymentinformation_group">
-                        <div class="title13">address line 2 (optional)</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getStreet2())?>">
-                    </div>
-                    <div class="paymentinformation_group">
-                        <div class="title13">City / town</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getCity())?>">
-                    </div>
-                    <div class="paymentinformation_group">
-                        <div class="title13">Country</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getCountry())?>">
-                    </div>
-                    <div class="paymentinformation_group">
-                        <div class="title13">state</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getRegion())?>">
-                    </div>
-                    <div class="paymentinformation_group">
-                        <div class="title13">postal / zip code</div><input class="input_border" type="text" value="<?=$this->escapeHtml($address->getPostcode())?>">
-                    </div>
+                    <?=$this->getChildHtml('billing')?>
                 </div>
             </div>
         </div>
@@ -102,9 +77,21 @@ $quote = $this->getQuote();
                             <td>Total</td>
                             <td><?=$order->formatPrice($quote->getShippingAddress()->getGrandTotal())?></td>
                         </tr>
-                    </table><a class="button button_middle button_white button_radius button_fullwidth" href="#">MAKE PAYMENT</a>
+                    </table>
+                    <a id="button-save" class="button button_middle button_white button_radius button_fullwidth" href="#" onclick="checkout.save();return false;">MAKE PAYMENT</a>
                 </div>
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        //<![CDATA[
+        var paymentForm = new VarienForm('checkout_payment_form');
+        var billingForm = new VarienForm('checkout_billing_form');
+
+        var checkout = new PaymentCheckout(['checkout_payment_form', 'checkout_billing_form'], '<?=$this->getUrl('checkout/payment/createPost', ['_current' => true])?>', '<?php echo $this->getUrl('checkout/onepage/success') ?>')
+        //]]>
+    </script>
+</div>
+<div id="load-please-wait" class="spinner" style="display: none;">
+    <div class="spinner-icon"/>
 </div>
