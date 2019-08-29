@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Blackbox_Epace>
-            <version>0.5</version>
+            <version>0.6</version>
         </Blackbox_Epace>
     </modules>
     <global>

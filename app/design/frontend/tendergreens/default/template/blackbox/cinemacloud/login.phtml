@@ -27,7 +27,7 @@
     </header>
     <div class="wrapper">
         <div class="mainpage_mainsection_content">
-            <form class="mainpage_mainsection_loginform" action="/customer/account/loginPost" method="post">
+            <form class="mainpage_mainsection_loginform" action="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) ?>index.php/customer/account/loginPost" method="post">
                 <div class="mainpage_mainsection_loginform_title">LOGIN</div>
                 <?php echo $this->getMessagesBlock()->toHtml() ?>
                 <input name="form_key" type="hidden" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
@@ -46,7 +46,7 @@
                         <span class="withicon">GMAIL</span>
                     </a>
                 </div>
-                <a class="mainpage_mainsection_loginform_forgot" href="/customer/account/forgotPassword">Forgot your password?</a>
+                <a class="mainpage_mainsection_loginform_forgot" href="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) ?>index.php/customer/account/forgotPassword">Forgot your password?</a>
             </form>
         </div>
     </div>
