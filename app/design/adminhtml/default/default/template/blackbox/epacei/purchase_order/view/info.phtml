@@ -1,4 +1,6 @@
-<?php $_purchaseOrder = $this->getPurchaseOrder() ?>
+<?php $_purchaseOrder = $this->getPurchaseOrder()
+
+?>
 <?php
 $purchaseOrderAdminDate = $this->formatDate($_purchaseOrder->getCreatedAtDate(), 'medium', true);
 $purchaseOrderStoreDate = $this->formatDate($_purchaseOrder->getCreatedAtStoreDate(), 'medium', true);
@@ -82,12 +84,16 @@ $purchaseOrderStoreDate = $this->formatDate($_purchaseOrder->getCreatedAtStoreDa
                         <td class="value"><?=$this->escapeHtml($_purchaseOrder->getRequester())?></td>
                     </tr>
                 <tr>
-                    <td class="label"><label><?php echo Mage::helper('sales')->__('Contact Name') ?></label></td>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Contact Name ') ; 
+//echo "<pre>";             
+//print_r($_purchaseOrder->getData());
+
+                    ?></label></td>
                     <td class="value">
                     <?php if ($_customerUrl=$this->getCustomerViewUrl()) : ?>
-                        <a href="<?php echo $_customerUrl ?>" target="_blank"><strong><?php echo $this->escapeHtml($_purchaseOrder->getContactName()) ?></strong></a>
+                        <a href="<?php echo $_customerUrl ?>" target="_blank"><strong><?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getFirstname().' '.$_purchaseOrder->getVendorAddress()->getLastname()) ?></strong></a>
                     <?php else: ?>
-                        <strong><?php echo $this->escapeHtml($_purchaseOrder->getContactName()) ?></strong>
+                        <strong><?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getFirstname().' '.$_purchaseOrder->getVendorAddress()->getLastname()) ?></strong>
                     <?php endif; ?>
                     </td>
                 </tr>
@@ -111,6 +117,7 @@ $purchaseOrderStoreDate = $this->formatDate($_purchaseOrder->getCreatedAtStoreDa
     </div>
 </div>
 <div class="clear"></div>
+
 <!--Row 2: Begin -->
 <div class="row">
     <div class="col-md-6">

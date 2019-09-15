@@ -550,6 +550,8 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 $collection->addFilter('dateEntered', ['lteq' => new DateTime($to)]);
             }
 
+          
+
             $ids = $collection->loadIds();
             $count = count($ids);
             $i = 0;

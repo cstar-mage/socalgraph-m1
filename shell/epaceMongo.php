@@ -779,7 +779,9 @@ class EpaceMongo extends Mage_Shell_Abstract
 
             $ids = $collection->loadIds();
             $count = count($ids);
-
+         
+Mage::log('working');
+Mage::log($count);
             if ($this->getArg('notImported')) {
                 $importedIds = $this->getCollectionAdapter('purchase_order')->loadIds();
                 foreach ($ids as $key => $id) {
