@@ -66,12 +66,28 @@ class Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_Grid extends Mage_Admin
             'header' => Mage::helper('epacei')->__('Company'),
             'index' => 'company',
             'width' => '70px',
+            'renderer'  => 'Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_Renderer_Company'
         ]);
 
         $this->addColumn('contact_name', [
             'header' => Mage::helper('epacei')->__('Contact Name'),
             'index' => 'contact_name',
             'width' => '70px',
+            'renderer'  => 'Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_Renderer_ContactName'
+        ]);
+
+        $this->addColumn('contact_email', [
+            'header' => Mage::helper('epacei')->__('Contact Email'),
+            'index' => 'contact_email',
+            'width' => '70px',
+            'renderer'  => 'Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_Renderer_ContactEmail'
+        ]);
+
+        $this->addColumn('job_id', [
+            'header' => Mage::helper('epacei')->__('Job ID'),
+            'index' => 'jobid',
+            'width' => '30px',
+            'renderer'  => 'Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_Renderer_JobId'
         ]);
 
         $this->addColumn('grand_total', array(
@@ -81,13 +97,13 @@ class Blackbox_EpaceImport_Block_Adminhtml_PurchaseOrder_Grid extends Mage_Admin
             'currency' => 'order_currency_code',
         ));
 
-        $this->addColumn('status', array(
-            'header' => Mage::helper('epacei')->__('Status'),
-            'index' => 'status',
-            'type'  => 'options',
-            'width' => '70px',
-            'options' => Mage::getSingleton('epacei/purchaseOrder_config')->getStatuses(),
-        ));
+        // $this->addColumn('status', array(
+        //     'header' => Mage::helper('epacei')->__('Status'),
+        //     'index' => 'status',
+        //     'type'  => 'options',
+        //     'width' => '70px',
+        //     'options' => Mage::getSingleton('epacei/purchaseOrder_config')->getStatuses(),
+        // ));
 
         if (Mage::getSingleton('admin/session')->isAllowed('epacei/purchase_order/actions/view')) {
             $this->addColumn('action',

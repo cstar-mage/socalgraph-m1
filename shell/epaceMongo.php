@@ -397,6 +397,7 @@ class EpaceMongo extends Mage_Shell_Abstract
         }
 
         $this->saveStatus('running');
+       
 
         try {
             try {
@@ -780,8 +781,7 @@ class EpaceMongo extends Mage_Shell_Abstract
             $ids = $collection->loadIds();
             $count = count($ids);
          
-Mage::log('working');
-Mage::log($count);
+
             if ($this->getArg('notImported')) {
                 $importedIds = $this->getCollectionAdapter('purchase_order')->loadIds();
                 foreach ($ids as $key => $id) {
@@ -842,6 +842,7 @@ Mage::log($count);
         /** @var Blackbox_Epace_Model_Resource_Epace_Vendor_Collection $collection */
         $collection = Mage::getResourceModel('efi/vendor_collection');
         $ids = $collection->loadIds();
+
         $count = count($ids);
         $i = 0;
 

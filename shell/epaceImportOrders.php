@@ -550,10 +550,28 @@ class BlackBox_Shell_EpaceImport extends Mage_Shell_Abstract
                 $collection->addFilter('dateEntered', ['lteq' => new DateTime($to)]);
             }
 
-          
 
             $ids = $collection->loadIds();
             $count = count($ids);
+           
+          
+         //   $collection = Mage::getModel('efi/vendor')
+         // ->getCollection()
+         // ->setOrder('created_at', 'DESC'); //where update_time is `column_id`
+         // $collection->getSelect()->limit(10);
+         //    Mage::Log('working');
+         //    echo get_class($collection->getData());
+       //   echo   $this->getTable('efi/purchase_order');
+        //  echo   $this->getTable('efi/vendor');
+          // Mage::Log( $this->getTable('efi/purchase_order'));
+         //  Mage::Log( $this->getTable('efi/vendor'));
+          //  $this->writeln( Mage::getSingleton('core/resource')->getTableName('efi/purchase_order'));
+             // $this->writeln($this->getTable('efi/vendor'));
+              //   $this->writeln(Mage::getModel('efi/purchase_order')->getCollection()->getSelect());
+             //     $this->writeln("wokk");
+            
+         // die;
+
             $i = 0;
             $this->writeln('Found ' . $count . ' purchase orders.');
             foreach ($ids as $id) {

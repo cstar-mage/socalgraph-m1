@@ -1,6 +1,5 @@
-<?php $_purchaseOrder = $this->getPurchaseOrder()
+<?php $_purchaseOrder = $this->getPurchaseOrder() ?>
 
-?>
 <?php
 $purchaseOrderAdminDate = $this->formatDate($_purchaseOrder->getCreatedAtDate(), 'medium', true);
 $purchaseOrderStoreDate = $this->formatDate($_purchaseOrder->getCreatedAtStoreDate(), 'medium', true);
@@ -84,26 +83,37 @@ $purchaseOrderStoreDate = $this->formatDate($_purchaseOrder->getCreatedAtStoreDa
                         <td class="value"><?=$this->escapeHtml($_purchaseOrder->getRequester())?></td>
                     </tr>
                 <tr>
-                    <td class="label"><label><?php echo Mage::helper('sales')->__('Contact Name ') ; 
-//echo "<pre>";             
-//print_r($_purchaseOrder->getData());
-
-                    ?></label></td>
+                    <td class="label"><label><?php echo Mage::helper('sales')->__('Contact Name ') ?></label></td>
                     <td class="value">
                     <?php if ($_customerUrl=$this->getCustomerViewUrl()) : ?>
-                        <a href="<?php echo $_customerUrl ?>" target="_blank"><strong><?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getFirstname().' '.$_purchaseOrder->getVendorAddress()->getLastname()) ?></strong></a>
+						<a href="<?php echo $_customerUrl ?>" target="_blank"><strong><?php echo $this->escapeHtml($_purchaseOrder->getContactName()) ?></strong></a>
+                        <!--a href="<?php //echo $_customerUrl ?>" target="_blank"><strong><?php //echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getFirstname().' '.$_purchaseOrder->getVendorAddress()->getLastname()) ?></strong></a-->
                     <?php else: ?>
-                        <strong><?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getFirstname().' '.$_purchaseOrder->getVendorAddress()->getLastname()) ?></strong>
+                        <?php if($_purchaseOrder->getVendorAddress()): ?>
+                            <strong><?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getFirstname().' '.$_purchaseOrder->getVendorAddress()->getLastname()) ?></strong>
+                        <?php else:?>
+                            <strong><?php echo $this->escapeHtml($_purchaseOrder->getContactName()) ?></strong>
+                        <?php endif; ?>    
                     <?php endif; ?>
                     </td>
                 </tr>
                 <tr>
                     <td class="label"><label><?php echo Mage::helper('sales')->__('Email') ?></label></td>
-                    <td class="value"><a href="mailto:<?php echo $this->escapeHtml($_purchaseOrder->getEmail()) ?>"><strong><?php echo $this->escapeHtml($_purchaseOrder->getEmail()) ?></strong></a></td>
+                    <td class="value">
+                        <?php if($_purchaseOrder->getVendorAddress()): ?>
+                            <a href="mailto:<?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getEmail()) ?>">
+                                <strong><?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getEmail()) ?></strong>
+                            </a>
+                        <?php else:?>
+                            <a href="mailto:<?php echo $this->escapeHtml($_purchaseOrder->getEmail()) ?>">
+                                <strong><?php echo $this->escapeHtml($_purchaseOrder->getEmail()) ?></strong>
+                            </a>
+                        <?php endif; ?>
+                    </td>
                 </tr>
                     <tr>
                         <td class="label"><label><?php echo Mage::helper('sales')->__('Company') ?></label></td>
-                        <td class="value"><strong><?php echo $this->escapeHtml($_purchaseOrder->getCompany()) ?></strong></td>
+                        <td class="value"><strong><?php echo $this->escapeHtml($_purchaseOrder->getVendorAddress()->getCompany()) ?></strong></td>
                     </tr>
                 <?php foreach ($this->getContactData() as $data):?>
                 <tr>

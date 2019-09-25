@@ -103,7 +103,7 @@ class Blackbox_EpaceImport_Model_Cron
         $this->connection = $this->resource->getConnection('core_read');
     }
 
-    public function updateEpaceEntities(Mage_Cron_Model_Schedule $schedule)
+    public function updateEpaceEntities()
     {
         if (ini_get('max_execution_time') < 3600) {
             ini_set('max_execution_time', 3600);
@@ -696,14 +696,14 @@ class Blackbox_EpaceImport_Model_Cron
         } else {
             $collection->addFieldToFilter('epace_purchase_order_id', ['notnull' => true]);
         }
-
+		
         $page = 0;
         $collection->setPageSize(100);
         $lastPage = $collection->getLastPageNumber();
 
         do {
             $page++;
-
+			
             $collection->clear()->setCurPage($page)->load();
             /** @var Blackbox_EpaceImport_Model_PurchaseOrder $purchaseOrder */
             foreach ($collection->getItems() as $purchaseOrder) {
